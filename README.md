@@ -643,6 +643,7 @@ docx.table [['Header 1','Header 2'],['Cell 1', 'Cell 2']] do
   border_size    4          # sets the border width. defaults to 0. units in twips.
   border_spacing 4          # sets the spacing around the border. defaults to 0. units in twips.
   column_widths  [80, 120]  # sets the column widths. defaults to auto. units in twips.
+  repeat_header  1		      # sets the number of header rows that is repeated on each page. defaults to 0.
 end
 ```
 
