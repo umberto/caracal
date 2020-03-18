@@ -21,7 +21,9 @@ module Caracal
         const_set(:DEFAULT_TABLE_BORDER_COLOR,      'auto')
         const_set(:DEFAULT_TABLE_BORDER_LINE,       :single)
         const_set(:DEFAULT_TABLE_BORDER_SIZE,       0)          # units in 1/8 points
-        const_set(:DEFAULT_TABLE_BORDER_SPACING,    0)          
+        const_set(:DEFAULT_TABLE_BORDER_SPACING,    0)
+        const_set(:DEFAULT_TABLE_REPEAT_HEADER,     false)
+        const_set(:DEFAULT_TABLE_HEADER_ROWS,       1)
         
         # accessors
         attr_reader :table_align
@@ -37,6 +39,8 @@ module Caracal
         attr_reader :table_border_horizontal  # returns border model
         attr_reader :table_border_vertical    # returns border model
         attr_reader :table_column_widths
+        attr_reader :table_repeat_header
+        attr_reader :table_header_rows
         
         # initialization
         def initialize(options={}, &block)
@@ -45,6 +49,8 @@ module Caracal
           @table_border_line    = DEFAULT_TABLE_BORDER_LINE
           @table_border_size    = DEFAULT_TABLE_BORDER_SIZE
           @table_border_spacing = DEFAULT_TABLE_BORDER_SPACING
+          @table_repeat_header  = DEFAULT_TABLE_REPEAT_HEADER
+          @table_header_rows    = DEFAULT_TABLE_HEADER_ROWS
           
           super options, &block
         end
@@ -120,9 +126,16 @@ module Caracal
         
         
         #=============== SETTERS ==============================
+
+        # booleans
+        [:repeat_header].each do |m|
+          define_method "#{ m }" do |value|
+            instance_variable_set("@table_#{ m }", !!value)
+          end
+        end
         
         # integers
-        [:border_size, :border_spacing, :width].each do |m|
+        [:border_size, :border_spacing, :width, :header_rows].each do |m|
           define_method "#{ m }" do |value|
             instance_variable_set("@table_#{ m }", value.to_i)
           end
@@ -203,6 +216,7 @@ module Caracal
           k << [:border_color, :border_line, :border_size, :border_spacing]
           k << [:border_bottom, :border_left, :border_right, :border_top, :border_horizontal, :border_vertical]
           k << [:column_widths]
+          k << [:repeat_header, :header_rows]
           k.flatten
         end
         
