@@ -36,7 +36,11 @@ module Caracal
           @cell_vertical_align  = DEFAULT_CELL_VERTICAL_ALIGN
 
           if content = options.delete(:content)
-            p content, options.dup, &block
+            if content.is_a? BaseModel
+              contents << content
+            else
+              p content, options.dup, &block
+            end
           end
 
           super options, &block
