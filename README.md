@@ -774,7 +774,7 @@ Rails integration can be added via the [Caracal-Rails](https://github.com/trade-
 
 ## Using Variables
 
-Lexical scope is a pretty big challenge for Caracal and it often confuses new users. This [closed issue](https://github.com/trade-informatics/caracal/issues/71) covers the discussion both from the user and library persepctive.
+Lexical scope is a pretty big challenge for Caracal and it often confuses new users. This [closed issue](https://github.com/trade-informatics/caracal/issues/71) covers the discussion both from the user and library perspective.
 
 
 ## Filing an Issue
