@@ -206,6 +206,39 @@ module Caracal
         end
       end
 
+      def render_table_of_content(xml, model)
+        xml['w'].sdt do
+          if model.legend?
+            xml['w'].sdtPr do
+              xml['w'].docPartObj do
+                xml['w'].docPartGallery({ 'w:val' => model.toc_legend })
+                xml['w'].docPartUnique
+              end
+            end
+          end
+          xml['w'].sdtContent do
+            if model.legend?
+              xml['w'].p do
+                xml['w'].pPr do
+                  xml['w'].pStyle({ 'w:val' => 'TOCHeading' })
+                end
+                xml['w'].r do
+                  xml['w'].t({}, model.toc_legend)
+                end
+              end
+            end
+            xml['w'].p do
+              xml['w'].r do
+                xml['w'].fldChar({ 'w:fldCharType' => 'begin', 'w:dirty' => 'true' })
+                xml['w'].instrText({ 'xml:space' => 'preserve' }, " TOC \\o \"#{model.toc_start_level}-#{model.toc_end_level}\" \\h \\z \\u ")
+                xml['w'].fldChar({ 'w:fldCharType' => 'separate' })
+                xml['w'].fldChar({ 'w:fldCharType' => 'end' })
+              end
+            end
+          end
+        end
+      end
+
       def render_link(xml, model)
         if model.external?
           rel = document.relationship({ target: model.link_href, type: :link })
