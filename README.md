@@ -760,6 +760,44 @@ end
 
 ## Experimental Features
 
+### Headers
+
+Pages can also include headers, which will be repeated on every page in the document.
+
+```ruby
+docx.header.h1 'Page Header'
+
+docx.header do
+  p 'Page headers can contain headings, paragraphs, images, lists, even tables, all using the usual syntax and options.', align: :center
+end
+
+docx.header.img "http://example.com/image.png" do
+  width  60
+  height 60
+  align :right
+end
+
+docx.header.ol do
+  li 'First item'
+  li do
+    text 'Second item with a '
+    link 'link', "http://example.com/image.png"
+    text '.'
+    br
+    text 'This sentence follows a line break.'
+  end
+end
+
+docx.header.table [['11', '1213', '14'], ['21', '22', '23', '24']] do
+  cell_style rows[0][0], rowspan: 2
+  cell_style rows[0][1], colspan: 2
+  cell_style rows[0][2], rowspan: 2
+end
+
+docx.header.hr
+```
+
+
 ### IFrames
 
 You can include an external Word document into your working Caracal document by specifying a URL or by supplying the data directly.
