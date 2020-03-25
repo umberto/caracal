@@ -206,7 +206,7 @@ module Caracal
         end
       end
 
-      def render_table_of_content(xml, model)
+      def render_tableofcontent(xml, model)
         xml['w'].sdt do
           if model.legend?
             xml['w'].sdtPr do
