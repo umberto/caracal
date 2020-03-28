@@ -120,6 +120,10 @@ module Caracal
 
         #========== STATE =================================
 
+        def style_outline_lvl
+          style_id.match(/Heading(\d)\Z/) { |match| match[1].to_i }
+        end
+
         def matches?(str)
           style_id.downcase == str.to_s.downcase
         end
