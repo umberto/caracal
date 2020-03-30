@@ -59,6 +59,10 @@ module Caracal
           !toc_legend.strip == ''
         end
 
+        def includes?(level)
+          (toc_start_level..toc_end_level).include? level
+        end
+
         #========== VALIDATION ============================
 
         def valid?

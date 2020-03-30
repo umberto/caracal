@@ -60,6 +60,11 @@ module Caracal
           }
         end
 
+        # .plaintext
+        def plain_text
+          runs.collect { |run| run.try(:text_content).to_s }.join(' ').strip
+        end
+
 
         #========== SETTERS ===============================
 
@@ -163,6 +168,11 @@ module Caracal
           model
         end
 
+        #========== STATE =================================
+
+        def empty?
+          runs.size.zero? || plain_text.length.zero?
+        end
 
         #========== VALIDATION ============================
 
