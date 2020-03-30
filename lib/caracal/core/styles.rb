@@ -32,7 +32,8 @@ module Caracal
               { id: 'TOC5',     name: 'TOC 5',     font: 'Arial',    size: 22, bottom: 120, top: 120, indent_left: 240, italic: true, color: '666666' },
               { id: 'TOC6',     name: 'TOC 6',     font: 'Arial',    size: 22, bottom: 120, top: 120, indent_left: 320, italic: true, color: '666666' },
               { id: 'Title',    name: 'title',     font: 'Palatino', size: 60 },
-              { id: 'Subtitle', name: 'subtitle',  font: 'Arial',    size: 28, top: 60 }
+              { id: 'Subtitle', name: 'subtitle',  font: 'Arial',    size: 28, top: 60 },
+              { id: 'Hyperlink', name: 'hyperlink', type: 'character', underline: true, color: '0000ff' }
             ]           
           end
           
@@ -59,6 +60,10 @@ module Caracal
           
           def styles
             @styles ||= []
+          end
+          
+          def outline_styles
+            @outline_styles ||= styles.select { |style| !style.style_outline_lvl.nil? }
           end
           
           def default_style
