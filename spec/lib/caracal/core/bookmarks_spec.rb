@@ -14,7 +14,7 @@ describe Caracal::Core::Bookmarks do
     describe '.bookmark_start' do
       let!(:size) { subject.contents.size }
 
-      before { subject.send('bookmark_start', id: '123', name: 'abc') }
+      before { subject.send('bookmark_start', name: 'abc') }
 
       it { expect(subject.contents.size).to eq size + 1 }
       it { expect(subject.contents.last).to be_a(Caracal::Core::Models::BookmarkModel) }
@@ -24,7 +24,7 @@ describe Caracal::Core::Bookmarks do
     describe '.bookmark_end' do
       let!(:size) { subject.contents.size }
 
-      before { subject.send('bookmark_end', id: '123') }
+      before { subject.send('bookmark_end') }
 
       it { expect(subject.contents.size).to eq size + 1 }
       it { expect(subject.contents.last).to be_a(Caracal::Core::Models::BookmarkModel) }
