@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Caracal::Core::Models::TableOfContentModel do
-  let(:options) { { legend: 'Table of contents', start_level: 2, end_level: 4 } }
+  let(:options) { { start_level: 2, end_level: 4 } }
   subject do
     described_class.new
   end
@@ -20,7 +20,6 @@ describe Caracal::Core::Models::TableOfContentModel do
     
     # accessors
     describe 'accessors' do
-      it { expect(subject.toc_legend).to      eq nil }
       it { expect(subject.toc_start_level).to eq described_class::DEFAULT_START_LEVEL }
       it { expect(subject.toc_end_level).to   eq described_class::DEFAULT_END_LEVEL }
     end
@@ -37,11 +36,6 @@ describe Caracal::Core::Models::TableOfContentModel do
     #=============== SETTERS ==========================
     
     describe 'setter tests' do
-      describe '.toc_legend' do
-        before { subject.legend(options[:legend]) }
-
-        it { expect(subject.toc_legend).to eq options[:legend] }
-      end
       describe '.toc_start_level' do
         before { subject.start_level(options[:start_level]) }
 
@@ -57,13 +51,12 @@ describe Caracal::Core::Models::TableOfContentModel do
     
     #========== HELPERS ===============================
 
-    describe '.legend?' do
-      describe 'when there is no legend' do
-        it { expect(subject.legend?).to eq false }
+    describe '.includes?(level)' do
+      describe 'when the level is included' do
+        it { expect(subject.includes?(2)).to eq true }
       end
-      describe 'when a legend is set' do
-        before { subject.legend('Table of contents') }
-        it { expect(subject.legend?).to eq false }
+      describe 'when the level is not included' do
+        it { expect(subject.includes?(6)).to eq false }
       end
     end
 
@@ -125,7 +118,7 @@ describe Caracal::Core::Models::TableOfContentModel do
     # .option_keys
     describe '.option_keys' do
       let(:actual)     { subject.send(:option_keys).sort }
-      let(:expected)  { [:legend, :start_level, :end_level].sort }
+      let(:expected)  { [:start_level, :end_level].sort }
       
       it { expect(actual).to eq expected }
     end

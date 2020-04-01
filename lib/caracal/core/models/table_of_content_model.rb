@@ -19,7 +19,6 @@ module Caracal
         const_set(:DEFAULT_END_LEVEL,   3)
 
         # accessors
-        attr_reader :toc_legend
         attr_reader :toc_start_level
         attr_reader :toc_end_level
 
@@ -43,21 +42,8 @@ module Caracal
             instance_variable_set("@toc_#{ m }", value.to_i)
           end
         end
-        
-        # strings
-        [:legend].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@toc_#{ m }", value.to_s)
-          end
-        end
 
         #========== STATE HELPER ===========================
-
-        def legend?
-          return false if toc_legend.nil?
-
-          !toc_legend.strip == ''
-        end
 
         def includes?(level)
           (toc_start_level..toc_end_level).include? level
@@ -81,7 +67,7 @@ module Caracal
         private
 
         def option_keys
-          [:legend, :start_level, :end_level]
+          [:start_level, :end_level]
         end
 
       end
