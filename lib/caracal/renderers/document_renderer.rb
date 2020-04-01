@@ -205,7 +205,20 @@ module Caracal
       end
 
       def render_tableofcontent(xml, model)
-        insert_TOC = true
+        xml['w'].p paragraph_options do
+          xml['w'].r do
+            xml['w'].fldChar({ 'w:fldCharType' => 'begin' })
+          end
+          xml['w'].r do
+            xml['w'].instrText(
+              { 'xml:space' => 'preserve' },
+              " TOC \\o \"#{model.toc_start_level}-#{model.toc_end_level}\" \\h \\z \\u"
+            )
+          end
+          xml['w'].r do
+            xml['w'].fldChar({ 'w:fldCharType' => 'separate' })
+          end
+        end
         bookmarks_for(headings).each do |bookmark|
           next unless model.includes? bookmark[:level] # Skip levels outside the accepted range
 
@@ -213,25 +226,6 @@ module Caracal
             xml['w'].pStyle({ 'w:val' => "TOC#{ bookmark[:level] }" })
             xml['w'].tabs do
               xml['w'].tab({ 'w:val' => 'right', 'w:leader' => 'dot' })
-            end
-            xml['w'].pPr do
-              xml['w'].noProof
-            end
-            if insert_TOC
-              insert_TOC = false # The instructions only need to be inserted before the first link
-              xml['w'].r do
-                xml['w'].lastRenderedPageBreak
-                xml['w'].fldChar({ 'w:fldCharType' => 'begin' })
-              end
-              xml['w'].r do
-                xml['w'].instrText(
-                  { 'xml:space' => 'preserve' },
-                  " TOC \\o \"#{model.toc_start_level}-#{model.toc_end_level}\" \\h \\z \\u"
-                )
-              end
-              xml['w'].r do
-                xml['w'].fldChar({ 'w:fldCharType' => 'separate' })
-              end
             end
             xml['w'].hyperlink({ 'w:anchor' => bookmark[:ref], 'w:history' => '1' }) do
               xml['w'].r do
@@ -260,6 +254,11 @@ module Caracal
                 xml['w'].fldChar({ 'w:fldCharType' => 'end' })
               end
             end
+          end
+        end
+        xml['w'].p paragraph_options do
+          xml['w'].r do
+            xml['w'].fldChar({ 'w:fldCharType' => 'end' })
           end
         end
       end
