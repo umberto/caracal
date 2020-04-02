@@ -10,9 +10,12 @@ module Caracal
         #-------------------------------------------------------------
         # Configuration
         #-------------------------------------------------------------
-    
+
+        attr_reader :alignment
+
         # initialization
         def initialize(options={}, &block)
+          @alignment = options.key?(:align) && [:left, :center, :right].include?(options[:align]) ? options[:align] : nil
           options.keep_if { |k,v| option_keys.include? k }
           options.each do |(key, value)|
             send(key, value)
