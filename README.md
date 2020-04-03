@@ -807,6 +807,26 @@ docx.header.hr
 ```
 
 
+### Table of contents
+
+Table of contents can be automatically generated.
+
+```ruby
+docx.table_of_contents
+# Or, for brevity:
+docx.toc
+
+Both methods accept the same options: legend, start_level, and end_level
+
+docx.toc legend: 'Table of contents', start_level: 1, end_level: 3
+# or using block form:
+docx.toc do
+  legend      'Table of contents' # Default is nil
+  start_level 1                   # Default is 1 (headings level 1, aka docx.h1 or p style: 'Heading1')
+  end_level   3                   # Default is 3 (headings level 3, aka docx.h3 or p style: 'Heading3')
+end
+```
+
 ### IFrames
 
 You can include an external Word document into your working Caracal document by specifying a URL or by supplying the data directly.

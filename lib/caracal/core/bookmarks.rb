@@ -16,32 +16,31 @@ module Caracal
           # Public Methods
           #------------------------------------------------
 
+          def current_bookmark_id
+            @current_bookmark_id ||= 1
+          end
+
+          def next_bookmark_id
+            @current_bookmark_id = current_bookmark_id + 1
+          end
+
           #========== BOOKMARKS ===========================
 
           def bookmark_start(*args, &block)
             options = Caracal::Utilities.extract_options!(args)
-            options.merge!({ start: true})
+            options.merge!({ start: true, id: next_bookmark_id })
 
             model = Caracal::Core::Models::BookmarkModel.new(options, &block)
             if model.valid?
               contents << model
             else
-              raise Caracal::Errors::InvalidModelError, 'Bookmark starting tags require an id and a name.'
+              raise Caracal::Errors::InvalidModelError, 'Bookmark starting tags require a name.'
             end
             model
           end
 
-          def bookmark_end(*args, &block)
-            options = Caracal::Utilities.extract_options!(args)
-            options.merge!({ start: false})
-
-            model = Caracal::Core::Models::BookmarkModel.new(options, &block)
-            if model.valid?
-              contents << model
-            else
-              raise Caracal::Errors::InvalidModelError, 'Bookmark ending tags require an id.'
-            end
-            model
+          def bookmark_end
+            contents << Caracal::Core::Models::BookmarkModel.new(start: false, id: current_bookmark_id)
           end
           
         end

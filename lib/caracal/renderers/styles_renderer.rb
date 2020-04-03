@@ -77,6 +77,7 @@ module Caracal
                   xml['w'].contextualSpacing({ 'w:val' => '1' })
                   xml['w'].jc({ 'w:val' => s.style_align.to_s }) unless s.style_align.nil?
                   xml['w'].ind(indentation_options(s)) unless indentation_options(s).nil?
+                  xml['w'].outline_lvl({ 'w:val' => s.style_outline_lvl.to_s }) unless s.style_outline_lvl.nil?
                 end
                 xml['w'].rPr do
                   xml['w'].rFonts(font_options(s)) unless s.style_font.nil?

@@ -46,12 +46,11 @@ module Caracal
         end
 
         # strings
-        [:id, :name].each do |m|
+        [:name].each do |m|
           define_method "#{ m }" do |value|
             instance_variable_set("@bookmark_#{ m }", value.to_s)
           end
         end
-
 
         #========== STATE HELPERS =========================
 
@@ -63,10 +62,7 @@ module Caracal
         #========== VALIDATION ============================
 
         def valid?
-          a  = [:id]
-          a << :name  if start?
-
-          a.map { |m| send("bookmark_#{ m }") }.compact.size == a.size
+          start? ? !bookmark_name.to_s.strip.empty? : true
         end
 
 
@@ -76,7 +72,7 @@ module Caracal
         private
 
         def option_keys
-          [:id, :name, :start]
+          [:name, :start]
         end
 
       end

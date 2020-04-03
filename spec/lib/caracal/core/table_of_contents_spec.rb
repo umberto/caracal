@@ -1,35 +1,34 @@
 require 'spec_helper'
 
-describe Caracal::Core::Bookmarks do
+describe Caracal::Core::TableOfContents do
   subject { Caracal::Document.new }
-
-
+  
+  
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
-    # .bookmark_start
-    describe '.bookmark_start' do
+    
+    # .toc
+    describe '.toc' do
       let!(:size) { subject.contents.size }
-
-      before { subject.send('bookmark_start', name: 'abc') }
-
+      
+      before { subject.toc }
+      
       it { expect(subject.contents.size).to eq size + 1 }
-      it { expect(subject.contents.last).to be_a(Caracal::Core::Models::BookmarkModel) }
+      it { expect(subject.contents.last).to be_a(Caracal::Core::Models::TableOfContentModel) }
     end
-
-    # .bookmark_end
-    describe '.bookmark_end' do
+    
+    # .table_of_contents
+    describe '.toc' do
       let!(:size) { subject.contents.size }
-
-      before { subject.send('bookmark_end') }
-
+      
+      before { subject.table_of_contents }
+      
       it { expect(subject.contents.size).to eq size + 1 }
-      it { expect(subject.contents.last).to be_a(Caracal::Core::Models::BookmarkModel) }
+      it { expect(subject.contents.last).to be_a(Caracal::Core::Models::TableOfContentModel) }
     end
-
   end
-
+  
 end

@@ -206,6 +206,65 @@ module Caracal
         end
       end
 
+      def render_tableofcontent(xml, model)
+        xml['w'].p paragraph_options do
+          xml['w'].r do
+            xml['w'].fldChar({ 'w:fldCharType' => 'begin' })
+          end
+          xml['w'].r do
+            xml['w'].instrText(
+              { 'xml:space' => 'preserve' },
+              " TOC \\o \"#{model.toc_start_level}-#{model.toc_end_level}\" \\h \\z \\u"
+            )
+          end
+          xml['w'].r do
+            xml['w'].fldChar({ 'w:fldCharType' => 'separate' })
+          end
+        end
+        bookmarks_for(headings).each do |bookmark|
+          next unless model.includes? bookmark[:level] # Skip levels outside the accepted range
+
+          xml['w'].p paragraph_options do
+            xml['w'].pStyle({ 'w:val' => "TOC#{ bookmark[:level] }" })
+            xml['w'].tabs do
+              xml['w'].tab({ 'w:val' => 'right', 'w:leader' => 'dot' })
+            end
+            xml['w'].hyperlink({ 'w:anchor' => bookmark[:ref], 'w:history' => '1' }) do
+              xml['w'].r do
+                xml['w'].pPr do
+                  xml['w'].rStyle({ 'w:val' => 'Hyperlink' })
+                end
+                xml['w'].t bookmark[:text]
+              end
+              xml['w'].r do
+                xml['w'].tab
+              end
+              xml['w'].r do
+                xml['w'].fldChar({ 'w:fldCharType' => 'begin' })
+              end
+              xml['w'].r do
+                xml['w'].instrText(
+                  { 'xml:space' => 'preserve' }, 
+                  "  PAGEREF #{ bookmark[:ref] } \\h "
+                )
+              end
+              xml['w'].r do
+                xml['w'].fldChar({ 'w:fldCharType' => 'separate' })
+              end
+              # Insert page reference here if it can be calculated
+              xml['w'].r do
+                xml['w'].fldChar({ 'w:fldCharType' => 'end' })
+              end
+            end
+          end
+        end
+        xml['w'].p paragraph_options do
+          xml['w'].r do
+            xml['w'].fldChar({ 'w:fldCharType' => 'end' })
+          end
+        end
+      end
+
       def render_link(xml, model)
         if model.external?
           rel = document.relationship({ target: model.link_href, type: :link })
@@ -403,6 +462,43 @@ module Caracal
         end
       end
 
+      #============= TABLE OF CONTENTS =========================
+
+      # Returns all document headings (paragraphs with a style_id of HeadingX, X going from 1 to 6)
+      def headings
+        heading_styles = document.outline_styles.collect(&:style_id)
+        document.contents.select do |model|
+          model.respond_to?(:paragraph_style) && heading_styles.include?(model.paragraph_style) && !model.empty?
+        end
+      end
+
+      # Returns a collection of hashes containing text, reference and level for the given models
+      # TODO: allow listing figures and tables instead of only headings
+      # TODO: allow limiting contents by section, as Word offers
+      def bookmarks_for(headings)
+        bookmarks = []
+        headings.each do |heading|
+          bookmarks << {
+            ref: bookmark_for(heading),
+            text: heading.plain_text,
+            level: heading.try(:paragraph_style).match(/Heading(\d)\Z/) { |m| m[1] || 1 }
+          }
+        end
+        bookmarks
+      end
+      
+      # Returns the name (reference) of the first bookmark in the given model
+      # Wraps the model contents in a bookmark if necessary
+      def bookmark_for(model)
+        if (run = model.runs.select { |run| run.is_a?(Caracal::Core::Models::BookmarkModel) }.first)
+          run.bookmark_name
+        else
+          name = "_Toc#{ model.object_id }"
+          model.runs.prepend(Caracal::Core::Models::BookmarkModel.new(start: true, name: name))
+          model.runs.append(Caracal::Core::Models::BookmarkModel.new(start: false))
+          name
+        end
+      end
 
       #============= OPTIONS ===================================
 
