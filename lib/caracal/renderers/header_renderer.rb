@@ -15,6 +15,7 @@ module Caracal
       # sub-document.
       #
       def to_xml
+        positions = [:left, :center, :right]
         builder = ::Nokogiri::XML::Builder.with(declaration_xml) do |xml|
           xml['w'].hdr header_root_options do
             xml['w'].tbl do
@@ -26,12 +27,12 @@ module Caracal
                 xml['w'].tblLook({ 'w:val' => "06A0", 'w:firstRow' => "1", 'w:lastRow' => "0", 'w:firstColumn' => "1", 'w:lastColumn' => "0", 'w:noHBand' => "1", 'w:noVBand' => "1" })
               end
               xml['w'].tblGrid do
-                3.times do
+                positions.size.times do
                   xml['w'].gridCol({ 'w:w' => "3120" })
                 end
               end
               xml['w'].tr paragraph_options do
-                [:left, :center, :right].each do |position|
+                positions.each do |position|
                   xml['w'].tc do
                     xml['w'].tcPr do
                       xml['w'].tcW({ 'w:w' => '3120', 'w:type' => 'dxa' })
