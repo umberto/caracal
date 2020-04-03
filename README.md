@@ -768,7 +768,16 @@ Pages can also include headers, which will be repeated on every page in the docu
 docx.header.h1 'Page Header'
 
 docx.header do
-  p 'Page headers can contain headings, paragraphs, images, lists, even tables, all using the usual syntax and options.', align: :center
+  p 'Page headers can contain headings, paragraphs, images, lists, even tables, all using the usual syntax and options.'
+end
+
+docx.header.p 'Contents added without the `align` option will be displayed after content laid out in the header table, even if it comes earlier in the code.'
+
+# Using the align option, content can be laid out horizontally inside headers.
+docx.header do
+  p 'This paragraph will be left-aligned and placed in the leftmost column.',   align: :left
+  p 'This paragraph will be centered and placed in the center column.',         align: :center
+  p 'This paragraph will be right-aligned and placed in the rightmost column.', align: :right
 end
 
 docx.header.img "http://example.com/image.png" do

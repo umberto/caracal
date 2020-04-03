@@ -56,5 +56,9 @@ module Caracal
     def contents
       @contents ||= []
     end
+
+    def contents_for(position)
+      contents.select { |model| model.alignment == position }
+    end
   end
 end
