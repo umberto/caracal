@@ -36,23 +36,14 @@ module Caracal
                   xml['w'].tc do
                     xml['w'].tcPr do
                       xml['w'].tcW({ 'w:w' => '3120', 'w:type' => 'dxa' })
-                      xml['w'].vAlign({ 'w:val' => 'top' })
                       xml['w'].tcMar
-                      xml['w'].mar
-                      xml['w'].jc({ 'w:val' => position })
                     end
                     document.contents_for(position).each do |model|
                       method = render_method_for_model(model)
                       model.style('Header') if model.respond_to? :style
+                      model.align(position) if model.respond_to? :align
+                      model.indent(position => -115) if position != :center && model.respond_to?(:indent)
                       send(method, xml, model)
-                    end
-                    xml['w'].p paragraph_options do
-                      xml['w'].pPr do
-                        xml['w'].pStyle({ 'w:val' => 'Header' })
-                        xml['w'].bidi({ 'w:val' => '0' })
-                        xml['w'].jc({ 'w:val' => position })
-                        xml['w'].ind({ "w:#{position}" => '-115' }) unless position == :center
-                      end
                     end
                   end
                 end
@@ -63,6 +54,7 @@ module Caracal
               model.style('Header') if model.respond_to? :style
               send(method, xml, model)
             end.empty?
+              # Add empty paragraph to facilitate edition
               xml['w'].p paragraph_options do
                 xml['w'].pPr do
                   xml['w'].pStyle({ 'w:val' => 'Header' })

@@ -33,6 +33,7 @@ module Caracal
         def initialize(options={}, &block)
           content = options.delete(:content) { "" }
           text content, options.dup, &block
+          @indent = nil
           super options, &block
         end
 
@@ -59,7 +60,6 @@ module Caracal
             bgcolor:    paragraph_bgcolor
           }
         end
-
 
         #========== SETTERS ===============================
 
@@ -89,6 +89,17 @@ module Caracal
           define_method "#{ m }" do |value|
             instance_variable_set("@paragraph_#{ m }", value.to_s.to_sym)
           end
+        end
+        
+        # Getter/setter
+        def indent(hash = nil)
+          return @indent if hash.nil?
+
+          unless [:left, :right].include?(hash.keys.first) && hash.values.first.is_a?(Integer)
+            raise Caracal::Errors::InvalidModelError, 'the indent setter requires a hash like left: X or right: Y.'
+          end
+
+          @indent = { side: hash.keys.first, value: hash.values.first }
         end
 
 
