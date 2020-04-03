@@ -42,6 +42,7 @@ module Caracal
                     end
                     document.contents_for(position).each do |model|
                       method = render_method_for_model(model)
+                      model.style('Header') if model.respond_to? :style
                       send(method, xml, model)
                     end
                     xml['w'].p paragraph_options do
@@ -58,6 +59,7 @@ module Caracal
             end
             if document.contents_for(nil).each do |model|
               method = render_method_for_model(model)
+              model.style('Header') if model.respond_to? :style
               send(method, xml, model)
             end.empty?
               xml['w'].p paragraph_options do
