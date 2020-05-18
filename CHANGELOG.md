@@ -1,3 +1,31 @@
+#### v1.7.1
+
+* Enhancements
+  * Improve header alignment (@goulvench)
+  * Add table of contents (@goulvench)
+
+#### v1.6.1
+
+* Enhancements
+  * Allow images in table cells (@goulvench)
+  * Add customisable page headers (@brutu33)
+  * Update dependency to use Bundler 2 (@goulvench)
+
+#### v1.5.1
+
+* Enhancements
+  * Allow setting explicit column widths for tables (@martinsp)
+  * Allow Rubyzip 2.0 (@geoffharcourt)
+  * Added ability to repeat table headers (@AliceVerner)
+  * Add `.keep_next` paragraph property (@benjaminketron)
+* Bug Fixes
+  * Fix cols method in table_model (@AliceVerner)
+
+#### v1.4.2
+
+* Bug Fixes
+  * Fix image tag ignoring the data option (@yholkamp)
+
 #### v1.4.1
 
 * Bug Fixes
