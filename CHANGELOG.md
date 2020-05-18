@@ -1,3 +1,8 @@
+#### v1.7.2
+
+* Enhancements
+  * Add view mixin to easily access variables when generating documents (@goulvench)
+
 #### v1.7.1
 
 * Enhancements
