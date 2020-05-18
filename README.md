@@ -866,6 +866,37 @@ Rails integration can be added via the [Caracal-Rails](https://github.com/trade-
 
 Lexical scope is a pretty big challenge for Caracal and it often confuses new users. This [closed issue](https://github.com/trade-informatics/caracal/issues/71) covers the discussion both from the user and library perspective.
 
+Alternatively, you may use the `Caracal::View` mixin to create documents, just like [Prawn](http://prawnpdf.org/api-docs/2.0/Prawn/View.html). Here is a basic example using this mixin:
+
+```
+class Export
+  include Caracal::View
+
+  def initialize(data = [])
+    @data = data
+    add_data
+  end
+
+  def add_data
+    table @data, size: 22 do
+      cell_style rows[0], bold: true
+      cell_style rows[0], size: 24
+    end
+  end
+end
+
+# Usage:
+Export.new(some_data).save_as("export #{Time.zone.today}.docx")
+
+# Or send from a controller, using Rails:
+respond_to do |format|
+  format.html
+  format.docx do
+    doc = Export.new(my_data)
+    send_data doc.render, filename: doc.file_name, disposition: :inline, type: Mime::Type.lookup_by_extension(:docx)
+  end
+end
+```
 
 ## Filing an Issue
 

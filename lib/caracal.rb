@@ -13,6 +13,9 @@ require 'caracal/version'
 # document
 require 'caracal/document'
 
+# view
+require 'caracal/view'
+
 
 #------------------------------------------------
 # Extra Setup
