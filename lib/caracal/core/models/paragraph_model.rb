@@ -28,6 +28,8 @@ module Caracal
         attr_reader :paragraph_underline
         attr_reader :paragraph_bgcolor
         attr_reader :paragraph_keep_next
+        attr_reader :paragraph_tabs
+
 
         # initialization
         def initialize(options={}, &block)
@@ -95,7 +97,7 @@ module Caracal
             instance_variable_set("@paragraph_#{ m }", value.to_s.to_sym)
           end
         end
-        
+
         # Getter/setter
         def indent(hash = nil)
           return @indent if hash.nil?
@@ -107,8 +109,24 @@ module Caracal
           @indent = { side: hash.keys.first, value: hash.values.first }
         end
 
+        def tabs(values)
+          @paragraph_tabs = values
+        end
 
         #========== SUB-METHODS ===========================
+
+        def field(*args, &block)
+          options = Caracal::Utilities.extract_options!(args)
+          options.merge!({ name: args.first }) if args.first
+
+          model = Caracal::Core::Models::FieldModel.new(options, &block)
+          if model.valid?
+            runs << model
+          else
+            raise Caracal::Errors::InvalidModelError, ':field method must receive a string for the field name.'
+          end
+          model
+        end
 
         # .bookmarks
         def bookmark_start(*args, &block)
@@ -198,7 +216,7 @@ module Caracal
         private
 
         def option_keys
-          [:content, :style, :align, :color, :size, :bold, :italic, :underline, :bgcolor]
+          [:content, :style, :align, :color, :size, :bold, :italic, :underline, :bgcolor, :tabs]
         end
 
       end

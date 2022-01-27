@@ -101,6 +101,10 @@ module Caracal
 
       #============= MODEL RENDERERS ===========================
 
+      def render_rawxml(xml, model)
+        xml << model.to_s
+      end
+
       def render_bookmark(xml, model)
         if model.start?
           xml['w'].bookmarkStart({ 'w:id' => model.bookmark_id, 'w:name' => model.bookmark_name })
@@ -143,14 +147,44 @@ module Caracal
         end
       end
 
-      def render_image(xml, model)
-        unless (ds = document.default_style)
-          raise Caracal::Errors::NoDefaultStyleError 'Document must declare a default paragraph style.'
-        end
-
+      def render_image_proper(xml, model)
         rel      = document.relationship({ type: :image, target: model.image_url, data: model.image_data })
         rel_id   = rel.relationship_id
         rel_name = rel.formatted_target
+
+        xml['wp'].extent({ cx: model.formatted_width, cy: model.formatted_height })
+        xml['wp'].effectExtent({ t: 0, b: 0, r: 0, l: 0 })
+        xml['wp'].docPr({ id: rel_id, name: rel_name })
+        xml['a'].graphic do
+          xml['a'].graphicData({ uri: 'http://schemas.openxmlformats.org/drawingml/2006/picture' }) do
+            xml['pic'].pic do
+              xml['pic'].nvPicPr do
+                xml['pic'].cNvPr({ id: rel_id, name: rel_name })
+                xml['pic'].cNvPicPr
+              end
+              xml['pic'].blipFill do
+                xml['a'].blip({ 'r:embed' => rel.formatted_id })
+                xml['a'].srcRect
+                xml['a'].stretch do
+                  xml['a'].fillRect
+                end
+              end
+              xml['pic'].spPr do
+                xml['a'].xfrm do
+                  xml['a'].ext({ cx: model.formatted_width, cy: model.formatted_height })
+                end
+                xml['a'].prstGeom({ prst: 'rect' })
+                xml['a'].ln
+              end
+            end
+          end
+        end
+      end
+
+      def render_image(xml, model)
+        unless ds = document.default_style
+          raise Caracal::Errors::NoDefaultStyleError 'Document must declare a default paragraph style.'
+        end
 
         xml['w'].p paragraph_options do
           xml['w'].pPr do
@@ -159,39 +193,29 @@ module Caracal
             xml['w'].jc({ 'w:val' => model.image_align.to_s })
             xml['w'].rPr
           end
+
           xml['w'].r run_options do
             xml['w'].drawing do
-              xml['wp'].inline({ distR: model.formatted_right, distT: model.formatted_top, distB: model.formatted_bottom, distL: model.formatted_left }) do
-                xml['wp'].extent({ cx: model.formatted_width, cy: model.formatted_height })
-                xml['wp'].effectExtent({ t: 0, b: 0, r: 0, l: 0 })
-                xml['wp'].docPr({ id: rel_id, name: rel_name })
-                xml['a'].graphic do
-                  xml['a'].graphicData({ uri: 'http://schemas.openxmlformats.org/drawingml/2006/picture' }) do
-                    xml['pic'].pic do
-                      xml['pic'].nvPicPr do
-                        xml['pic'].cNvPr({ id: rel_id, name: rel_name })
-                        xml['pic'].cNvPicPr
-                      end
-                      xml['pic'].blipFill do
-                        xml['a'].blip({ 'r:embed' => rel.formatted_id })
-                        xml['a'].srcRect
-                        xml['a'].stretch do
-                          xml['a'].fillRect
-                        end
-                      end
-                      xml['pic'].spPr do
-                        xml['a'].xfrm do
-                          xml['a'].ext({ cx: model.formatted_width, cy: model.formatted_height })
-                        end
-                        xml['a'].prstGeom({ prst: 'rect' })
-                        xml['a'].ln
-                      end
-                    end
+              if model.image_anchor
+                xml['wp'].anchor distR: model.formatted_right, distT: model.formatted_top, distB: model.formatted_bottom, distL: model.formatted_left, simplePos: 1, locked: 0 do
+                  xml['wp'].simplePos x:0, y: 0
+                  xml['wp'].positionH relativeFrom: 'page' do
+                    xml['wp'].align model.image_align
                   end
+                  xml['wp'].positionV relativeFrom: 'page' do
+                    xml['wp'].align 'top'
+                  end
+
+                  render_image_proper(xml, model)
+                end
+              else
+                xml['wp'].inline({ distR: model.formatted_right, distT: model.formatted_top, distB: model.formatted_bottom, distL: model.formatted_left }) do
+                  render_image_proper(xml, model)
                 end
               end
             end
           end
+
           xml['w'].r run_options do
             xml['w'].rPr do
               xml['w'].rtl({ 'w:val' => '0' })
@@ -221,6 +245,7 @@ module Caracal
             xml['w'].fldChar({ 'w:fldCharType' => 'separate' })
           end
         end
+
         bookmarks_for(headings).each do |bookmark|
           next unless model.includes? bookmark[:level] # Skip levels outside the accepted range
 
@@ -244,7 +269,7 @@ module Caracal
               end
               xml['w'].r do
                 xml['w'].instrText(
-                  { 'xml:space' => 'preserve' }, 
+                  { 'xml:space' => 'preserve' },
                   "  PAGEREF #{ bookmark[:ref] } \\h "
                 )
               end
@@ -339,6 +364,13 @@ module Caracal
             xml['w'].jc({ 'w:val' => model.paragraph_align })  unless model.paragraph_align.nil?
             xml['w'].ind({ "w:#{model.indent[:side]}" => model.indent[:value] }) unless model.indent.nil?
             xml['w'].keepNext if model.paragraph_keep_next == true
+            if model.paragraph_tabs&.any?
+              xml['w'].tabs do
+                model.paragraph_tabs.each do |t|
+                  xml['w'].tab('w:val' => "left",  'w:pos' => t)
+                end
+              end
+            end
             render_run_attributes(xml, model, true)
           end
           model.runs.each do |run|
@@ -486,7 +518,7 @@ module Caracal
         end
         bookmarks
       end
-      
+
       # Returns the name (reference) of the first bookmark in the given model
       # Wraps the model contents in a bookmark if necessary
       def bookmark_for(model)

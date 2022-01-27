@@ -1,6 +1,6 @@
 # Caracal
 
-This fork includes fixes and functionalities from pending PRs from the original project, to be able to use them while waiting for the PRs to be merged there.  
+This fork includes fixes and functionalities from pending PRs from the original project, to be able to use them while waiting for the PRs to be merged there.
 Fork gem version = 1.7.2
 Original [![Gem Version](http://img.shields.io/gem/v/caracal.svg?style=flat)](https://rubygems.org/gems/caracal)
 
@@ -707,7 +707,7 @@ c1 = Caracal::Core::Models::TableCellModel.new do
 end
 ```
 
-To display images side-by-side, they need to be laid out horizontally in a table. 
+To display images side-by-side, they need to be laid out horizontally in a table.
 
 ```
 # When the URL or data can be hard-coded, pass a block to TableCellModel.new
@@ -854,6 +854,58 @@ will not operate as expected in the parent Caracal document.
 
 Again, this feature is considered experimental.  Use at your own risk/discretion.
 
+### Using Fields
+
+You can use fields like page numbers and current dates like so:
+
+```ruby
+docx.p do
+  text 'current page is '
+  field :Page
+  text ' / '
+  field :NumPages
+end
+
+### Using Tabs
+
+Tabs are defined per paragraph as an Array of twips like so:
+
+```ruby
+docx.p do
+  tabs [400, 800]
+  text 'first tabbed column'
+  text 'second tabbed column'
+end
+
+docx.p tabs: [400, 800] do
+  text 'first tabbed column'
+  text 'second tabbed column'
+end
+```
+
+### Using raw OOXML
+
+Sometimes you really want to copy & paste raw OOXML into your `word/document.xml`. Although this might open a Pandora's Box full of subtle nightmares, here's how you could do it:
+
+
+```ruby
+# this inserts a paragraph styled as Heading3
+docx.raw_xml <<-EOXML
+<w:p>
+  <w:pPr>
+    <w:pStyle w:val="Heading3"/>
+    <w:spacing w:before="0" w:after="0"/>
+    <w:contextualSpacing/>
+    <w:rPr/>
+  </w:pPr>
+  <w:r>
+    <w:rPr/>
+    <w:t>My heading</w:t>
+  </w:r>
+</w:p>
+EOXML
+```
+
 
 ## Template Rendering
 
@@ -900,11 +952,12 @@ end
 
 ## Filing an Issue
 
-Caracal was written for and tested against Word 2010, 2013, and Office365.  It should also open in LibreOffice
+Caracal was written for and tested against Word 2010, 2013, and Office365. It should also open in LibreOffice
 with high fidelity.
 
 
 ### Older Versions
+
 If you are using a version of Word that predates 2010, Caracal may or may not work for you. (Probably it won't.)
 We don't ever plan to support versions before 2010, but if you choose to embark on that endeavor, we'd be
 happy to answer questions and provide what guidance we can. We just won't write any code in that direction.

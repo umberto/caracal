@@ -1,28 +1,42 @@
-# coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'caracal/version'
+# -*- encoding: utf-8 -*-
+# stub: caracal 1.7.2 ruby lib
 
-Gem::Specification.new do |spec|
-  spec.name          = 'caracal'
-  spec.version       = Caracal::VERSION
-  spec.authors       = ['Trade Infomatics', 'John Dugan']
-  spec.email         = ['jpdugan@gmail.com']
-  spec.summary       = %q{ Fast, professional Microsoft Word (docx) writer for Ruby. }
-  spec.description   = %q{ Caracal is a pure Ruby Microsoft Word generation library that produces professional quality MSWord documents (docx) using a simple, HTML-style DSL. }
-  spec.homepage      = 'https://github.com/trade-informatics/caracal'
-  spec.license       = 'MIT'
+Gem::Specification.new do |s|
+  s.name = "caracal".freeze
+  s.version = "1.7.2"
 
-  spec.files         = `git ls-files -z`.split("\x0")
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
-  spec.require_paths = ['lib']
+  s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib".freeze]
+  s.authors = ["Trade Infomatics".freeze, "John Dugan".freeze]
+  s.date = "2022-01-26"
+  s.description = " Caracal is a pure Ruby Microsoft Word generation library that produces professional quality MSWord documents (docx) using a simple, HTML-style DSL. ".freeze
+  s.email = ["jpdugan@gmail.com".freeze]
+  s.files = [".gitignore".freeze, ".travis.yml".freeze, "CHANGELOG.md".freeze, "Gemfile".freeze, "LICENSE.txt".freeze, "README.md".freeze, "Rakefile".freeze, "caracal.gemspec".freeze, "lib/caracal.rb".freeze, "lib/caracal/core/bookmarks.rb".freeze, "lib/caracal/core/custom_properties.rb".freeze, "lib/caracal/core/file_name.rb".freeze, "lib/caracal/core/fonts.rb".freeze, "lib/caracal/core/iframes.rb".freeze, "lib/caracal/core/ignorables.rb".freeze, "lib/caracal/core/images.rb".freeze, "lib/caracal/core/list_styles.rb".freeze, "lib/caracal/core/lists.rb".freeze, "lib/caracal/core/models/base_model.rb".freeze, "lib/caracal/core/models/bookmark_model.rb".freeze, "lib/caracal/core/models/border_model.rb".freeze, "lib/caracal/core/models/custom_property_model.rb".freeze, "lib/caracal/core/models/font_model.rb".freeze, "lib/caracal/core/models/iframe_model.rb".freeze, "lib/caracal/core/models/image_model.rb".freeze, "lib/caracal/core/models/line_break_model.rb".freeze, "lib/caracal/core/models/link_model.rb".freeze, "lib/caracal/core/models/list_item_model.rb".freeze, "lib/caracal/core/models/list_model.rb".freeze, "lib/caracal/core/models/list_style_model.rb".freeze, "lib/caracal/core/models/margin_model.rb".freeze, "lib/caracal/core/models/namespace_model.rb".freeze, "lib/caracal/core/models/page_break_model.rb".freeze, "lib/caracal/core/models/page_number_model.rb".freeze, "lib/caracal/core/models/page_size_model.rb".freeze, "lib/caracal/core/models/paragraph_model.rb".freeze, "lib/caracal/core/models/relationship_model.rb".freeze, "lib/caracal/core/models/rule_model.rb".freeze, "lib/caracal/core/models/style_model.rb".freeze, "lib/caracal/core/models/table_cell_model.rb".freeze, "lib/caracal/core/models/table_model.rb".freeze, "lib/caracal/core/models/table_of_content_model.rb".freeze, "lib/caracal/core/models/text_model.rb".freeze, "lib/caracal/core/namespaces.rb".freeze, "lib/caracal/core/page_breaks.rb".freeze, "lib/caracal/core/page_numbers.rb".freeze, "lib/caracal/core/page_settings.rb".freeze, "lib/caracal/core/relationships.rb".freeze, "lib/caracal/core/rules.rb".freeze, "lib/caracal/core/styles.rb".freeze, "lib/caracal/core/table_of_contents.rb".freeze, "lib/caracal/core/tables.rb".freeze, "lib/caracal/core/text.rb".freeze, "lib/caracal/document.rb".freeze, "lib/caracal/errors.rb".freeze, "lib/caracal/header.rb".freeze, "lib/caracal/renderers/app_renderer.rb".freeze, "lib/caracal/renderers/content_types_renderer.rb".freeze, "lib/caracal/renderers/core_renderer.rb".freeze, "lib/caracal/renderers/custom_renderer.rb".freeze, "lib/caracal/renderers/document_renderer.rb".freeze, "lib/caracal/renderers/fonts_renderer.rb".freeze, "lib/caracal/renderers/footer_renderer.rb".freeze, "lib/caracal/renderers/header_renderer.rb".freeze, "lib/caracal/renderers/numbering_renderer.rb".freeze, "lib/caracal/renderers/package_relationships_renderer.rb".freeze, "lib/caracal/renderers/relationships_renderer.rb".freeze, "lib/caracal/renderers/settings_renderer.rb".freeze, "lib/caracal/renderers/styles_renderer.rb".freeze, "lib/caracal/renderers/xml_renderer.rb".freeze, "lib/caracal/utilities.rb".freeze, "lib/caracal/version.rb".freeze, "lib/caracal/view.rb".freeze, "lib/tilt/caracal.rb".freeze, "spec/lib/caracal/core/bookmarks_spec.rb".freeze, "spec/lib/caracal/core/file_name_spec.rb".freeze, "spec/lib/caracal/core/fonts_spec.rb".freeze, "spec/lib/caracal/core/iframes_spec.rb".freeze, "spec/lib/caracal/core/ignorables_spec.rb".freeze, "spec/lib/caracal/core/images_spec.rb".freeze, "spec/lib/caracal/core/list_styles_spec.rb".freeze, "spec/lib/caracal/core/lists_spec.rb".freeze, "spec/lib/caracal/core/models/base_model_spec.rb".freeze, "spec/lib/caracal/core/models/bookmark_model_spec.rb".freeze, "spec/lib/caracal/core/models/border_model_spec.rb".freeze, "spec/lib/caracal/core/models/font_model_spec.rb".freeze, "spec/lib/caracal/core/models/iframe_model_spec.rb".freeze, "spec/lib/caracal/core/models/image_model_spec.rb".freeze, "spec/lib/caracal/core/models/line_break_model_spec.rb".freeze, "spec/lib/caracal/core/models/link_model_spec.rb".freeze, "spec/lib/caracal/core/models/list_item_model_spec.rb".freeze, "spec/lib/caracal/core/models/list_model_spec.rb".freeze, "spec/lib/caracal/core/models/list_style_model_spec.rb".freeze, "spec/lib/caracal/core/models/margin_model_spec.rb".freeze, "spec/lib/caracal/core/models/namespace_model_spec.rb".freeze, "spec/lib/caracal/core/models/page_break_model_spec.rb".freeze, "spec/lib/caracal/core/models/page_number_model_spec.rb".freeze, "spec/lib/caracal/core/models/page_size_model_spec.rb".freeze, "spec/lib/caracal/core/models/paragraph_model_spec.rb".freeze, "spec/lib/caracal/core/models/relationship_model_spec.rb".freeze, "spec/lib/caracal/core/models/rule_model_spec.rb".freeze, "spec/lib/caracal/core/models/style_model_spec.rb".freeze, "spec/lib/caracal/core/models/table_cell_model_spec.rb".freeze, "spec/lib/caracal/core/models/table_model_spec.rb".freeze, "spec/lib/caracal/core/models/table_of_content_model_spec.rb".freeze, "spec/lib/caracal/core/models/text_model_spec.rb".freeze, "spec/lib/caracal/core/namespaces_spec.rb".freeze, "spec/lib/caracal/core/page_breaks_spec.rb".freeze, "spec/lib/caracal/core/page_numbers_spec.rb".freeze, "spec/lib/caracal/core/page_settings_spec.rb".freeze, "spec/lib/caracal/core/relationships_spec.rb".freeze, "spec/lib/caracal/core/rules_spec.rb".freeze, "spec/lib/caracal/core/styles_spec.rb".freeze, "spec/lib/caracal/core/table_of_contents_spec.rb".freeze, "spec/lib/caracal/core/tables_spec.rb".freeze, "spec/lib/caracal/core/text_spec.rb".freeze, "spec/lib/caracal/errors_spec.rb".freeze, "spec/lib/caracal/view_spec.rb".freeze, "spec/spec_helper.rb".freeze, "spec/support/_fixtures/snippet.docx".freeze]
+  s.homepage = "https://github.com/trade-informatics/caracal".freeze
+  s.licenses = ["MIT".freeze]
+  s.rubygems_version = "3.2.22".freeze
+  s.summary = "Fast, professional Microsoft Word (docx) writer for Ruby.".freeze
+  s.test_files = ["spec/lib/caracal/core/bookmarks_spec.rb".freeze, "spec/lib/caracal/core/file_name_spec.rb".freeze, "spec/lib/caracal/core/fonts_spec.rb".freeze, "spec/lib/caracal/core/iframes_spec.rb".freeze, "spec/lib/caracal/core/ignorables_spec.rb".freeze, "spec/lib/caracal/core/images_spec.rb".freeze, "spec/lib/caracal/core/list_styles_spec.rb".freeze, "spec/lib/caracal/core/lists_spec.rb".freeze, "spec/lib/caracal/core/models/base_model_spec.rb".freeze, "spec/lib/caracal/core/models/bookmark_model_spec.rb".freeze, "spec/lib/caracal/core/models/border_model_spec.rb".freeze, "spec/lib/caracal/core/models/font_model_spec.rb".freeze, "spec/lib/caracal/core/models/iframe_model_spec.rb".freeze, "spec/lib/caracal/core/models/image_model_spec.rb".freeze, "spec/lib/caracal/core/models/line_break_model_spec.rb".freeze, "spec/lib/caracal/core/models/link_model_spec.rb".freeze, "spec/lib/caracal/core/models/list_item_model_spec.rb".freeze, "spec/lib/caracal/core/models/list_model_spec.rb".freeze, "spec/lib/caracal/core/models/list_style_model_spec.rb".freeze, "spec/lib/caracal/core/models/margin_model_spec.rb".freeze, "spec/lib/caracal/core/models/namespace_model_spec.rb".freeze, "spec/lib/caracal/core/models/page_break_model_spec.rb".freeze, "spec/lib/caracal/core/models/page_number_model_spec.rb".freeze, "spec/lib/caracal/core/models/page_size_model_spec.rb".freeze, "spec/lib/caracal/core/models/paragraph_model_spec.rb".freeze, "spec/lib/caracal/core/models/relationship_model_spec.rb".freeze, "spec/lib/caracal/core/models/rule_model_spec.rb".freeze, "spec/lib/caracal/core/models/style_model_spec.rb".freeze, "spec/lib/caracal/core/models/table_cell_model_spec.rb".freeze, "spec/lib/caracal/core/models/table_model_spec.rb".freeze, "spec/lib/caracal/core/models/table_of_content_model_spec.rb".freeze, "spec/lib/caracal/core/models/text_model_spec.rb".freeze, "spec/lib/caracal/core/namespaces_spec.rb".freeze, "spec/lib/caracal/core/page_breaks_spec.rb".freeze, "spec/lib/caracal/core/page_numbers_spec.rb".freeze, "spec/lib/caracal/core/page_settings_spec.rb".freeze, "spec/lib/caracal/core/relationships_spec.rb".freeze, "spec/lib/caracal/core/rules_spec.rb".freeze, "spec/lib/caracal/core/styles_spec.rb".freeze, "spec/lib/caracal/core/table_of_contents_spec.rb".freeze, "spec/lib/caracal/core/tables_spec.rb".freeze, "spec/lib/caracal/core/text_spec.rb".freeze, "spec/lib/caracal/errors_spec.rb".freeze, "spec/lib/caracal/view_spec.rb".freeze, "spec/spec_helper.rb".freeze, "spec/support/_fixtures/snippet.docx".freeze]
 
-  spec.add_dependency 'nokogiri', '~> 1.6'
-  spec.add_dependency 'rubyzip',  ['>= 1.1.0', '< 3.0']
-  spec.add_dependency 'tilt',     '>= 1.4'
+  s.installed_by_version = "3.2.22" if s.respond_to? :installed_by_version
 
-  spec.add_development_dependency 'bundler',  '~> 2.0'
-  spec.add_development_dependency 'rake',     '~> 13.0'
-  spec.add_development_dependency 'rspec',    '~> 3.0'
+  if s.respond_to? :specification_version then
+    s.specification_version = 4
+  end
+
+  if s.respond_to? :add_runtime_dependency then
+    s.add_runtime_dependency(%q<nokogiri>.freeze, ["~> 1.6"])
+    s.add_runtime_dependency(%q<rubyzip>.freeze, [">= 1.1.0", "< 3.0"])
+    s.add_runtime_dependency(%q<tilt>.freeze, [">= 1.4"])
+    s.add_development_dependency(%q<bundler>.freeze, ["~> 2.0"])
+    s.add_development_dependency(%q<rake>.freeze, ["~> 13.0"])
+    s.add_development_dependency(%q<rspec>.freeze, ["~> 3.0"])
+  else
+    s.add_dependency(%q<nokogiri>.freeze, ["~> 1.6"])
+    s.add_dependency(%q<rubyzip>.freeze, [">= 1.1.0", "< 3.0"])
+    s.add_dependency(%q<tilt>.freeze, [">= 1.4"])
+    s.add_dependency(%q<bundler>.freeze, ["~> 2.0"])
+    s.add_dependency(%q<rake>.freeze, ["~> 13.0"])
+    s.add_dependency(%q<rspec>.freeze, ["~> 3.0"])
+  end
 end
