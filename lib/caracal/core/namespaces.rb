@@ -9,6 +9,18 @@ module Caracal
     # retrieving namespaces.
     #
     module Namespaces
+      class NSCollection < Array
+        def get(prefix)
+          self.find do |ns|
+            ns.matches? prefix
+          end
+        end
+
+        def t(prefix)
+          self.get(prefix)
+        end
+      end
+
       def self.included(base)
         base.class_eval do
 
@@ -57,7 +69,7 @@ module Caracal
           #============== GETTERS =============================
 
           def namespaces
-            @namespaces ||= []
+            @namespaces ||= NSCollection.new
           end
 
           def find_namespace(prefix)

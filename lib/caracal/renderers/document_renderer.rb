@@ -7,7 +7,6 @@ require 'caracal/errors'
 module Caracal
   module Renderers
     class DocumentRenderer < XmlRenderer
-
       #-------------------------------------------------------------
       # Public Methods
       #-------------------------------------------------------------
@@ -115,15 +114,12 @@ module Caracal
 
       def render_iframe(xml, model)
         ::Zip::File.open(model.file) do |zip|
-          a_href   = 'http://schemas.openxmlformats.org/drawingml/2006/main'
-          pic_href = 'http://schemas.openxmlformats.org/drawingml/2006/picture'
-          r_href   = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
-
           entry    = zip.glob('word/document.xml').first
           content  = entry.get_input_stream.read
           doc_xml  = Nokogiri::XML(content)
-
+          ns       = document.namespaces
           fragment = doc_xml.xpath('//w:body').first.children
+
           fragment.pop
 
           model.relationships.each do |r_hash|
@@ -131,7 +127,7 @@ module Caracal
             model = document.relationship(r_hash)   # the parent document assigns the embedded
             index = model.relationship_id           # relationship an id.
 
-            r_node  = fragment.at_xpath("//a:blip[@r:embed='#{ id }']", { a: a_href, r: r_href })
+            r_node  = fragment.at_xpath("//a:blip[@r:embed='#{ id }']", { a: ns.t('a'), r: ns.t('r') })
             if (r_attr = r_node.attributes['embed'])
               r_attr.value = "rId#{ index }"
             end
@@ -159,12 +155,14 @@ module Caracal
         xml['wp'].docPr id: rel_id, name: rel_name
 
         xml['wp'].cNvGraphicFramePr do
-          xm['a'].graphicFrameLocks noChangeAspect: '1'
+          xml['a'].graphicFrameLocks noChangeAspect: '1'
         end
 
-        xml['a'].graphic 'xmlns:a': "http://schemas.openxmlformats.org/drawingml/2006/main" do
-          xml['a'].graphicData url: "http://schemas.openxmlformats.org/drawingml/2006/picture" do
-            xml['pic'].pic 'xmlns:pic': "http://schemas.openxmlformats.org/drawingml/2006/picture" do
+        ns = document.namespaces
+
+        xml['a'].graphic ns.t('a').ns_hash do
+          xml['a'].graphicData url: ns.t('a').namespace_href do
+            xml['pic'].pic ns.t('pic').ns_hash do
               xml['pic'].nvPicPr do
                 xml['pic'].cNvPr id: rel_id, name: rel_name
                 xml['pic'].cNvPicPr
@@ -206,7 +204,7 @@ module Caracal
               dist = {distR: model.formatted_right, distT: model.formatted_top, distB: model.formatted_bottom, distL: model.formatted_left}
 
               if model.image_anchor
-                xml['wp'].anchor dist.merge(simplePos: '0', locked: '1', layoutInCell: '0', allowOverlap: '0', behindDoc: '0)' do
+                xml['wp'].anchor dist.merge(simplePos: '0', locked: '1', layoutInCell: '0', allowOverlap: '0', behindDoc: '0') do
                   xml['wp'].simplePos x: 0, y: 0
                   xml['wp'].positionH relativeFrom: 'page' do # TODO: allow other relativeFrom values
                     xml['wp'].align model.image_align

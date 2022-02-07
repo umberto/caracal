@@ -117,7 +117,7 @@ module Caracal
 
         def field(*args, &block)
           options = Caracal::Utilities.extract_options! args
-          options.merge!name: args.first if args.first
+          options.merge! name: args.first if args.first
 
           model = Caracal::Core::Models::FieldModel.new options, &block
           if model.valid?

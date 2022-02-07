@@ -18,11 +18,13 @@ module Caracal
         attr_reader :namespace_prefix
         attr_reader :namespace_href
 
-
-
         #-------------------------------------------------------------
         # Public Instance Methods
         #-------------------------------------------------------------
+
+        def ns_hash
+          {namespace_prefix: namespace_href}
+        end
 
         #=================== SETTERS =============================
 
@@ -37,7 +39,7 @@ module Caracal
         #=================== STATE ===============================
 
         def matches?(str)
-          namespace_prefix == str.to_s
+          namespace_prefix == str.to_s or namespace_prefix == "xmlns:#{str}"
         end
 
 
@@ -47,7 +49,6 @@ module Caracal
           required = [:href, :prefix]
           required.all? { |m| !send("namespace_#{ m }").nil? }
         end
-
 
         #-------------------------------------------------------------
         # Private Instance Methods
