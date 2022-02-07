@@ -113,6 +113,10 @@ module Caracal
       !!@header
     end
 
+    def has_footer?
+      page_number_show
+    end
+
     #------------------------------------------------------
     # Public Instance Methods
     #------------------------------------------------------

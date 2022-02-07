@@ -154,10 +154,17 @@ module Caracal
 
         xml['wp'].extent cx: model.formatted_width, cy: model.formatted_height
         xml['wp'].effectExtent t: 0, b: 0, r: 0, l: 0
+        xml['wp'].wrapTopAndBottom
+
         xml['wp'].docPr id: rel_id, name: rel_name
-        xml['a'].graphic do
-          xml['a'].graphicData uri: 'http://schemas.openxmlformats.org/drawingml/2006/picture' do
-            xml['pic'].pic do
+
+        xml['wp'].cNvGraphicFramePr do
+          xm['a'].graphicFrameLocks noChangeAspect: '1'
+        end
+
+        xml['a'].graphic 'xmlns:a': "http://schemas.openxmlformats.org/drawingml/2006/main" do
+          xml['a'].graphicData url: "http://schemas.openxmlformats.org/drawingml/2006/picture" do
+            xml['pic'].pic 'xmlns:pic': "http://schemas.openxmlformats.org/drawingml/2006/picture" do
               xml['pic'].nvPicPr do
                 xml['pic'].cNvPr id: rel_id, name: rel_name
                 xml['pic'].cNvPicPr
@@ -199,7 +206,7 @@ module Caracal
               dist = {distR: model.formatted_right, distT: model.formatted_top, distB: model.formatted_bottom, distL: model.formatted_left}
 
               if model.image_anchor
-                xml['wp'].anchor dist.merge(simplePos: true, locked: true, layoutInCell: false, allowOverlap: false, behindDoc: false) do
+                xml['wp'].anchor dist.merge(simplePos: '0', locked: '1', layoutInCell: '0', allowOverlap: '0', behindDoc: '0)' do
                   xml['wp'].simplePos x: 0, y: 0
                   xml['wp'].positionH relativeFrom: 'page' do # TODO: allow other relativeFrom values
                     xml['wp'].align model.image_align
