@@ -33,7 +33,7 @@ module Caracal
 
         # initialization
         def initialize(options={}, &block)
-          content = options.delete(:content) { "" }
+          content = options.delete(:content) { '' }
           text content, options.dup, &block
           @indent = nil
           super options, &block
@@ -73,28 +73,28 @@ module Caracal
         # booleans
         [:bold, :italic, :keep_next, :underline].each do |m|
           define_method "#{ m }" do |value|
-            instance_variable_set("@paragraph_#{ m }", !!value)
+            instance_variable_set "@paragraph_#{ m }", !!value
           end
         end
 
         # integers
         [:size].each do |m|
           define_method "#{ m }" do |value|
-            instance_variable_set("@paragraph_#{ m }", value.to_i)
+            instance_variable_set "@paragraph_#{ m }", value.to_i
           end
         end
 
         # strings
         [:bgcolor, :color, :style].each do |m|
           define_method "#{ m }" do |value|
-            instance_variable_set("@paragraph_#{ m }", value.to_s)
+            instance_variable_set "@paragraph_#{ m }", value.to_s
           end
         end
 
         # symbols
         [:align].each do |m|
           define_method "#{ m }" do |value|
-            instance_variable_set("@paragraph_#{ m }", value.to_s.to_sym)
+            instance_variable_set "@paragraph_#{ m }", value.to_s.to_sym
           end
         end
 
@@ -116,10 +116,10 @@ module Caracal
         #========== SUB-METHODS ===========================
 
         def field(*args, &block)
-          options = Caracal::Utilities.extract_options!(args)
-          options.merge!({ name: args.first }) if args.first
+          options = Caracal::Utilities.extract_options! args
+          options.merge!name: args.first if args.first
 
-          model = Caracal::Core::Models::FieldModel.new(options, &block)
+          model = Caracal::Core::Models::FieldModel.new options, &block
           if model.valid?
             runs << model
           else
@@ -130,10 +130,10 @@ module Caracal
 
         # .bookmarks
         def bookmark_start(*args, &block)
-          options = Caracal::Utilities.extract_options!(args)
-          options.merge!({ start: true})
+          options = Caracal::Utilities.extract_options! args
+          options.merge! start: true
 
-          model = Caracal::Core::Models::BookmarkModel.new(options, &block)
+          model = Caracal::Core::Models::BookmarkModel.new options, &block
           if model.valid?
             runs << model
           else
@@ -142,10 +142,10 @@ module Caracal
           model
         end
         def bookmark_end(*args, &block)
-          options = Caracal::Utilities.extract_options!(args)
-          options.merge!({ start: false})
+          options = Caracal::Utilities.extract_options! args
+          options.merge! start: false
 
-          model = Caracal::Core::Models::BookmarkModel.new(options, &block)
+          model = Caracal::Core::Models::BookmarkModel.new options, &block
           if model.valid?
             runs << model
           else
@@ -156,7 +156,7 @@ module Caracal
 
         # .br
         def br
-          model = Caracal::Core::Models::LineBreakModel.new()
+          model = Caracal::Core::Models::LineBreakModel.new
           runs << model
           model
         end
@@ -164,8 +164,8 @@ module Caracal
         # .link
         def link(*args, &block)
           options = Caracal::Utilities.extract_options!(args)
-          options.merge!({ content: args[0] }) if args[0]
-          options.merge!({ href:    args[1] }) if args[1]
+          options.merge! content: args[0] if args[0]
+          options.merge! href:    args[1] if args[1]
 
           model = Caracal::Core::Models::LinkModel.new(options, &block)
           if model.valid?
@@ -178,7 +178,7 @@ module Caracal
 
         # .page
         def page
-          model = Caracal::Core::Models::PageBreakModel.new({ wrap: false })
+          model = Caracal::Core::Models::PageBreakModel.new wrap: false
           runs << model
           model
         end
@@ -186,7 +186,7 @@ module Caracal
         # .text
         def text(*args, &block)
           options = Caracal::Utilities.extract_options!(args)
-          options.merge!({ content: args.first }) if args.first
+          options.merge! content: args.first if args.first
 
           model = Caracal::Core::Models::TextModel.new(options, &block)
           if model.valid?

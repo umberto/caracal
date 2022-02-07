@@ -18,9 +18,8 @@ module Caracal
       def to_xml
         builder = ::Nokogiri::XML::Builder.with(declaration_xml) do |xml|
           xml['w'].document root_options do
-            xml['w'].background({ 'w:color' => 'FFFFFF' })
+            xml['w'].background 'w:color' => 'FFFFFF'
             xml['w'].body do
-
               #============= CONTENTS ===================================
 
               document.contents.each do |model|
@@ -32,11 +31,12 @@ module Caracal
 
               xml['w'].sectPr do
                 if (rel = document.find_relationship('header1.xml'))
-                  xml['w'].headerReference({ 'r:id' => rel.formatted_id, 'w:type' => 'default' })
+                  xml['w'].headerReference 'r:id' => rel.formatted_id, 'w:type' => 'default'
                 end
+
                 if document.page_number_show
                   if (rel = document.find_relationship('footer1.xml'))
-                    xml['w'].footerReference({ 'r:id' => rel.formatted_id, 'w:type' => 'default' })
+                    xml['w'].footerReference 'r:id' => rel.formatted_id, 'w:type' => 'default'
                   end
                 end
                 xml['w'].pgSz page_size_options
@@ -46,7 +46,7 @@ module Caracal
             end
           end
         end
-        builder.to_xml(save_options)
+        builder.to_xml save_options
       end
 
 
@@ -78,21 +78,21 @@ module Caracal
           else
             xml['w'].rPr do
               unless attrs.empty?
-                xml['w'].rStyle(    { 'w:val'  => attrs[:style] })                            unless attrs[:style].nil?
-                xml['w'].color(     { 'w:val'  => attrs[:color] })                            unless attrs[:color].nil?
-                xml['w'].sz(        { 'w:val'  => attrs[:size]  })                            unless attrs[:size].nil?
-                xml['w'].b(         { 'w:val'  => (attrs[:bold] ? '1' : '0') })               unless attrs[:bold].nil?
-                xml['w'].i(         { 'w:val'  => (attrs[:italic] ? '1' : '0') })             unless attrs[:italic].nil?
-                xml['w'].u(         { 'w:val'  => (attrs[:underline] ? 'single' : 'none') })  unless attrs[:underline].nil?
-                xml['w'].shd(       { 'w:fill' => attrs[:bgcolor], 'w:val' => 'clear' })      unless attrs[:bgcolor].nil?
-                xml['w'].highlight( { 'w:val' => attrs[:highlight_color] })                   unless attrs[:highlight_color].nil?
-                xml['w'].vertAlign( { 'w:val' => attrs[:vertical_align] })                    unless attrs[:vertical_align].nil?
+                xml['w'].rStyle    'w:val'  => attrs[:style]                           unless attrs[:style].nil?
+                xml['w'].color     'w:val'  => attrs[:color]                           unless attrs[:color].nil?
+                xml['w'].sz        'w:val'  => attrs[:size]                            unless attrs[:size].nil?
+                xml['w'].b         'w:val'  => (attrs[:bold] ? '1' : '0')              unless attrs[:bold].nil?
+                xml['w'].i         'w:val'  => (attrs[:italic] ? '1' : '0')            unless attrs[:italic].nil?
+                xml['w'].u         'w:val'  => (attrs[:underline] ? 'single' : 'none') unless attrs[:underline].nil?
+                xml['w'].shd       'w:fill' => attrs[:bgcolor], 'w:val' => 'clear'     unless attrs[:bgcolor].nil?
+                xml['w'].highlight 'w:val'  => attrs[:highlight_color]                 unless attrs[:highlight_color].nil?
+                xml['w'].vertAlign 'w:val'  => attrs[:vertical_align]                  unless attrs[:vertical_align].nil?
                 unless attrs[:font].nil?
                   f = attrs[:font]
-                  xml['w'].rFonts( { 'w:ascii' => f, 'w:hAnsi' => f, 'w:eastAsia' => f, 'w:cs' => f })
+                  xml['w'].rFonts 'w:ascii' => f, 'w:hAnsi' => f, 'w:eastAsia' => f, 'w:cs' => f
                 end
               end
-              xml['w'].rtl({ 'w:val' => '0' })
+              xml['w'].rtl 'w:val' => '0'
             end
           end
         end
@@ -107,21 +107,21 @@ module Caracal
 
       def render_bookmark(xml, model)
         if model.start?
-          xml['w'].bookmarkStart({ 'w:id' => model.bookmark_id, 'w:name' => model.bookmark_name })
+          xml['w'].bookmarkStart 'w:id' => model.bookmark_id, 'w:name' => model.bookmark_name
         else
-          xml['w'].bookmarkEnd({ 'w:id' => model.bookmark_id })
+          xml['w'].bookmarkEnd 'w:id' => model.bookmark_id
         end
       end
 
       def render_iframe(xml, model)
         ::Zip::File.open(model.file) do |zip|
-          a_href     = 'http://schemas.openxmlformats.org/drawingml/2006/main'
-          pic_href   = 'http://schemas.openxmlformats.org/drawingml/2006/picture'
-          r_href     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
+          a_href   = 'http://schemas.openxmlformats.org/drawingml/2006/main'
+          pic_href = 'http://schemas.openxmlformats.org/drawingml/2006/picture'
+          r_href   = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships'
 
-          entry      = zip.glob('word/document.xml').first
-          content    = entry.get_input_stream.read
-          doc_xml    = Nokogiri::XML(content)
+          entry    = zip.glob('word/document.xml').first
+          content  = entry.get_input_stream.read
+          doc_xml  = Nokogiri::XML(content)
 
           fragment = doc_xml.xpath('//w:body').first.children
           fragment.pop
@@ -152,18 +152,18 @@ module Caracal
         rel_id   = rel.relationship_id
         rel_name = rel.formatted_target
 
-        xml['wp'].extent({ cx: model.formatted_width, cy: model.formatted_height })
-        xml['wp'].effectExtent({ t: 0, b: 0, r: 0, l: 0 })
-        xml['wp'].docPr({ id: rel_id, name: rel_name })
+        xml['wp'].extent cx: model.formatted_width, cy: model.formatted_height
+        xml['wp'].effectExtent t: 0, b: 0, r: 0, l: 0
+        xml['wp'].docPr id: rel_id, name: rel_name
         xml['a'].graphic do
-          xml['a'].graphicData({ uri: 'http://schemas.openxmlformats.org/drawingml/2006/picture' }) do
+          xml['a'].graphicData uri: 'http://schemas.openxmlformats.org/drawingml/2006/picture' do
             xml['pic'].pic do
               xml['pic'].nvPicPr do
-                xml['pic'].cNvPr({ id: rel_id, name: rel_name })
+                xml['pic'].cNvPr id: rel_id, name: rel_name
                 xml['pic'].cNvPicPr
               end
               xml['pic'].blipFill do
-                xml['a'].blip({ 'r:embed' => rel.formatted_id })
+                xml['a'].blip 'r:embed' => rel.formatted_id
                 xml['a'].srcRect
                 xml['a'].stretch do
                   xml['a'].fillRect
@@ -171,9 +171,9 @@ module Caracal
               end
               xml['pic'].spPr do
                 xml['a'].xfrm do
-                  xml['a'].ext({ cx: model.formatted_width, cy: model.formatted_height })
+                  xml['a'].ext cx: model.formatted_width, cy: model.formatted_height
                 end
-                xml['a'].prstGeom({ prst: 'rect' })
+                xml['a'].prstGeom prst: 'rect'
                 xml['a'].ln
               end
             end
@@ -188,29 +188,31 @@ module Caracal
 
         xml['w'].p paragraph_options do
           xml['w'].pPr do
-            xml['w'].spacing({ 'w:lineRule' => 'auto', 'w:line' => ds.style_line })
-            xml['w'].contextualSpacing({ 'w:val' => '0' })
-            xml['w'].jc({ 'w:val' => model.image_align.to_s })
+            xml['w'].spacing 'w:lineRule' => 'auto', 'w:line' => ds.style_line
+            xml['w'].contextualSpacing 'w:val' => '0'
+            xml['w'].jc 'w:val' => model.image_align.to_s
             xml['w'].rPr
           end
 
           xml['w'].r run_options do
             xml['w'].drawing do
+              dist = {distR: model.formatted_right, distT: model.formatted_top, distB: model.formatted_bottom, distL: model.formatted_left}
+
               if model.image_anchor
-                xml['wp'].anchor distR: model.formatted_right, distT: model.formatted_top, distB: model.formatted_bottom, distL: model.formatted_left, simplePos: 1, locked: 0 do
-                  xml['wp'].simplePos x:0, y: 0
-                  xml['wp'].positionH relativeFrom: 'page' do
+                xml['wp'].anchor dist.merge(simplePos: true, locked: true, layoutInCell: false, allowOverlap: false, behindDoc: false) do
+                  xml['wp'].simplePos x: 0, y: 0
+                  xml['wp'].positionH relativeFrom: 'page' do # TODO: allow other relativeFrom values
                     xml['wp'].align model.image_align
                   end
-                  xml['wp'].positionV relativeFrom: 'page' do
+                  xml['wp'].positionV relativeFrom: 'page' do # TODO: allow other relativeFrom values
                     xml['wp'].align 'top'
                   end
 
-                  render_image_proper(xml, model)
+                  render_image_proper xml, model
                 end
               else
-                xml['wp'].inline({ distR: model.formatted_right, distT: model.formatted_top, distB: model.formatted_bottom, distL: model.formatted_left }) do
-                  render_image_proper(xml, model)
+                xml['wp'].inline dist do
+                  render_image_proper xml, model
                 end
               end
             end
@@ -218,7 +220,7 @@ module Caracal
 
           xml['w'].r run_options do
             xml['w'].rPr do
-              xml['w'].rtl({ 'w:val' => '0' })
+              xml['w'].rtl 'w:val' => '0'
             end
           end
         end
@@ -233,7 +235,7 @@ module Caracal
       def render_tableofcontent(xml, model)
         xml['w'].p paragraph_options do
           xml['w'].r do
-            xml['w'].fldChar({ 'w:fldCharType' => 'begin' })
+            xml['w'].fldChar 'w:fldCharType' => 'begin'
           end
           xml['w'].r do
             xml['w'].instrText(
@@ -242,7 +244,7 @@ module Caracal
             )
           end
           xml['w'].r do
-            xml['w'].fldChar({ 'w:fldCharType' => 'separate' })
+            xml['w'].fldChar 'w:fldCharType' => 'separate'
           end
         end
 
@@ -250,14 +252,14 @@ module Caracal
           next unless model.includes? bookmark[:level] # Skip levels outside the accepted range
 
           xml['w'].p paragraph_options do
-            xml['w'].pStyle({ 'w:val' => "TOC#{ bookmark[:level] }" })
+            xml['w'].pStyle 'w:val' => "TOC#{ bookmark[:level] }"
             xml['w'].tabs do
-              xml['w'].tab({ 'w:val' => 'right', 'w:leader' => 'dot' })
+              xml['w'].tab 'w:val' => 'right', 'w:leader' => 'dot'
             end
-            xml['w'].hyperlink({ 'w:anchor' => bookmark[:ref], 'w:history' => '1' }) do
+            xml['w'].hyperlink 'w:anchor' => bookmark[:ref], 'w:history' => '1' do
               xml['w'].r do
                 xml['w'].pPr do
-                  xml['w'].rStyle({ 'w:val' => 'Hyperlink' })
+                  xml['w'].rStyle 'w:val' => 'Hyperlink'
                 end
                 xml['w'].t bookmark[:text]
               end
@@ -265,7 +267,7 @@ module Caracal
                 xml['w'].tab
               end
               xml['w'].r do
-                xml['w'].fldChar({ 'w:fldCharType' => 'begin' })
+                xml['w'].fldChar 'w:fldCharType' => 'begin'
               end
               xml['w'].r do
                 xml['w'].instrText(
@@ -274,18 +276,18 @@ module Caracal
                 )
               end
               xml['w'].r do
-                xml['w'].fldChar({ 'w:fldCharType' => 'separate' })
+                xml['w'].fldChar 'w:fldCharType' => 'separate'
               end
               # Insert page reference here if it can be calculated
               xml['w'].r do
-                xml['w'].fldChar({ 'w:fldCharType' => 'end' })
+                xml['w'].fldChar 'w:fldCharType' => 'end'
               end
             end
           end
         end
         xml['w'].p paragraph_options do
           xml['w'].r do
-            xml['w'].fldChar({ 'w:fldCharType' => 'end' })
+            xml['w'].fldChar 'w:fldCharType' => 'end'
           end
         end
       end
@@ -324,13 +326,13 @@ module Caracal
         xml['w'].p paragraph_options do
           xml['w'].pPr do
             xml['w'].numPr do
-              xml['w'].ilvl({ 'w:val' => model.list_item_level })
-              xml['w'].numId({ 'w:val' => list_num })
+              xml['w'].ilvl 'w:val' => model.list_item_level
+              xml['w'].numId 'w:val' => list_num
             end
-            xml['w'].ind({ 'w:left' => ls.style_left, 'w:hanging' => hanging })
-            xml['w'].contextualSpacing({ 'w:val' => '1' })
+            xml['w'].ind 'w:start' => ls.style_left, 'w:hanging' => hanging
+            xml['w'].contextualSpacing 'w:val' => '1'
             xml['w'].rPr do
-              xml['w'].u({ 'w:val' => 'none' })
+              xml['w'].u 'w:val' => 'none'
             end
           end
           model.runs.each do |run|
@@ -344,12 +346,12 @@ module Caracal
         if model.page_break_wrap
           xml['w'].p paragraph_options do
             xml['w'].r run_options do
-              xml['w'].br({ 'w:type' => 'page' })
+              xml['w'].br 'w:type' => 'page'
             end
           end
         else
           xml['w'].r run_options do
-            xml['w'].br({ 'w:type' => 'page' })
+            xml['w'].br 'w:type' => 'page'
           end
         end
       end
@@ -359,15 +361,15 @@ module Caracal
 
         xml['w'].p paragraph_options do
           xml['w'].pPr do
-            xml['w'].pStyle({ 'w:val' => model.paragraph_style })  unless model.paragraph_style.nil?
-            xml['w'].contextualSpacing({ 'w:val' => '0' })
-            xml['w'].jc({ 'w:val' => model.paragraph_align })  unless model.paragraph_align.nil?
-            xml['w'].ind({ "w:#{model.indent[:side]}" => model.indent[:value] }) unless model.indent.nil?
+            xml['w'].pStyle 'w:val' => model.paragraph_style unless model.paragraph_style.nil?
+            xml['w'].contextualSpacing 'w:val' => '0'
+            xml['w'].jc 'w:val' => model.paragraph_align  unless model.paragraph_align.nil?
+            xml['w'].ind "w:#{model.indent[:side]}" => model.indent[:value] unless model.indent.nil?
             xml['w'].keepNext if model.paragraph_keep_next == true
             if model.paragraph_tabs&.any?
               xml['w'].tabs do
                 model.paragraph_tabs.each do |t|
-                  xml['w'].tab('w:val' => "left",  'w:pos' => t)
+                  xml['w'].tab 'w:val' => 'left',  'w:pos' => t.to_i
                 end
               end
             end
@@ -396,6 +398,7 @@ module Caracal
         xml['w'].r run_options do
           render_run_attributes(xml, model, false)
           xml['w'].t({ 'xml:space' => 'preserve' }, model.text_content)
+          xml['w'].tab if model.text_end_tab
         end
       end
 
@@ -406,11 +409,11 @@ module Caracal
 
         xml['w'].tbl do
           xml['w'].tblPr do
-            xml['w'].tblStyle({ 'w:val' => 'DefaultTable' })
-            xml['w'].bidiVisual({ 'w:val' => '0' })
-            xml['w'].tblW({ 'w:w'   => model.table_width.to_f, 'w:type' => 'dxa' })
-            xml['w'].tblInd({ 'w:w'   => '0.0', 'w:type' => 'dxa' })
-            xml['w'].jc({ 'w:val' => model.table_align })
+            xml['w'].tblStyle 'w:val' => 'DefaultTable'
+            xml['w'].bidiVisual 'w:val' => '0'
+            xml['w'].tblW 'w:w' => model.table_width.to_f, 'w:type' => 'dxa'
+            xml['w'].tblInd 'w:w' => '0.0', 'w:type' => 'dxa'
+            xml['w'].jc 'w:val' => model.table_align
             unless borders.empty?
               xml['w'].tblBorders do
                 borders.each do |m|
@@ -424,8 +427,8 @@ module Caracal
                 end
               end
             end
-            xml['w'].tblLayout({ 'w:type' => 'fixed' })
-            xml['w'].tblLook({ 'w:val'  => '0600'  })
+            xml['w'].tblLayout 'w:type' => 'fixed'
+            xml['w'].tblLook 'w:val'  => '0600'
           end
           xml['w'].tblGrid do
             column_widths = model.table_column_widths
@@ -434,13 +437,13 @@ module Caracal
             end.flatten
 
             column_widths.each do |width|
-              xml['w'].gridCol({ 'w:w' => width })
+              xml['w'].gridCol 'w:w' => width
             end
 
-            xml['w'].tblGridChange({ 'w:id' => '0' }) do
+            xml['w'].tblGridChange 'w:id' => '0' do
               xml['w'].tblGrid do
                 column_widths.each do |width|
-                  xml['w'].gridCol({ 'w:w' => width })
+                  xml['w'].gridCol 'w:w' => width
                 end
               end
             end
@@ -459,20 +462,20 @@ module Caracal
               row.each_with_index do |tc, tc_index|
                 xml['w'].tc do
                   xml['w'].tcPr do
-                    xml['w'].shd({ 'w:fill' => tc.cell_background })
-                    xml['w'].vAlign({ 'w:val' => tc.cell_vertical_align })
+                    xml['w'].shd 'w:fill' => tc.cell_background
+                    xml['w'].vAlign 'w:val' => tc.cell_vertical_align
 
                     # applying rowspan
                     if tc.cell_rowspan && tc.cell_rowspan > 0
                       rowspan_hash[tc_index] = tc.cell_rowspan - 1
-                      xml['w'].vMerge({ 'w:val' => 'restart' })
+                      xml['w'].vMerge 'w:val' => 'restart'
                     elsif rowspan_hash[tc_index] && rowspan_hash[tc_index] > 0
-                      xml['w'].vMerge({ 'w:val' => 'continue' })
+                      xml['w'].vMerge 'w:val' => 'continue'
                       rowspan_hash[tc_index] -= 1
                     end
 
                     # applying colspan
-                    xml['w'].gridSpan({ 'w:val' => tc.cell_colspan }) if tc.cell_colspan
+                    xml['w'].gridSpan 'w:val' => tc.cell_colspan if tc.cell_colspan
 
                     xml['w'].tcMar do
                       %w(top left bottom right).each do |d|

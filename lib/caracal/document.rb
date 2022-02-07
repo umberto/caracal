@@ -101,7 +101,16 @@ module Caracal
     end
 
     def header
-      @header ||= Header.new
+      if @header
+        @header
+      else
+        @header = Header.new
+        add_relationship
+      end
+    end
+
+    def has_header?
+      !!@header
     end
 
     #------------------------------------------------------
@@ -120,7 +129,9 @@ module Caracal
       [:font, :list_style, :namespace, :relationship, :style].each do |method|
         collection = self.class.send("default_#{ method }s")
         collection.each do |item|
-          send(method, item)
+          if (item[:if] and send(item[:if])) or not item[:if]
+            send(method, item)
+          end
         end
       end
 
@@ -146,21 +157,9 @@ module Caracal
     #
     def render
       buffer = ::Zip::OutputStream.write_buffer do |zip|
-        render_package_relationships(zip)
-        render_content_types(zip)
-        render_app(zip)
-        render_core(zip)
-        render_custom(zip)
-        render_fonts(zip)
-        render_header(zip)
-        render_footer(zip)
-        render_settings(zip)
-        render_styles(zip)
-        render_document(zip)
-        render_relationships(zip)          # Must go here: Depends on document renderer
-        render_header_relationships(zip)   # Must go here: Depends on document renderer
-        render_media(zip)                  # Must go here: Depends on document renderer
-        render_numbering(zip)              # Must go here: Depends on document renderer
+        %w(package_relationships content_types app core custom fonts header footer settings styles document relationships header_relationships media numbering).each do |what|
+          send "render_#{what}", zip
+        end
       end
     end
 
@@ -224,22 +223,26 @@ module Caracal
     end
 
     def render_header(zip)
-      content = ::Caracal::Renderers::HeaderRenderer.render(header)
+      if has_header?
+        content = ::Caracal::Renderers::HeaderRenderer.render(header)
 
-      zip.put_next_entry('word/header1.xml')
-      zip.write(content)
+        zip.put_next_entry('word/header1.xml')
+        zip.write(content)
+      end
     end
 
     def render_footer(zip)
-      content = ::Caracal::Renderers::FooterRenderer.render(self)
+      if has_footer?
+        content = ::Caracal::Renderers::FooterRenderer.render(self)
 
-      zip.put_next_entry('word/footer1.xml')
-      zip.write(content)
+        zip.put_next_entry('word/footer1.xml')
+        zip.write(content)
+      end
     end
 
     def render_media(zip)
       images = relationships.select { |r| r.relationship_type == :image }
-      images.concat(header.relationships.select { |r| r.relationship_type == :image })
+      images.concat(header.relationships.select { |r| r.relationship_type == :image }) if has_header?
       images.each do |rel|
         if rel.relationship_data.to_s.size > 0
           content = rel.relationship_data
@@ -274,7 +277,7 @@ module Caracal
     end
 
     def render_header_relationships(zip)
-      if header.relationships.any?
+      if has_header? and header.relationships.any?
         content = ::Caracal::Renderers::RelationshipsRenderer.render(header)
 
         zip.put_next_entry('word/_rels/header1.xml.rels')
