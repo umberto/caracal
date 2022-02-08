@@ -26,7 +26,6 @@ module Caracal
           def self.default_relationships
             [
               { target: 'fontTable.xml',  type: :font      },
-              { target: 'header1.xml',    type: :header,   if: :has_header? },
               { target: 'footer1.xml',    type: :footer,   if: :page_number_show },
               { target: 'numbering.xml',  type: :numbering },
               { target: 'settings.xml',   type: :setting   },
@@ -64,6 +63,10 @@ module Caracal
 
           def find_relationship(target)
             relationships.find { |r| r.matches?(target) }
+          end
+
+          def relationships_by_type(type)
+            relationships.select { |r| r.relationship_type == type.to_sym }
           end
 
 

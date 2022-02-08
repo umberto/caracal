@@ -46,7 +46,7 @@ module Caracal
             # master nodesets
             rel_nodes = rel_xml.children.first.children
             doc_root  = doc_xml.at_xpath('//w:document')
-            pic_nodes = doc_xml.xpath('//pic:pic', { pic: 'http://schemas.openxmlformats.org/drawingml/2006/picture' })
+            pic_nodes = doc_xml.xpath('//pic:pic', { pic: document.namespaces.t('pic') })
 
             # namespaces
             @iframe_namespaces = doc_root.namespaces

@@ -1,28 +1,29 @@
 require 'caracal/core/models/paragraph_model'
 require 'caracal/core/models/line_break_model'
+require 'caracal/core/models/field_model'
 require 'caracal/errors'
 
 
 module Caracal
   module Core
-    
+
     # This module encapsulates all the functionality related to adding text
     # to the document.
     #
     module Text
       def self.included(base)
         base.class_eval do
-          
+
           #-------------------------------------------------------------
           # Public Methods
           #-------------------------------------------------------------
-          
+
           #============== PARAGRAPHS ==========================
-          
+
           def p(*args, &block)
             options = Caracal::Utilities.extract_options!(args)
             options.merge!({ content: args.first }) if args.first
-            
+
             model = Caracal::Core::Models::ParagraphModel.new(options, &block)
             if model.valid?
               contents << model
@@ -31,10 +32,10 @@ module Caracal
             end
             model
           end
-          
-          
+
+
           #============== HEADINGS ============================
-          
+
           # All heading methods simply delegate to the paragraph
           # model with an explicitly set style class.
           #
@@ -45,14 +46,14 @@ module Caracal
               p(args.first, options, &block)
             end
           end
-          
-          
+
+
           #-------------------------------------------------------------
           # Private Methods
           #-------------------------------------------------------------
           private
-          
-          # This method translates the html-like command to the 
+
+          # This method translates the html-like command to the
           # corresponding style id.
           #
           def style_id_for_header(command)
@@ -66,10 +67,10 @@ module Caracal
               else 'Normal'
             end
           end
-          
+
         end
       end
     end
-    
+
   end
 end

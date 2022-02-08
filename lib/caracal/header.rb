@@ -16,6 +16,7 @@ require 'caracal/core/rules'
 require 'caracal/core/styles'
 require 'caracal/core/tables'
 require 'caracal/core/text'
+require 'caracal/core/raw_xml'
 
 
 module Caracal
@@ -40,8 +41,13 @@ module Caracal
     include Caracal::Core::Rules
     include Caracal::Core::Tables
     include Caracal::Core::Text
+    include Caracal::Core::RawXml
 
-    def initialize
+    attr_reader :header_index, :header_type
+
+    def initialize(index: 1, type: 'default')
+      @header_index = index
+      @header_type = type
       page_size
       page_margins top: 1440, bottom: 1440, left: 1440, right: 1440
 
@@ -53,12 +59,20 @@ module Caracal
       end
     end
 
+    def type(t)
+      @header_type = t.to_s if t.to_s in %w(default even first)
+    end
+
     def contents
       @contents ||= []
     end
 
     def contents_for(position)
       contents.select { |model| model.alignment == position }
+    end
+
+    def relationship_params
+      { target: "header#{header_index}.xml", type: :header, owner: self }
     end
   end
 end

@@ -29,8 +29,9 @@ module Caracal
               #============= PAGE SETTINGS ==============================
 
               xml['w'].sectPr do
-                if (rel = document.find_relationship('header1.xml'))
-                  xml['w'].headerReference 'r:id' => rel.formatted_id, 'w:type' => 'default'
+                document.relationships_by_type(:header).each do |rel|
+                  header = rel.owner
+                  xml['w'].headerReference 'r:id' => rel.formatted_id, 'w:type' => (header.header_type || 'default')
                 end
 
                 if document.page_number_show
@@ -160,9 +161,9 @@ module Caracal
 
         ns = document.namespaces
 
-        xml['a'].graphic ns.t('a').ns_hash do
-          xml['a'].graphicData url: ns.t('a').namespace_href do
-            xml['pic'].pic ns.t('pic').ns_hash do
+        xml['a'].graphic ns.get('a').ns_hash do
+          xml['a'].graphicData uri: ns.t('a') do
+            xml['pic'].pic ns.get('pic').ns_hash do
               xml['pic'].nvPicPr do
                 xml['pic'].cNvPr id: rel_id, name: rel_name
                 xml['pic'].cNvPicPr
@@ -340,6 +341,7 @@ module Caracal
               xml['w'].u 'w:val' => 'none'
             end
           end
+
           model.runs.each do |run|
             method = render_method_for_model(run)
             send(method, xml, run)
@@ -404,6 +406,17 @@ module Caracal
           render_run_attributes(xml, model, false)
           xml['w'].t({ 'xml:space' => 'preserve' }, model.text_content)
           xml['w'].tab if model.text_end_tab
+        end
+      end
+
+      def render_field(xml, model)
+        xml['w'].r run_options do
+          render_run_attributes(xml, model, false)
+          xml['w'].fldChar({ 'w:fldCharType' => 'begin' })
+          xml['w'].instrText({ 'xml:space' => 'preserve' }) do
+            xml.text model.field_name
+          end
+          xml['w'].fldChar({ 'w:fldCharType' => 'end' })
         end
       end
 

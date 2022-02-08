@@ -93,24 +93,16 @@ module Caracal
     # file system.
     #
     def self.save(f_name = nil, &block)
-      docx   = new(f_name, &block)
+      docx = new(f_name, &block)
       docx.save
-      # buffer = docx.render
-      #
-      # File.open(docx.path, 'wb') { |f| f.write(buffer.string) }
     end
 
-    def header
-      if @header
-        @header
-      else
-        @header = Header.new
-        add_relationship
+    def header(&block)
+      if @header.nil?
+        @header = Header.new(index: 1, type: 'default', &block)
+        relationship @header.relationship_params
       end
-    end
-
-    def has_header?
-      !!@header
+      @header
     end
 
     def has_footer?
@@ -227,10 +219,10 @@ module Caracal
     end
 
     def render_header(zip)
-      if has_header?
-        content = ::Caracal::Renderers::HeaderRenderer.render(header)
+      relationships_by_type(:header).each do |rel|
+        content = ::Caracal::Renderers::HeaderRenderer.render(rel.owner)
 
-        zip.put_next_entry('word/header1.xml')
+        zip.put_next_entry("word/#{rel.formatted_target}")
         zip.write(content)
       end
     end
@@ -245,16 +237,19 @@ module Caracal
     end
 
     def render_media(zip)
-      images = relationships.select { |r| r.relationship_type == :image }
-      images.concat(header.relationships.select { |r| r.relationship_type == :image }) if has_header?
+      images = relationships_by_type(:image)
+      relationships_by_type(:header).each do |rel|
+        images.concat rel.owner.relationships_by_type(:image)
+      end
       images.each do |rel|
         if rel.relationship_data.to_s.size > 0
           content = rel.relationship_data
         else
+          # NOTICE: this potentially opens a web resource!
           content = open(rel.relationship_target).read
         end
 
-        zip.put_next_entry("word/#{ rel.formatted_target }")
+        zip.put_next_entry("word/#{rel.formatted_target}")
         zip.write(content)
       end
     end
@@ -281,11 +276,15 @@ module Caracal
     end
 
     def render_header_relationships(zip)
-      if has_header? and header.relationships.any?
-        content = ::Caracal::Renderers::RelationshipsRenderer.render(header)
+      relationships_by_type(:header).each do |rel|
+        header = rel.owner
 
-        zip.put_next_entry('word/_rels/header1.xml.rels')
-        zip.write(content)
+        if header.relationships.any?
+          content = ::Caracal::Renderers::RelationshipsRenderer.render(header)
+
+          zip.put_next_entry("word/_rels/#{rel.formatted_target}.rels")
+          zip.write(content)
+        end
       end
     end
 

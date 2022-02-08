@@ -17,7 +17,7 @@ module Caracal
         end
 
         def t(prefix)
-          self.get(prefix)
+          self.get(prefix).namespace_href
         end
       end
 
