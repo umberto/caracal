@@ -205,7 +205,7 @@ module Caracal
               dist = {distR: model.formatted_right, distT: model.formatted_top, distB: model.formatted_bottom, distL: model.formatted_left}
 
               if model.image_anchor
-                xml['wp'].anchor dist.merge(simplePos: '0', locked: '1', layoutInCell: '0', allowOverlap: '0', behindDoc: '0') do
+                xml['wp'].anchor dist.merge(relativeHeight: '0', simplePos: '0', locked: '1', layoutInCell: '0', allowOverlap: '0', behindDoc: '0') do
                   xml['wp'].simplePos x: 0, y: 0
                   xml['wp'].positionH relativeFrom: 'page' do # TODO: allow other relativeFrom values
                     xml['wp'].align model.image_align
