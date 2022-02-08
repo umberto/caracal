@@ -56,7 +56,7 @@ module Caracal
             xml['w'].style({ 'w:styleId' => 'TableNormal', 'w:type' => 'table', 'w:default' => '1' }) do
               xml['w'].name({ 'w:val' => 'Table Normal'})
               xml['w'].pPr do
-                xml['w'].spacing({ 'w:lineRule' => 'auto', 'w:line' => (s.style_size * 20 * 1.15), 'w:before' => '0', 'w:after' => '0' })
+                xml['w'].spacing({ 'w:lineRule' => 'auto', 'w:line' => (s.style_size * 20 * 1.15).to_i, 'w:before' => '0', 'w:after' => '0' })
               end
             end
             default_id = s.style_id
@@ -74,10 +74,10 @@ module Caracal
                   xml['w'].keepLines({ 'w:val' => '0' })
                   xml['w'].widowControl({ 'w:val' => '1' })
                   xml['w'].spacing(spacing_options(s)) unless spacing_options(s).nil?
+                  xml['w'].ind(indentation_options(s)) unless indentation_options(s).nil?
                   xml['w'].contextualSpacing({ 'w:val' => '1' })
                   xml['w'].jc({ 'w:val' => s.style_align.to_s }) unless s.style_align.nil?
-                  xml['w'].ind(indentation_options(s)) unless indentation_options(s).nil?
-                  xml['w'].outline_lvl({ 'w:val' => s.style_outline_lvl.to_s }) unless s.style_outline_lvl.nil?
+                  xml['w'].outlineLvl({ 'w:val' => s.style_outline_lvl.to_s }) unless s.style_outline_lvl.nil?
                 end
                 xml['w'].rPr do
                   xml['w'].rFonts(font_options(s)) unless s.style_font.nil?
