@@ -23,7 +23,7 @@ module Caracal
         #-------------------------------------------------------------
 
         def ns_hash
-          {namespace_prefix: namespace_href}
+          {namespace_prefix => namespace_href}
         end
 
         #=================== SETTERS =============================
