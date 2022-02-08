@@ -161,9 +161,9 @@ module Caracal
 
         ns = document.namespaces
 
-        xml['a'].graphic ns.get('a').ns_hash do
-          xml['a'].graphicData uri: ns.t('a') do
-            xml['pic'].pic ns.get('pic').ns_hash do
+        xml['a'].graphic do
+          xml['a'].graphicData uri: ns.t('pic') do
+            xml['pic'].pic do
               xml['pic'].nvPicPr do
                 xml['pic'].cNvPr id: rel_id, name: rel_name
                 xml['pic'].cNvPicPr
@@ -370,17 +370,17 @@ module Caracal
           xml['w'].pPr do
             xml['w'].pStyle 'w:val' => model.paragraph_style unless model.paragraph_style.nil?
             xml['w'].contextualSpacing 'w:val' => '0'
-            xml['w'].jc 'w:val' => model.paragraph_align  unless model.paragraph_align.nil?
+            xml['w'].jc 'w:val' => model.paragraph_align unless model.paragraph_align.nil?
             xml['w'].ind "w:#{model.indent[:side]}" => model.indent[:value] unless model.indent.nil?
             xml['w'].keepNext if model.paragraph_keep_next == true
+            render_run_attributes(xml, model, true)
             if model.paragraph_tabs&.any?
               xml['w'].tabs do
                 model.paragraph_tabs.each do |t|
-                  xml['w'].tab 'w:val' => 'left',  'w:pos' => t.to_i
+                  xml['w'].tab 'w:val' => 'start', 'w:pos' => t.to_i, 'w:leader' => 'none'
                 end
               end
             end
-            render_run_attributes(xml, model, true)
           end
           model.runs.each do |run|
             method = render_method_for_model(run)
