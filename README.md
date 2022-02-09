@@ -627,6 +627,9 @@ is a bit hacky, but it allows the library to key the image more effectively and
 Caracal needs a file extension to apply to the renamed media file. This seemed
 the simplest solution to both problems.*
 
+#### Anchored Images
+
+By default, Caracal will place the image inline (inside a paragraph). If you want thhe image to be anchored to the page instead, just provide `anchor: true`. `top`, `left` etc. values will be measured relative to the page. **This behaviour will change** as soon as we add support for a more sophisticated anchor model.
 
 ### Tables
 
@@ -709,7 +712,7 @@ end
 
 To display images side-by-side, they need to be laid out horizontally in a table.
 
-```
+```ruby
 # When the URL or data can be hard-coded, pass a block to TableCellModel.new
 image_1_cell = Caracal::Core::Models::TableCellModel.new do
   img('https://www.example.com/logo.png', width: 200, height: 150)
@@ -816,7 +819,7 @@ docx.table_of_contents
 # Or, for brevity:
 docx.toc
 
-Both methods accept the same options: legend, start_level, and end_level
+# Both methods accept the same options: legend, start_level, and end_level
 
 docx.toc legend: 'Table of contents', start_level: 1, end_level: 3
 # or using block form:
@@ -856,7 +859,7 @@ Again, this feature is considered experimental.  Use at your own risk/discretion
 
 ### Using Fields
 
-You can use fields like page numbers and current dates like so:
+You can use fields like page numbers and current dates. Formatting field values is currently not yet supported.
 
 ```ruby
 docx.p do
@@ -865,6 +868,7 @@ docx.p do
   text ' / '
   field :NumPages
 end
+```
 
 ### Using Tabs
 
@@ -872,14 +876,15 @@ Tabs are defined per paragraph as an Array of twips like so:
 
 ```ruby
 docx.p do
-  tabs [400, 800]
-  text 'first tabbed column'
-  text 'second tabbed column'
+  tabs [400]
+  text 'first tabbed column at pos 0', end_tab: true
+  text 'second tabbed column at pos 400 twips'
 end
 
 docx.p tabs: [400, 800] do
-  text 'first tabbed column'
-  text 'second tabbed column'
+  text 'first tabbed column at pos 0', end_tab: true
+  text 'second tabbed column at pos 800 twips', end_tab: true
+  text 'third tabbed column'
 end
 ```
 
