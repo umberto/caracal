@@ -481,10 +481,10 @@ module Caracal
               row.each_with_index do |tc, tc_index|
                 xml['w'].tc do
                   xml['w'].tcPr do
-                    if tc.cell_background
-                      xml['w'].shd 'w:fill' => tc.cell_background, 'w:val' => 'clear'
+                    # applying colspan
+                    if tc.cell_colspan
+                      xml['w'].gridSpan 'w:val' => tc.cell_colspan
                     end
-                    xml['w'].vAlign 'w:val' => tc.cell_vertical_align
 
                     # applying rowspan
                     if tc.cell_rowspan && tc.cell_rowspan > 0
@@ -495,9 +495,8 @@ module Caracal
                       rowspan_hash[tc_index] -= 1
                     end
 
-                    # applying colspan
-                    if tc.cell_colspan
-                      xml['w'].gridSpan 'w:val' => tc.cell_colspan
+                    if tc.cell_background
+                      xml['w'].shd 'w:fill' => tc.cell_background, 'w:val' => 'clear'
                     end
 
                     xml['w'].tcMar do
@@ -506,6 +505,8 @@ module Caracal
                       xml['w'].bottom 'w:w' => tc.send("cell_margin_bottom").to_i, 'w:type' => 'dxa'
                       xml['w'].end    'w:w' => tc.send("cell_margin_right").to_i,  'w:type' => 'dxa'
                     end
+
+                    xml['w'].vAlign 'w:val' => tc.cell_vertical_align
                   end
 
                   tc.contents.each do |m|
