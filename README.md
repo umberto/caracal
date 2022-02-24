@@ -524,7 +524,7 @@ docx.p do
 end
 ```
 
-Line breaks only work instead paragraph-like commands. If you want to create an empty line between two paragraphs, use an empty paragraph instead.
+Line breaks only work inside paragraph-like commands. If you want to create an empty line between two paragraphs, use an empty paragraph instead.
 
 ```ruby
 docx.p
@@ -533,7 +533,7 @@ docx.p
 
 ### Lists
 
-Ordered lists can be added using the `ol` and `li` methods.  The `li` method substantially follows the same rules as the the `p` method.
+Ordered lists can be added using the `ol` and `li` methods.  The `li` method basically follows the same rules as the `p` method.
 
 ```ruby
 docx.ol do

@@ -103,7 +103,11 @@ module Caracal
         end
 
         def anchor(value)
-          @image_anchor = value.to_s.to_sym
+          if value
+            @image_anchor = value.to_s.to_sym
+          else
+            @image_anchor = nil
+          end
         end
 
         #=============== VALIDATION ==============================
