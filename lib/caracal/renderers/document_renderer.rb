@@ -431,8 +431,8 @@ module Caracal
             xml['w'].tblStyle 'w:val' => 'DefaultTable'
             xml['w'].bidiVisual 'w:val' => '0'
             xml['w'].tblW 'w:w' => model.table_width.to_f, 'w:type' => 'dxa'
-            xml['w'].tblInd 'w:w' => '0.0', 'w:type' => 'dxa'
             xml['w'].jc 'w:val' => model.table_align
+            xml['w'].tblInd 'w:w' => 0, 'w:type' => 'dxa'
             unless borders.empty?
               xml['w'].tblBorders do
                 borders.each do |m|
@@ -446,7 +446,9 @@ module Caracal
                 end
               end
             end
+            # TODO: w:shd [0..1]    Table Shading
             xml['w'].tblLayout 'w:type' => 'fixed'
+            # TODO: w:tblCellMar [0..1]    Table Cell Margin Defaults
             xml['w'].tblLook 'w:val'  => '0600'
           end
           xml['w'].tblGrid do
