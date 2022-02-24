@@ -84,7 +84,7 @@ module Caracal
                 xml['w'].b         'w:val'  => (attrs[:bold] ? '1' : '0')              unless attrs[:bold].nil?
                 xml['w'].i         'w:val'  => (attrs[:italic] ? '1' : '0')            unless attrs[:italic].nil?
                 xml['w'].u         'w:val'  => (attrs[:underline] ? 'single' : 'none') unless attrs[:underline].nil?
-                xml['w'].shd       'w:val'  => 'clear', 'w:fill' => attrs[:bgcolor],   unless attrs[:bgcolor].nil?
+                xml['w'].shd       'w:val'  => 'clear', 'w:fill' => attrs[:bgcolor]    unless attrs[:bgcolor].nil?
                 xml['w'].highlight 'w:val'  => attrs[:highlight_color]                 unless attrs[:highlight_color].nil?
                 xml['w'].vertAlign 'w:val'  => attrs[:vertical_align]                  unless attrs[:vertical_align].nil?
                 unless attrs[:font].nil?
@@ -481,7 +481,9 @@ module Caracal
               row.each_with_index do |tc, tc_index|
                 xml['w'].tc do
                   xml['w'].tcPr do
-                    xml['w'].shd 'w:fill' => tc.cell_background, 'w:val' => 'clear' if tc.cell_background
+                    if tc.cell_background
+                      xml['w'].shd 'w:fill' => tc.cell_background, 'w:val' => 'clear'
+                    end
                     xml['w'].vAlign 'w:val' => tc.cell_vertical_align
 
                     # applying rowspan
@@ -494,15 +496,18 @@ module Caracal
                     end
 
                     # applying colspan
-                    xml['w'].gridSpan 'w:val' => tc.cell_colspan if tc.cell_colspan
+                    if tc.cell_colspan
+                      xml['w'].gridSpan 'w:val' => tc.cell_colspan
+                    end
 
                     xml['w'].tcMar do
-                      xml['w'].top    { 'w:w' => tc.send("cell_margin_top").to_i,    'w:type' => 'dxa' }
-                      xml['w'].start  { 'w:w' => tc.send("cell_margin_left").to_i,   'w:type' => 'dxa' }
-                      xml['w'].bottom { 'w:w' => tc.send("cell_margin_bottom").to_i, 'w:type' => 'dxa' }
-                      xml['w'].end    { 'w:w' => tc.send("cell_margin_right").to_i,  'w:type' => 'dxa' }
+                      xml['w'].top    'w:w' => tc.send("cell_margin_top").to_i,    'w:type' => 'dxa'
+                      xml['w'].start  'w:w' => tc.send("cell_margin_left").to_i,   'w:type' => 'dxa'
+                      xml['w'].bottom 'w:w' => tc.send("cell_margin_bottom").to_i, 'w:type' => 'dxa'
+                      xml['w'].end    'w:w' => tc.send("cell_margin_right").to_i,  'w:type' => 'dxa'
                     end
                   end
+
                   tc.contents.each do |m|
                     method = render_method_for_model(m)
                     send(method, xml, m)
