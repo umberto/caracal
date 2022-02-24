@@ -34,7 +34,9 @@ module Caracal
         # initialization
         def initialize(options={}, &block)
           content = options.delete(:content) { '' }
-          text content, options.dup, &block
+          # TBD: maybe the block passed to #text is actually needed, but for now it seems
+          # it only leads to double eval (one in wrong context)
+          text content, options.dup #, &block
           @indent = nil
           super options, &block
         end
