@@ -17,7 +17,7 @@ module Caracal
         #-------------------------------------------------------------
 
         # constants
-        const_set(:DEFAULT_CELL_BACKGROUND,       'ffffff')
+        const_set(:DEFAULT_CELL_BACKGROUND,       nil)
         const_set(:DEFAULT_CELL_MARGINS,          Caracal::Core::Models::MarginModel.new({ top: 100, bottom: 100, left: 100, right: 100 }))
         const_set(:DEFAULT_CELL_VERTICAL_ALIGN,   :top)
 
