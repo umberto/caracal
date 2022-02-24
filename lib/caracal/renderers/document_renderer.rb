@@ -497,9 +497,10 @@ module Caracal
                     xml['w'].gridSpan 'w:val' => tc.cell_colspan if tc.cell_colspan
 
                     xml['w'].tcMar do
-                      %w(top left bottom right).each do |d|
-                        xml['w'].method_missing d, { 'w:w' => tc.send("cell_margin_#{ d }").to_i, 'w:type' => 'dxa' }
-                      end
+                      xml['w'].top    { 'w:w' => tc.send("cell_margin_top").to_i,    'w:type' => 'dxa' }
+                      xml['w'].start  { 'w:w' => tc.send("cell_margin_left").to_i,   'w:type' => 'dxa' }
+                      xml['w'].bottom { 'w:w' => tc.send("cell_margin_bottom").to_i, 'w:type' => 'dxa' }
+                      xml['w'].end    { 'w:w' => tc.send("cell_margin_right").to_i,  'w:type' => 'dxa' }
                     end
                   end
                   tc.contents.each do |m|
