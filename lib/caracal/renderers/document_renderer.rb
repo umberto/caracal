@@ -151,7 +151,7 @@ module Caracal
 
         xml['wp'].extent cx: model.formatted_width, cy: model.formatted_height
         xml['wp'].effectExtent t: 0, b: 0, r: 0, l: 0
-        xml['wp'].wrapTopAndBottom
+        xml['wp'].wrapTopAndBottom if model.image_anchor
 
         xml['wp'].docPr id: rel_id, name: rel_name
 
@@ -498,7 +498,7 @@ module Caracal
 
                     xml['w'].tcMar do
                       %w(top left bottom right).each do |d|
-                        xml['w'].method_missing "#{ d }", { 'w:w' => tc.send("cell_margin_#{ d }").to_f, 'w:type' => 'dxa' }
+                        xml['w'].method_missing d, { 'w:w' => tc.send("cell_margin_#{ d }").to_i, 'w:type' => 'dxa' }
                       end
                     end
                   end
