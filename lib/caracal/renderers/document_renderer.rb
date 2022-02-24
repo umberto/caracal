@@ -429,8 +429,8 @@ module Caracal
         xml['w'].tbl do
           xml['w'].tblPr do
             xml['w'].tblStyle 'w:val' => 'DefaultTable'
-            xml['w'].bidiVisual 'w:val' => '0'
-            xml['w'].tblW 'w:w' => model.table_width.to_f, 'w:type' => 'dxa'
+            #xml['w'].bidiVisual 'w:val' => 'false'
+            xml['w'].tblW 'w:w' => model.table_width.to_i, 'w:type' => 'dxa'
             xml['w'].jc 'w:val' => model.table_align
             xml['w'].tblInd 'w:w' => 0, 'w:type' => 'dxa'
             unless borders.empty?
