@@ -376,7 +376,13 @@ module Caracal
             if model.paragraph_tabs&.any?
               xml['w'].tabs do
                 model.paragraph_tabs.each do |t|
-                  xml['w'].tab 'w:val' => 'start', 'w:pos' => t.to_i, 'w:leader' => 'none'
+                  case t
+                  when Numeric
+                    xml['w'].tab 'w:val' => 'start', 'w:pos' => t.to_i, 'w:leader' => 'none'
+                  else
+                    #raise t.inspect
+                    xml['w'].tab 'w:val' => t[:val], 'w:pos' => t[:pos].to_i, 'w:leader' => (t[:leader] || 'none')
+                  end
                 end
               end
               xml['w'].contextualSpacing 'w:val' => '0'
