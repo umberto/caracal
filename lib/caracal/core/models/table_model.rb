@@ -6,16 +6,16 @@ require 'caracal/core/models/table_cell_model'
 module Caracal
   module Core
     module Models
-      
+
       # This class handles block options passed to the table
       # method.
       #
       class TableModel < BaseModel
-        
+
         #-------------------------------------------------------------
         # Configuration
         #-------------------------------------------------------------
-        
+
         # constants
         const_set(:DEFAULT_TABLE_ALIGN,             :center)    # weirdly, works better w/ full width
         const_set(:DEFAULT_TABLE_BORDER_COLOR,      'auto')
@@ -23,7 +23,7 @@ module Caracal
         const_set(:DEFAULT_TABLE_BORDER_SIZE,       0)          # units in 1/8 points
         const_set(:DEFAULT_TABLE_BORDER_SPACING,    0)
         const_set(:DEFAULT_TABLE_REPEAT_HEADER,     0)
-        
+
         # accessors
         attr_reader :table_align
         attr_reader :table_width
@@ -39,7 +39,7 @@ module Caracal
         attr_reader :table_border_vertical    # returns border model
         attr_reader :table_column_widths
         attr_reader :table_repeat_header
-        
+
         # initialization
         def initialize(options={}, &block)
           @table_align          = DEFAULT_TABLE_ALIGN
@@ -48,21 +48,21 @@ module Caracal
           @table_border_size    = DEFAULT_TABLE_BORDER_SIZE
           @table_border_spacing = DEFAULT_TABLE_BORDER_SPACING
           @table_repeat_header  = DEFAULT_TABLE_REPEAT_HEADER
-          
+
           super options, &block
         end
-        
-        
+
+
         #-------------------------------------------------------------
         # Public Methods
         #-------------------------------------------------------------
-        
+
         #=============== DATA ACCESSORS =======================
-        
+
         def cells
           rows.flatten
         end
-        
+
         def cols
           @cols ||= rows.reduce([]) do |array, row|
             row.each_with_index do |cell, index|
@@ -72,24 +72,24 @@ module Caracal
             array
           end
         end
-        
+
         def rows
           @table_data || [[]]
         end
-        
-        
+
+
         #=============== STYLES ===============================
-        
+
         # This method sets explicit widths on all wrapped cells
         # that do not already have widths asided.
         #
         def calculate_width(container_width)
           width(container_width) unless table_width.to_i > 0
-          
+
           cells.each { |c| c.calculate_width(default_cell_width) }
         end
-        
-        # This method allows tables to be styled several cells 
+
+        # This method allows tables to be styled several cells
         # at a time.
         #
         # For example, this would style a header row.
@@ -101,12 +101,12 @@ module Caracal
         def cell_style(models, options={})
           [models].flatten.compact.each do |m|
             m.apply_styles(options)
-          end  
+          end
         end
-        
-        
+
+
         #=============== GETTERS ==============================
-        
+
         # border attrs
         [:top, :bottom, :left, :right, :horizontal, :vertical].each do |m|
           [:color, :line, :size, :spacing].each do |attr|
@@ -120,17 +120,17 @@ module Caracal
             value = (model) ? model.total_size : table_border_size + (2 * table_border_spacing)
           end
         end
-        
-        
+
+
         #=============== SETTERS ==============================
-        
+
         # integers
         [:border_size, :border_spacing, :width, :repeat_header].each do |m|
           define_method "#{ m }" do |value|
             instance_variable_set("@table_#{ m }", value.to_i)
           end
         end
-        
+
         # models
         [:top, :bottom, :left, :right, :horizontal, :vertical].each do |m|
           define_method "border_#{ m }" do |options = {}, &block|
@@ -138,14 +138,14 @@ module Caracal
             instance_variable_set("@table_border_#{ m }", Caracal::Core::Models::BorderModel.new(options, &block))
           end
         end
-        
+
         # strings
         [:border_color].each do |m|
           define_method "#{ m }" do |value|
             instance_variable_set("@table_#{ m }", value.to_s)
           end
         end
-        
+
         # symbols
         [:border_line, :align].each do |m|
           define_method "#{ m }" do |value|
@@ -157,7 +157,7 @@ module Caracal
         def column_widths(value)
           @table_column_widths = value.map(&:to_i) if value.is_a?(Array)
         end
-        
+
         # .data
         def data(value)
           begin
@@ -171,35 +171,34 @@ module Caracal
                 when Proc
                   Caracal::Core::Models::TableCellModel.new(&data_cell)
                 else
-                  Caracal::Core::Models::TableCellModel.new({ content: data_cell.to_s })
+                  Caracal::Core::Models::TableCellModel.new(content: data_cell.to_s)
                 end
               end
             end
           rescue
             raise Caracal::Errors::InvalidTableDataError, 'Table data must be a two-dimensional array.'
           end
-        end        
-        
-        
+        end
+
         #=============== VALIDATION ==============================
-        
+
         def valid?
           cells.first.is_a?(Caracal::Core::Models::TableCellModel)
         end
-        
-        
+
+
         #-------------------------------------------------------------
         # Private Instance Methods
         #-------------------------------------------------------------
         private
-        
+
         def default_cell_width
           cell_widths     = rows.first.map { |c| c.cell_width.to_i }
           remaining_width = table_width - cell_widths.reduce(&:+).to_i
           remaining_cols  = cols.size - cell_widths.reject { |w| w == 0 }.size
           default_width   = (remaining_cols == 0) ? 0 : (remaining_width / remaining_cols)
         end
-        
+
         def option_keys
           k = []
           k << [:data, :align, :width]
@@ -209,9 +208,9 @@ module Caracal
           k << [:repeat_header]
           k.flatten
         end
-        
+
       end
-      
+
     end
   end
 end

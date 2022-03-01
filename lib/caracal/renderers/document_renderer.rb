@@ -467,13 +467,13 @@ module Caracal
               xml['w'].gridCol 'w:w' => width
             end
 
-            xml['w'].tblGridChange 'w:id' => '0' do
-              xml['w'].tblGrid do
-                column_widths.each do |width|
-                  xml['w'].gridCol 'w:w' => width
-                end
-              end
-            end
+            #xml['w'].tblGridChange 'w:id' => '0' do
+              #xml['w'].tblGrid do
+                #column_widths.each do |width|
+                  #xml['w'].gridCol 'w:w' => width
+                #end
+              #end
+            #end
           end
 
           rowspan_hash = {}
@@ -501,6 +501,23 @@ module Caracal
                     elsif rowspan_hash[tc_index] && rowspan_hash[tc_index] > 0
                       xml['w'].vMerge 'w:val' => 'continue'
                       rowspan_hash[tc_index] -= 1
+                    end
+
+                    borders = %w(top left bottom right horizontal vertical).select do |m|
+                      tc.send("cell_border_#{ m }_size") > 0
+                    end
+                    unless borders.empty?
+                      xml['w'].tcBorders do
+                        borders.each do |m|
+                          options = {
+                            'w:color' => tc.send("cell_border_#{ m }_color"),
+                            'w:val'   => tc.send("cell_border_#{ m }_line"),
+                            'w:sz'    => tc.send("cell_border_#{ m }_size"),
+                            'w:space' => tc.send("cell_border_#{ m }_spacing")
+                          }
+                          xml['w'].method_missing "#{ Caracal::Core::Models::BorderModel.formatted_type(m) }", options
+                        end
+                      end
                     end
 
                     if tc.cell_background
