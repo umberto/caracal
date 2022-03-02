@@ -246,7 +246,7 @@ module Caracal
           content = rel.relationship_data
         else
           # NOTICE: this potentially opens a web resource!
-          content = open(rel.relationship_target).read
+          content = URI.open(rel.relationship_target).read
         end
 
         zip.put_next_entry("word/#{rel.formatted_target}")
