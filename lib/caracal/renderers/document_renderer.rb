@@ -428,19 +428,20 @@ module Caracal
       end
 
       def render_table(xml, model)
+        wordml = xml['w']
         borders = %w(top left bottom right horizontal vertical).select do |m|
           model.send("table_border_#{ m }_size") > 0
         end
 
-        xml['w'].tbl do
-          xml['w'].tblPr do
-            xml['w'].tblStyle 'w:val' => 'DefaultTable'
-            #xml['w'].bidiVisual 'w:val' => 'false'
-            xml['w'].tblW 'w:w' => model.table_width.to_i, 'w:type' => 'dxa'
-            xml['w'].jc 'w:val' => model.table_align
-            xml['w'].tblInd 'w:w' => 0, 'w:type' => 'dxa'
+        wordml.tbl do
+          wordml.tblPr do
+            wordml.tblStyle 'w:val' => (model.table_style || 'DefaultTable')
+            #wordml.bidiVisual 'w:val' => 'false'
+            wordml.tblW 'w:w' => model.table_width.to_i, 'w:type' => 'dxa'
+            wordml.jc 'w:val' => model.table_align
+            wordml.tblInd 'w:w' => 0, 'w:type' => 'dxa'
             unless borders.empty?
-              xml['w'].tblBorders do
+              wordml.tblBorders do
                 borders.each do |m|
                   options = {
                     'w:color' => model.send("table_border_#{ m }_color"),
@@ -448,66 +449,61 @@ module Caracal
                     'w:sz'    => model.send("table_border_#{ m }_size"),
                     'w:space' => model.send("table_border_#{ m }_spacing")
                   }
-                  xml['w'].method_missing "#{ Caracal::Core::Models::BorderModel.formatted_type(m) }", options
+                  wordml.method_missing "#{ Caracal::Core::Models::BorderModel.formatted_type(m) }", options
                 end
               end
             end
             # TODO: w:shd [0..1]    Table Shading
-            xml['w'].tblLayout 'w:type' => 'fixed'
+            wordml.tblLayout 'w:type' => 'fixed'
             # TODO: w:tblCellMar [0..1]    Table Cell Margin Defaults
-            xml['w'].tblLook 'w:val'  => '0600'
+            wordml.tblLook 'w:val'  => '0600'
           end
-          xml['w'].tblGrid do
+          wordml.tblGrid do
             column_widths = model.table_column_widths
             column_widths ||= model.rows.first.map do |tc|
               [tc.cell_width] * (tc.cell_colspan || 1)
             end.flatten
 
             column_widths.each do |width|
-              xml['w'].gridCol 'w:w' => width
+              wordml.gridCol 'w:w' => width
             end
-
-            #xml['w'].tblGridChange 'w:id' => '0' do
-              #xml['w'].tblGrid do
-                #column_widths.each do |width|
-                  #xml['w'].gridCol 'w:w' => width
-                #end
-              #end
-            #end
           end
 
           rowspan_hash = {}
           model.rows.each_with_index do |row, index|
-            xml['w'].tr do
+            wordml.tr do
               if model.table_repeat_header > 0
                 if index < model.table_repeat_header
-                  xml['w'].trPr do
-                    xml['w'].tblHeader
+                  wordml.trPr do
+                    wordml.tblHeader
                   end
                 end
               end
               row.each_with_index do |tc, tc_index|
-                xml['w'].tc do
-                  xml['w'].tcPr do
+                wordml.tc do
+                  wordml.tcPr do
                     # applying colspan
                     if tc.cell_colspan
-                      xml['w'].gridSpan 'w:val' => tc.cell_colspan
+                      wordml.gridSpan 'w:val' => tc.cell_colspan
                     end
 
                     # applying rowspan
                     if tc.cell_rowspan && tc.cell_rowspan > 0
                       rowspan_hash[tc_index] = tc.cell_rowspan - 1
-                      xml['w'].vMerge 'w:val' => 'restart'
+                      wordml.vMerge 'w:val' => 'restart'
                     elsif rowspan_hash[tc_index] && rowspan_hash[tc_index] > 0
-                      xml['w'].vMerge 'w:val' => 'continue'
+                      wordml.vMerge 'w:val' => 'continue'
                       rowspan_hash[tc_index] -= 1
                     end
 
+                    # only set borders where width > 0.
+                    # NOTICE: if border is set by table cell styling, we cannot unset a border here!
                     borders = %w(top left bottom right horizontal vertical).select do |m|
                       tc.send("cell_border_#{ m }_size") > 0
                     end
+
                     unless borders.empty?
-                      xml['w'].tcBorders do
+                      wordml.tcBorders do
                         borders.each do |m|
                           options = {
                             'w:color' => tc.send("cell_border_#{ m }_color"),
@@ -515,23 +511,23 @@ module Caracal
                             'w:sz'    => tc.send("cell_border_#{ m }_size"),
                             'w:space' => tc.send("cell_border_#{ m }_spacing")
                           }
-                          xml['w'].method_missing "#{ Caracal::Core::Models::BorderModel.formatted_type(m) }", options
+                          wordml.method_missing Caracal::Core::Models::BorderModel.formatted_type(m), options
                         end
                       end
                     end
 
                     if tc.cell_background
-                      xml['w'].shd 'w:fill' => tc.cell_background, 'w:val' => 'clear'
+                      wordml.shd 'w:fill' => tc.cell_background, 'w:val' => 'clear'
                     end
 
-                    xml['w'].tcMar do
-                      xml['w'].top    'w:w' => tc.send("cell_margin_top").to_i,    'w:type' => 'dxa'
-                      xml['w'].start  'w:w' => tc.send("cell_margin_left").to_i,   'w:type' => 'dxa'
-                      xml['w'].bottom 'w:w' => tc.send("cell_margin_bottom").to_i, 'w:type' => 'dxa'
-                      xml['w'].end    'w:w' => tc.send("cell_margin_right").to_i,  'w:type' => 'dxa'
+                    wordml.tcMar do
+                      wordml.top    'w:w' => tc.send("cell_margin_top").to_i,    'w:type' => 'dxa'
+                      wordml.start  'w:w' => tc.send("cell_margin_left").to_i,   'w:type' => 'dxa'
+                      wordml.bottom 'w:w' => tc.send("cell_margin_bottom").to_i, 'w:type' => 'dxa'
+                      wordml.end    'w:w' => tc.send("cell_margin_right").to_i,  'w:type' => 'dxa'
                     end
 
-                    xml['w'].vAlign 'w:val' => tc.cell_vertical_align
+                    wordml.vAlign 'w:val' => tc.cell_vertical_align if tc.cell_vertical_align
                   end
 
                   tc.contents.each do |m|

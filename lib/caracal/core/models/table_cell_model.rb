@@ -146,6 +146,7 @@ module Caracal
               value = (model) ? model.send("border_#{ attr }") : send("cell_border_#{ attr }")
             end
           end
+
           define_method "cell_border_#{ m }_total_size" do
             model = send("cell_border_#{ m }")
             value = (model) ? model.total_size : cell_border_size + (2 * cell_border_spacing)

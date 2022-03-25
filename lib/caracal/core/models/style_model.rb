@@ -35,6 +35,7 @@ module Caracal
         attr_reader :style_type
         attr_reader :style_name
         attr_reader :style_color
+        attr_reader :style_background
         attr_reader :style_font
         attr_reader :style_size
         attr_reader :style_bold
@@ -50,6 +51,12 @@ module Caracal
         attr_reader :style_indent_left
         attr_reader :style_indent_right
         attr_reader :style_indent_first
+
+        %w(top right bottom left).each do |b|
+          %w(color style size).each do |a|
+            attr_reader :"style_border_#{b}_#{a}"
+          end
+        end
 
         # initialization
         def initialize(options={}, &block)
@@ -96,10 +103,24 @@ module Caracal
           end
         end
 
+        %w(top right bottom left).each do |b|
+          define_method "border_#{ b }_size" do |value|
+            instance_variable_set("@style_border_#{ b }_size", value.to_i)
+          end
+        end
+
         # strings
-        [:id, :type, :name, :color, :font].each do |m|
-          define_method "#{ m }" do |value|
+        [:id, :type, :name, :color, :font, :background].each do |m|
+          define_method m do |value|
             instance_variable_set("@style_#{ m }", value.to_s)
+          end
+        end
+
+        %w(top right bottom left).each do |b|
+          %w(color style).each do |a|
+            define_method "border_#{b}_#{a}" do |value|
+              instance_variable_set("@style_border_#{b}_#{a}", value.to_s)
+            end
           end
         end
 
@@ -110,9 +131,10 @@ module Caracal
           end
         end
 
-        # custom
+        # style types character, paragraph, and table are supported by word,
+        # whence table_cell and table_row are emulated by Caracal.
         def type(value)
-          allowed     = ['character', 'paragraph']
+          allowed     = %w(character paragraph table table_row table_cell)
           given       = value.to_s.downcase.strip
           @style_type = allowed.include?(given) ? given : DEFAULT_STYLE_TYPE
         end
@@ -139,6 +161,13 @@ module Caracal
           a.map { |m| send("style_#{ m }") }.compact.size == a.size
         end
 
+        def to_h
+          option_keys.inject({}) do |h, k|
+            v = self.send "style_#{k}"
+            h[k] = v unless v.nil?
+            h
+          end
+        end
 
         #--------------------------------------------------
         # Private Methods
@@ -158,11 +187,13 @@ module Caracal
             :id,
             :name,
             :color,
+            :background,
             :font,
             :align,
             :indent_left,
             :indent_right,
-            :indent_first ]
+            :indent_first ] +
+            %w(top right bottom left).map{|b| %w(style size color).map{|a| :"border_#{b}_#{a}" } }.flatten
         end
 
       end

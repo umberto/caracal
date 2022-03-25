@@ -17,6 +17,7 @@ module Caracal
         #-------------------------------------------------------------
 
         # constants
+        const_set(:DEFAULT_TABLE_STYLE,             'TableNormal')
         const_set(:DEFAULT_TABLE_ALIGN,             :center)    # weirdly, works better w/ full width
         const_set(:DEFAULT_TABLE_BORDER_COLOR,      'auto')
         const_set(:DEFAULT_TABLE_BORDER_LINE,       :single)
@@ -25,6 +26,7 @@ module Caracal
         const_set(:DEFAULT_TABLE_REPEAT_HEADER,     0)
 
         # accessors
+        attr_reader :table_style
         attr_reader :table_align
         attr_reader :table_width
         attr_reader :table_border_color
@@ -42,6 +44,8 @@ module Caracal
 
         # initialization
         def initialize(options={}, &block)
+          @document             = options.delete :document
+          @table_style          = DEFAULT_TABLE_STYLE
           @table_align          = DEFAULT_TABLE_ALIGN
           @table_border_color   = DEFAULT_TABLE_BORDER_COLOR
           @table_border_line    = DEFAULT_TABLE_BORDER_LINE
@@ -66,7 +70,7 @@ module Caracal
         def cols
           @cols ||= rows.reduce([]) do |array, row|
             row.each_with_index do |cell, index|
-              array[index]  = []    if array[index].nil?
+              array[index]  = []  if array[index].nil?
               array[index] << cell
             end
             array
@@ -96,11 +100,16 @@ module Caracal
         #
         # docx.table data do |t|
         #   t.cell_style t.rows[0], background: '3366cc', color: 'ffffff', bold: true
+        #   t.cell_style t.rows[2], style: 'MyTableRowStyle'
         # end
         #
+        # where 'MyTableRowStyle' is a style with type 'table_row'
+        #
         def cell_style(models, options={})
+          styles = merge_named_styles(options)
+
           [models].flatten.compact.each do |m|
-            m.apply_styles(options)
+            m.apply_styles styles
           end
         end
 
@@ -140,7 +149,7 @@ module Caracal
         end
 
         # strings
-        [:border_color].each do |m|
+        [:border_color, :style].each do |m|
           define_method "#{ m }" do |value|
             instance_variable_set("@table_#{ m }", value.to_s)
           end
@@ -167,16 +176,16 @@ module Caracal
                 when Caracal::Core::Models::TableCellModel
                   data_cell
                 when Hash
-                  Caracal::Core::Models::TableCellModel.new(data_cell)
+                  Caracal::Core::Models::TableCellModel.new merge_named_styles(data_cell)
                 when Proc
-                  Caracal::Core::Models::TableCellModel.new(&data_cell)
+                  Caracal::Core::Models::TableCellModel.new &data_cell
                 else
-                  Caracal::Core::Models::TableCellModel.new(content: data_cell.to_s)
+                  Caracal::Core::Models::TableCellModel.new content: data_cell.to_s
                 end
               end
             end
-          rescue
-            raise Caracal::Errors::InvalidTableDataError, 'Table data must be a two-dimensional array.'
+          #rescue
+            #raise Caracal::Errors::InvalidTableDataError, 'Table data must be a two-dimensional array.'
           end
         end
 
@@ -192,6 +201,19 @@ module Caracal
         #-------------------------------------------------------------
         private
 
+        def merge_named_styles(options)
+          named_style = options.delete(:style)
+          if named_style
+            raise "If you use cell styles, you must create the table using #table" unless @document
+            ns = @document.styles.find{|s| s.style_id == named_style }
+            raise "style #{named_style} is not available in document" unless ns
+            raise "style #{named_style} is a #{s.style_type} but should be a table_cell or table_row style" unless %w(table_row table_cell).include?(ns.style_type)
+            ns.to_h.merge options
+          else
+            options
+          end
+        end
+
         def default_cell_width
           cell_widths     = rows.first.map { |c| c.cell_width.to_i }
           remaining_width = table_width - cell_widths.reduce(&:+).to_i
@@ -201,7 +223,7 @@ module Caracal
 
         def option_keys
           k = []
-          k << [:data, :align, :width]
+          k << [:data, :align, :width, :style]
           k << [:border_color, :border_line, :border_size, :border_spacing]
           k << [:border_bottom, :border_left, :border_right, :border_top, :border_horizontal, :border_vertical]
           k << [:column_widths]
