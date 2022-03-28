@@ -143,13 +143,13 @@ module Caracal
           [:color, :line, :size, :spacing].each do |attr|
             define_method "cell_border_#{ m }_#{ attr }" do
               model = send("cell_border_#{ m }")
-              value = (model) ? model.send("border_#{ attr }") : send("cell_border_#{ attr }")
+              value = model ? model.send("border_#{ attr }") : send("cell_border_#{ attr }")
             end
           end
 
           define_method "cell_border_#{ m }_total_size" do
             model = send("cell_border_#{ m }")
-            value = (model) ? model.total_size : cell_border_size + (2 * cell_border_spacing)
+            value = model ? model.total_size : cell_border_size + (2 * cell_border_spacing)
           end
         end
 
@@ -166,9 +166,17 @@ module Caracal
 
         # models
         [:top, :bottom, :left, :right, :horizontal, :vertical].each do |m|
-          define_method "border_#{ m }" do |options = {}, &block|
-            options.merge!({ type: m })
-            instance_variable_set("@cell_border_#{ m }", Caracal::Core::Models::BorderModel.new(options, &block))
+          define_method "border_#{m}" do |options = {}, &block|
+            options.merge! type: m
+            instance_variable_set "@cell_border_#{ m }", Caracal::Core::Models::BorderModel.new(options, &block)
+          end
+
+          [:color, :line, :size, :spacing].each do |a|
+            define_method "border_#{m}_#{a}" do |v|
+              model = instance_variable_get("@cell_border_#{m}") || instance_variable_set("@cell_border_#{m}", Caracal::Core::Models::BorderModel.new)
+
+              model.send a, v
+            end
           end
         end
 
@@ -213,9 +221,15 @@ module Caracal
         private
 
         def option_keys
-          [:background, :margins, :width, :vertical_align, :rowspan, :colspan,
+          @options_keys ||= [:background, :margins, :width, :vertical_align, :rowspan, :colspan,
            :border_color, :border_line, :border_size, :border_spacing,
-           :border_bottom, :border_left, :border_right, :border_top, :border_horizontal, :border_vertical]
+           :border_bottom, :border_left, :border_right, :border_top, :border_horizontal, :border_vertical] +
+
+            [:top, :bottom, :left, :right, :horizontal, :vertical].map do |b|
+              [:color, :line, :size, :spacing].map do |a|
+                :"border_#{b}_#{a}"
+              end
+            end.flatten
          end
 
       end
