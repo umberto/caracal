@@ -892,7 +892,6 @@ end
 
 Sometimes you really want to copy & paste raw OOXML into your `word/document.xml`. Although this might open a Pandora's Box full of subtle nightmares, here's how you could do it:
 
-
 ```ruby
 # this inserts a paragraph styled as Heading3
 docx.raw_xml <<-EOXML

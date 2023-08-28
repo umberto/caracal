@@ -124,6 +124,7 @@ module Caracal
               value = (model) ? model.send("border_#{ attr }") : send("table_border_#{ attr }")
             end
           end
+
           define_method "table_border_#{ m }_total_size" do
             model = send("table_border_#{ m }")
             value = (model) ? model.total_size : table_border_size + (2 * table_border_spacing)
@@ -174,6 +175,9 @@ module Caracal
               data_row.map do |data_cell|
                 case data_cell
                 when Caracal::Core::Models::TableCellModel
+                  if data_cell.cell_style
+                    data_cell.apply_styles merge_named_styles(style: data_cell.cell_style)
+                  end
                   data_cell
                 when Hash
                   Caracal::Core::Models::TableCellModel.new merge_named_styles(data_cell)
@@ -207,7 +211,7 @@ module Caracal
             raise "If you use cell styles, you must create the table using #table" unless @document
             ns = @document.styles.find{|s| s.style_id == named_style }
             raise "style #{named_style} is not available in document" unless ns
-            raise "style #{named_style} is a #{s.style_type} but should be a table_cell or table_row style" unless %w(table_row table_cell).include?(ns.style_type)
+            raise "style #{named_style} is a #{ns.style_type} but should be a table_cell or table_row style" unless %w(table_row table_cell).include?(ns.style_type)
             ns.to_h.merge options
           else
             options

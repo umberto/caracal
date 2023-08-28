@@ -143,6 +143,7 @@ module Caracal
           end
           model
         end
+
         def bookmark_end(*args, &block)
           options = Caracal::Utilities.extract_options! args
           options.merge! start: false

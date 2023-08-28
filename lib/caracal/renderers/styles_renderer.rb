@@ -65,32 +65,43 @@ module Caracal
               end
             end
 
-            wordml.style('w:styleId' => 'DefaultTable', 'w:type' => 'table') do
-              wordml.name('w:val' => 'Default Table')
-              wordml.basedOn('w:val' => 'TableNormal')
+            document.styles.select{|s| %(table_row table_cell table).include? s.style_type }.each do |s|
+              wordml.style 'w:styleId' => s.style_id, 'w:type' => 'table' do
+                wordml.name 'w:val' => s.style_name
+                wordml.basedOn 'w:val' => (s.style_base || 'TableNormal')
 
-              wordml.tblPr do
-                wordml.tblStyleRowBandSize('w:val' => '1')
-                wordml.tblStyleColBandSize('w:val' => '1')
+                wordml.tblPr do
+                  # wordml.tblW 'w:val' => 1.0 # Preferred Table Width
+                  wordml.tblStyleRowBandSize 'w:val' => '1'
+                  wordml.tblStyleColBandSize 'w:val' => '1'
+                end
+
+                wordml.trPr do
+                  wordml.cantSplit 'w:val' => '1'
+                end
+
+                wordml.tcPr do
+                  wordml.shd 'w:fill' => s.style_background, 'w:val' => 'clear' unless s.style_background.nil?
+                  wordml.shd 'w:vAlign' => 'top'
+                  wordml.jc 'w:val' => s.style_align.to_s unless s.style_align.nil?
+                  wordml.tcCellSpacing spacing_options(s) unless spacing_options(s).nil?
+                  wordml.tcInd indentation_options(s) unless indentation_options(s).nil?
+                  render_borders(wordml, 'tblBorders', s)
+                end
+
+                ## CONDITIONAL FORMATTING
+                #wordml.tblStylePr('w:type' => 'wholeTable')
+
+                #%w(band1Horz band1Vert band2Horz band2Vert).each do |type|
+                  #wordml.tblStylePr('w:type' => type)
+                #end
+                #%w(firstCol firstRow lastCol lastRow).each do |type|
+                  #wordml.tblStylePr('w:type' => type)
+                #end
+                #%w(neCell nwCell seCell swCell).each do |type|
+                  #wordml.tblStylePr('w:type' => type)
+                #end
               end
-
-              wordml.tcPr do
-                wordml.shd 'w:fill' => 'eeeeee', 'w:val' => 'clear'
-                wordml.shd 'w:vAlign' => 'top'
-              end
-
-              ## CONDITIONAL FORMATTING
-              #wordml.tblStylePr('w:type' => 'wholeTable')
-
-              #%w(band1Horz band1Vert band2Horz band2Vert).each do |type|
-                #wordml.tblStylePr('w:type' => type)
-              #end
-              #%w(firstCol firstRow lastCol lastRow).each do |type|
-                #wordml.tblStylePr('w:type' => type)
-              #end
-              #%w(neCell nwCell seCell swCell).each do |type|
-                #wordml.tblStylePr('w:type' => type)
-              #end
             end
 
 
@@ -98,7 +109,7 @@ module Caracal
 
             document.styles.each do |s|
               next if s.style_id == default_id
-              next if %w(table_row table_cell).include? s.style_type
+              next if %w(table_row table_cell table).include? s.style_type
 
               wordml.style('w:styleId' => s.style_id, 'w:type' => s.style_type) do
                 wordml.name('w:val' => s.style_name)
@@ -112,7 +123,6 @@ module Caracal
                   wordml.widowControl('w:val' => '1')
                   wordml.spacing(spacing_options(s)) unless spacing_options(s).nil?
                   wordml.ind(indentation_options(s)) unless indentation_options(s).nil?
-                  wordml.contextualSpacing('w:val' => '1')
                   wordml.jc('w:val' => s.style_align.to_s) unless s.style_align.nil?
                   wordml.outlineLvl('w:val' => s.style_outline_lvl.to_s) unless s.style_outline_lvl.nil?
                 end
@@ -127,6 +137,7 @@ module Caracal
                   wordml.sz('w:val' => s.style_size) unless s.style_size.nil?
                   wordml.u('w:val' => (s.style_underline ? 'single' : 'none')) unless s.style_underline.nil?
                 end
+
                 ## only applies to table styles
                 #if s.style_type == 'table'
                   #wordml.tblPr do
@@ -259,8 +270,8 @@ module Caracal
       end
 
       def spacing_options(style, default=false)
-        top     = (default) ? style.style_top.to_i    : style.style_top
-        bottom  = (default) ? style.style_bottom.to_i : style.style_bottom
+        top     = default ? style.style_top.to_i    : style.style_top
+        bottom  = default ? style.style_bottom.to_i : style.style_bottom
         line    = style.style_line
 
         options = nil
@@ -270,6 +281,8 @@ module Caracal
           options['w:before']   = top      unless top.nil?
           options['w:after']    = bottom   unless bottom.nil?
           options['w:line']     = line     unless line.nil?
+          options['w:afterAutospacing']  = true if style.style_name.starts_with? 'Heading'
+          options['w:beforeAutospacing'] = true if style.style_name.starts_with? 'Heading'
         end
         options
       end

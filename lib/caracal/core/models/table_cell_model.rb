@@ -27,6 +27,7 @@ module Caracal
         const_set(:DEFAULT_CELL_BORDER_SPACING,   0)
 
         # accessors
+        attr_reader :cell_style
         attr_reader :cell_background
         attr_reader :cell_width
         attr_reader :cell_margins
@@ -56,9 +57,17 @@ module Caracal
 
           if content = options.delete(:content)
             if content.is_a? BaseModel
-              contents << content
+              self.contents << content
+            elsif content.is_a? Array
+              content.each do |c|
+                if c.is_a? BaseModel
+                  self.contents << c
+                else
+                  raise "Content must be < Caracal::Core::Models::BaseModel but is #{content.inspect}"
+                end
+              end
             else
-              p content, options.dup, &block
+              p content, options.dup #, &block
             end
           end
 
@@ -98,7 +107,7 @@ module Caracal
 
           # first, try apply to self
           options.each do |(k,v)|
-            send(k, v)  if respond_to?(k)
+            send(k, v) if respond_to?(k)
           end
 
           # prevent top-level attrs from trickling down
@@ -208,6 +217,10 @@ module Caracal
           end
         end
 
+        def style(style_name)
+          @cell_style = style_name.to_s
+        end
+
         #=============== VALIDATION ===========================
 
         def valid?
@@ -221,7 +234,7 @@ module Caracal
         private
 
         def option_keys
-          @options_keys ||= [:background, :margins, :width, :vertical_align, :rowspan, :colspan,
+          @options_keys ||= [:style, :background, :margins, :width, :vertical_align, :rowspan, :colspan,
            :border_color, :border_line, :border_size, :border_spacing,
            :border_bottom, :border_left, :border_right, :border_top, :border_horizontal, :border_vertical] +
 
