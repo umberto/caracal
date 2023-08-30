@@ -84,9 +84,11 @@ module Caracal
                   wordml.shd 'w:fill' => s.style_background, 'w:val' => 'clear' unless s.style_background.nil?
                   wordml.shd 'w:vAlign' => 'top'
                   wordml.jc 'w:val' => s.style_align.to_s unless s.style_align.nil?
-                  wordml.tcCellSpacing spacing_options(s) unless spacing_options(s).nil?
-                  wordml.tcInd indentation_options(s) unless indentation_options(s).nil?
-                  render_borders(wordml, 'tblBorders', s)
+                  spacing = spacing_options s
+                  wordml.tcCellSpacing spacing unless spacing.nil?
+                  indentation = indentation_options s
+                  wordml.tcInd indentation unless indentation.nil?
+                  render_borders wordml, 'tblBorders', s
                 end
 
                 ## CONDITIONAL FORMATTING
@@ -111,31 +113,33 @@ module Caracal
               next if s.style_id == default_id
               next if %w(table_row table_cell table).include? s.style_type
 
-              wordml.style('w:styleId' => s.style_id, 'w:type' => s.style_type) do
-                wordml.name('w:val' => s.style_name)
-                wordml.basedOn('w:val' => s.style_base)
-                wordml.next('w:val' => s.style_next)
+              wordml.style 'w:styleId' => s.style_id, 'w:type' => s.style_type do
+                wordml.name    'w:val' => s.style_name
+                wordml.basedOn 'w:val' => s.style_base
+                wordml.next    'w:val' => s.style_next
 
                 # paragraph properties
                 wordml.pPr do
-                  wordml.keepNext('w:val' => '0')
-                  wordml.keepLines('w:val' => '0')
-                  wordml.widowControl('w:val' => '1')
-                  wordml.spacing(spacing_options(s)) unless spacing_options(s).nil?
-                  wordml.ind(indentation_options(s)) unless indentation_options(s).nil?
-                  wordml.jc('w:val' => s.style_align.to_s) unless s.style_align.nil?
-                  wordml.outlineLvl('w:val' => s.style_outline_lvl.to_s) unless s.style_outline_lvl.nil?
+                  spacing = spacing_options s
+                  indentation = indentation_options s
+                  wordml.keepNext     'w:val' => '0'
+                  wordml.keepLines    'w:val' => '0'
+                  wordml.widowControl 'w:val' => '1'
+                  wordml.spacing spacing unless spacing.nil?
+                  wordml.ind indentation unless indentation.nil?
+                  wordml.jc         'w:val' => s.style_align.to_s       unless s.style_align.nil?
+                  wordml.outlineLvl 'w:val' => s.style_outline_lvl.to_s unless s.style_outline_lvl.nil?
                 end
 
                 # run properties
                 wordml.rPr do
-                  wordml.rFonts(font_options(s)) unless s.style_font.nil?
-                  wordml.b('w:val' => (s.style_bold ? '1' : '0')) unless s.style_bold.nil?
-                  wordml.i('w:val' => (s.style_italic ? '1' : '0')) unless s.style_italic.nil?
-                  wordml.caps('w:val' => (s.style_caps ? '1' : '0')) unless s.style_caps.nil?
-                  wordml.color('w:val' => s.style_color) unless s.style_color.nil?
-                  wordml.sz('w:val' => s.style_size) unless s.style_size.nil?
-                  wordml.u('w:val' => (s.style_underline ? 'single' : 'none')) unless s.style_underline.nil?
+                  wordml.rFonts font_options(s) unless s.style_font.nil?
+                  wordml.b     'w:val' => (s.style_bold   ? '1' : '0')  unless s.style_bold.nil?
+                  wordml.i     'w:val' => (s.style_italic ? '1' : '0')  unless s.style_italic.nil?
+                  wordml.caps  'w:val' => (s.style_caps   ? '1' : '0')  unless s.style_caps.nil?
+                  wordml.color 'w:val' => s.style_color                 unless s.style_color.nil?
+                  wordml.sz    'w:val' => s.style_size                  unless s.style_size.nil?
+                  wordml.u     'w:val' => (s.style_underline ? 'single' : 'none') unless s.style_underline.nil?
                 end
 
                 ## only applies to table styles
@@ -200,7 +204,7 @@ module Caracal
 
           end
         end
-        builder.to_xml(save_options)
+        builder.to_xml save_options
       end
 
 

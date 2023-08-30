@@ -72,27 +72,28 @@ module Caracal
       def render_run_attributes(xml, model, paragraph_level=false)
         if model.respond_to? :run_attributes
           attrs = model.run_attributes.delete_if { |k, v| v.nil? }
+          w = xml['w']
 
           if paragraph_level && attrs.empty?
             # skip
           else
-            xml['w'].rPr do
+            w.rPr do
               unless attrs.empty?
-                xml['w'].rStyle    'w:val'  => attrs[:style]                           unless attrs[:style].nil?
-                xml['w'].color     'w:val'  => attrs[:color]                           unless attrs[:color].nil?
-                xml['w'].sz        'w:val'  => attrs[:size]                            unless attrs[:size].nil?
-                xml['w'].b         'w:val'  => (attrs[:bold] ? '1' : '0')              unless attrs[:bold].nil?
-                xml['w'].i         'w:val'  => (attrs[:italic] ? '1' : '0')            unless attrs[:italic].nil?
-                xml['w'].u         'w:val'  => (attrs[:underline] ? 'single' : 'none') unless attrs[:underline].nil?
-                xml['w'].shd       'w:val'  => 'clear', 'w:fill' => attrs[:bgcolor]    unless attrs[:bgcolor].nil?
-                xml['w'].highlight 'w:val'  => attrs[:highlight_color]                 unless attrs[:highlight_color].nil?
-                xml['w'].vertAlign 'w:val'  => attrs[:vertical_align]                  unless attrs[:vertical_align].nil?
+                w.rStyle    'w:val'  => attrs[:style]                           unless attrs[:style].nil?
+                w.color     'w:val'  => attrs[:color]                           unless attrs[:color].nil?
+                w.sz        'w:val'  => attrs[:size]                            unless attrs[:size].nil?
+                w.b         'w:val'  => (attrs[:bold] ? '1' : '0')              unless attrs[:bold].nil?
+                w.i         'w:val'  => (attrs[:italic] ? '1' : '0')            unless attrs[:italic].nil?
+                w.u         'w:val'  => (attrs[:underline] ? 'single' : 'none') unless attrs[:underline].nil?
+                w.shd       'w:val'  => 'clear', 'w:fill' => attrs[:bgcolor]    unless attrs[:bgcolor].nil?
+                w.highlight 'w:val'  => attrs[:highlight_color]                 unless attrs[:highlight_color].nil?
+                w.vertAlign 'w:val'  => attrs[:vertical_align]                  unless attrs[:vertical_align].nil?
                 unless attrs[:font].nil?
                   f = attrs[:font]
-                  xml['w'].rFonts 'w:ascii' => f, 'w:hAnsi' => f, 'w:eastAsia' => f, 'w:cs' => f
+                  w.rFonts 'w:ascii' => f, 'w:hAnsi' => f, 'w:eastAsia' => f, 'w:cs' => f
                 end
               end
-              xml['w'].rtl 'w:val' => '0'
+              w.rtl 'w:val' => '0'
             end
           end
         end
@@ -364,31 +365,31 @@ module Caracal
       end
 
       def render_paragraph(xml, model)
-        run_props = [:color, :size, :bold, :italic, :underline].map { |m| model.send("paragraph_#{ m }") }.compact
-
-        xml['w'].p paragraph_options do
-          xml['w'].pPr do
-            xml['w'].pStyle 'w:val' => model.paragraph_style unless model.paragraph_style.nil?
-            xml['w'].jc 'w:val' => model.paragraph_align unless model.paragraph_align.nil?
-            xml['w'].ind "w:#{model.indent[:side]}" => model.indent[:value] unless model.indent.nil?
-            xml['w'].keepNext if model.paragraph_keep_next == true
+        w = xml['w']
+        w.p paragraph_options do
+          w.pPr do
+            w.pStyle 'w:val' => model.paragraph_style unless model.paragraph_style.nil?
+            w.jc     'w:val' => model.paragraph_align unless model.paragraph_align.nil?
+            w.ind    "w:#{model.indent[:side]}" => model.indent[:value] unless model.indent.nil?
+            w.keepNext if model.paragraph_keep_next == true
+            spacing = spacing_options model
+            w.spacing spacing unless spacing.nil?
             render_run_attributes(xml, model, true)
             if model.paragraph_tabs&.any?
-              xml['w'].tabs do
+              w.tabs do
                 model.paragraph_tabs.each do |t|
                   case t
                   when Numeric
-                    xml['w'].tab 'w:val' => 'start', 'w:pos' => t.to_i, 'w:leader' => 'none'
+                    w.tab 'w:val' => 'start', 'w:pos' => t.to_i, 'w:leader' => 'none'
                   else
-                    #raise t.inspect
-                    xml['w'].tab 'w:val' => t[:val], 'w:pos' => t[:pos].to_i, 'w:leader' => (t[:leader] || 'none')
+                    w.tab 'w:val' => t[:val], 'w:pos' => t[:pos].to_i, 'w:leader' => (t[:leader] || 'none')
                   end
                 end
               end
-              xml['w'].contextualSpacing 'w:val' => '0'
+              w.contextualSpacing 'w:val' => '0'
             end
-
           end
+
           model.runs.each do |run|
             method = render_method_for_model(run)
             send(method, xml, run)
@@ -458,6 +459,7 @@ module Caracal
             # TODO: w:tblCellMar [0..1]    Table Cell Margin Defaults
             wordml.tblLook 'w:val'  => '0600'
           end
+
           wordml.tblGrid do
             column_widths = model.table_column_widths
             column_widths ||= model.rows.first.map do |tc|
@@ -612,6 +614,19 @@ module Caracal
           'w:orient'  => document.page_orientation
         }
       end
+
+      def spacing_options(model)
+        return unless model.respond_to? :spacing_options
+        opts = model.spacing_options
+        return if opts.all? &:nil?
+
+        options             = {}
+        options['w:before'] = opts[:top].to_i    unless opts[:top].nil?
+        options['w:after']  = opts[:bottom].to_i unless opts[:bottom].nil?
+        options['w:line']   = opts[:line].to_i   unless opts[:line].nil?
+        options
+      end
+
 
     end
   end

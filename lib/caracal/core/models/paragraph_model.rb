@@ -29,6 +29,9 @@ module Caracal
         attr_reader :paragraph_bgcolor
         attr_reader :paragraph_keep_next
         attr_reader :paragraph_tabs
+        attr_reader :paragraph_top
+        attr_reader :paragraph_bottom
+        attr_reader :paragraph_line
 
 
         # initialization
@@ -70,32 +73,40 @@ module Caracal
           runs.collect { |run| run.try(:text_content).to_s }.join(' ').strip
         end
 
+        def spacing_options
+          {
+            top:    self.paragraph_top,
+            bottom: self.paragraph_bottom,
+            line:   self.paragraph_line
+          }
+        end
+
         #========== SETTERS ===============================
 
         # booleans
         [:bold, :italic, :keep_next, :underline].each do |m|
-          define_method "#{ m }" do |value|
+          define_method m do |value|
             instance_variable_set "@paragraph_#{ m }", !!value
           end
         end
 
         # integers
-        [:size].each do |m|
-          define_method "#{ m }" do |value|
+        [:size, :top, :bottom, :line].each do |m|
+          define_method m do |value|
             instance_variable_set "@paragraph_#{ m }", value.to_i
           end
         end
 
         # strings
         [:bgcolor, :color, :style].each do |m|
-          define_method "#{ m }" do |value|
+          define_method m do |value|
             instance_variable_set "@paragraph_#{ m }", value.to_s
           end
         end
 
         # symbols
         [:align].each do |m|
-          define_method "#{ m }" do |value|
+          define_method m do |value|
             instance_variable_set "@paragraph_#{ m }", value.to_s.to_sym
           end
         end
@@ -219,7 +230,7 @@ module Caracal
         private
 
         def option_keys
-          [:content, :style, :align, :color, :size, :bold, :italic, :underline, :bgcolor, :tabs]
+          [:content, :style, :align, :color, :size, :bold, :italic, :underline, :bgcolor, :tabs, :top, :bottom, :line]
         end
 
       end
