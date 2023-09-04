@@ -61,7 +61,7 @@ module Caracal
             wordml.style('w:styleId' => 'TableNormal', 'w:type' => 'table', 'w:default' => '1') do
               wordml.name('w:val' => 'Table Normal')
               wordml.pPr do
-                wordml.spacing('w:lineRule' => 'auto', 'w:line' => (s.style_size * 20 * 1.15).to_i, 'w:before' => '0', 'w:after' => '0')
+                wordml.spacing('w:lineRule' => 'exact', 'w:line' => (s.style_size * 20 * 1.15).to_i, 'w:before' => '0', 'w:after' => '0')
               end
             end
 
@@ -281,7 +281,7 @@ module Caracal
         options = nil
         if [top, bottom, line].compact.size > 0
           options               = {}
-          options['w:lineRule'] = 'auto'
+          options['w:lineRule'] = 'exact'
           options['w:before']   = top      unless top.nil?
           options['w:after']    = bottom   unless bottom.nil?
           options['w:line']     = line     unless line.nil?
