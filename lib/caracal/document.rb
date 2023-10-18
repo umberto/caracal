@@ -2,6 +2,7 @@ require 'open-uri'
 require 'zip'
 
 require 'caracal/header'
+require 'caracal/footer'
 
 require 'caracal/core/bookmarks'
 require 'caracal/core/custom_properties'
@@ -105,8 +106,12 @@ module Caracal
       @header
     end
 
-    def has_footer?
-      page_number_show
+    def footer(&block)
+      if @footer.nil?
+        @footer = Footer.new(index: 1, type: 'default', &block)
+        relationship @footer.relationship_params
+      end
+      @footer
     end
 
     #------------------------------------------------------
@@ -228,10 +233,10 @@ module Caracal
     end
 
     def render_footer(zip)
-      if has_footer?
-        content = ::Caracal::Renderers::FooterRenderer.render(self)
+      relationships_by_type(:footer).each do |rel|
+        content = ::Caracal::Renderers::FooterRenderer.render(rel.owner)
 
-        zip.put_next_entry('word/footer1.xml')
+        zip.put_next_entry("word/#{rel.formatted_target}")
         zip.write(content)
       end
     end

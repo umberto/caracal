@@ -31,14 +31,14 @@ module Caracal
               xml['w'].sectPr do
                 document.relationships_by_type(:header).each do |rel|
                   header = rel.owner
-                  xml['w'].headerReference 'r:id' => rel.formatted_id, 'w:type' => (header.header_type || 'default')
+                  xml['w'].headerReference 'r:id' => rel.formatted_id, 'w:type' => (header.type || 'default')
                 end
 
-                if document.page_number_show
-                  if (rel = document.find_relationship('footer1.xml'))
-                    xml['w'].footerReference 'r:id' => rel.formatted_id, 'w:type' => 'default'
-                  end
+                document.relationships_by_type(:footer).each do |rel|
+                  footer = rel.owner
+                  xml['w'].footerReference 'r:id' => rel.formatted_id, 'w:type' => (footer.type || 'default')
                 end
+
                 xml['w'].pgSz page_size_options
                 xml['w'].pgMar page_margin_options
               end

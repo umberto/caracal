@@ -17,7 +17,7 @@ module Caracal
       def to_xml
         positions = [:left, :center, :right]
         builder = ::Nokogiri::XML::Builder.with(declaration_xml) do |xml|
-          xml['w'].hdr header_root_options do
+          xml['w'].hdr root_options do
             #xml['w'].tbl do
               #xml['w'].tblPr do
                 #xml['w'].tblStyle({ 'w:val' => "TableNormal" })
@@ -75,7 +75,7 @@ module Caracal
       #-------------------------------------------------------------
       private
 
-      def header_root_options
+      def root_options
         {
           'xmlns:mc'  => 'http://schemas.openxmlformats.org/markup-compatibility/2006',
           'xmlns:o'   => 'urn:schemas-microsoft-com:office:office',
