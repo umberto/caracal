@@ -15,7 +15,7 @@ module Caracal
 
         # initialization
         def initialize(options={}, &block)
-          @alignment = options.key?(:align) && [:left, :center, :right].include?(options[:align]) ? options[:align] : nil
+          @alignment = options.key?(:align) && [:left, :center, :right, :both].include?(options[:align]) ? options[:align] : nil
           options.each do |(key, value)|
             send(key, value) if option_keys.include?(key)
           end
