@@ -39,6 +39,9 @@ module Caracal
                   xml['w'].footerReference 'r:id' => rel.formatted_id, 'w:type' => (footer.type || 'default')
                 end
 
+                # FIXME: dirty hack to let word create a blank header for the first page which is the cover
+                xml['w'].titlePg
+
                 xml['w'].pgSz page_size_options
                 xml['w'].pgMar page_margin_options
               end
