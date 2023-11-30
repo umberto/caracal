@@ -122,10 +122,12 @@ module Caracal
             # finally, apply to runs. options do trickle down
             # because paragraph-level styles don't seem to
             # affect runs within tables. weirdsies.
+            # only sets options on runs that don't have that option already set.
             if model.respond_to?(:runs)
               model.runs.each do |run|
-                options.each do |k,v|
-                  run.send(k, v) if run.respond_to?(k)
+                ra = run.respond_to?(:run_attributes) ? run.run_attributes : {}
+                options.each do |k, v|
+                  run.send(k, v) if run.respond_to?(k) and not ra[k]
                 end
               end
             end
