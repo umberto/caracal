@@ -110,7 +110,7 @@ module Caracal
         end
 
         # strings
-        [:id, :type, :name, :color, :font, :background].each do |m|
+        [:id, :type, :name, :color, :font, :background, :base].each do |m|
           define_method m do |value|
             instance_variable_set("@style_#{ m }", value.to_s)
           end
@@ -176,6 +176,7 @@ module Caracal
 
         def option_keys
           [ :type,
+            :base,
             :bold,
             :italic,
             :underline,

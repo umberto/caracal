@@ -439,7 +439,7 @@ module Caracal
 
         wordml.tbl do
           wordml.tblPr do
-            wordml.tblStyle 'w:val' => (model.table_style || 'DefaultTable')
+            wordml.tblStyle 'w:val' => (model.table_style || 'TableNormal')
             #wordml.bidiVisual 'w:val' => 'false'
             wordml.tblW 'w:w' => model.table_width.to_i, 'w:type' => 'dxa'
             wordml.jc 'w:val' => model.table_align
