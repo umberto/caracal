@@ -7,14 +7,9 @@ module Caracal
 
     # This module encapsulates all the functionality related to adding tables
     # to the document.
-    #
     module Tables
       def self.included(base)
         base.class_eval do
-
-          #-------------------------------------------------------------
-          # Public Methods
-          #-------------------------------------------------------------
 
           def table(*args, &block)
             options = Caracal::Utilities.extract_options! args

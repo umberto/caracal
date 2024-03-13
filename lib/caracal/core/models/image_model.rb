@@ -8,35 +8,21 @@ module Caracal
       # This class handles block options passed to the img method.
       #
       class ImageModel < BaseModel
+        use_prefix :image
 
-        #-------------------------------------------------------------
-        # Configuration
-        #-------------------------------------------------------------
+        has_integer_attribute :ppi,    default: 72 # pixels per inch
+        has_integer_attribute :width,  default: 0  # units in pixels. (will cause error)
+        has_integer_attribute :height, default: 0  # units in pixels. (will cause error)
+        has_integer_attribute :top,    default: 8  # units in pixels.
+        has_integer_attribute :bottom, default: 8  # units in pixels.
+        has_integer_attribute :left,   default: 8  # units in pixels.
+        has_integer_attribute :right,  default: 8  # units in pixels.
 
-        # constants
-        const_set(:DEFAULT_IMAGE_PPI,     72)       # pixels per inch
-        const_set(:DEFAULT_IMAGE_WIDTH,   0)        # units in pixels. (will cause error)
-        const_set(:DEFAULT_IMAGE_HEIGHT,  0)        # units in pixels. (will cause error)
-        const_set(:DEFAULT_IMAGE_ALIGN,   :left)
-        const_set(:DEFAULT_IMAGE_TOP,     8)        # units in pixels.
-        const_set(:DEFAULT_IMAGE_BOTTOM,  8)        # units in pixels.
-        const_set(:DEFAULT_IMAGE_LEFT,    8)        # units in pixels.
-        const_set(:DEFAULT_IMAGE_RIGHT,   8)        # units in pixels.
-        const_set(:DEFAULT_IMAGE_ANCHOR,  nil)      # image display is inline by default.
+        has_symbol_attribute :align, default: :left
+        has_symbol_attribute :anchor
 
-        # accessors
-        attr_reader :image_url
-        attr_reader :image_data
-        attr_reader :image_ppi
-        attr_reader :image_width
-        attr_reader :image_height
-        attr_reader :image_align
-        attr_reader :image_top
-        attr_reader :image_bottom
-        attr_reader :image_left
-        attr_reader :image_right
-        attr_reader :image_anchor
-
+        has_string_attribute :url
+        has_string_attribute :data
 
         # initialization
         def initialize(options={}, &block)
@@ -53,54 +39,27 @@ module Caracal
           super options, &block
         end
 
-
-        #-------------------------------------------------------------
-        # Public Methods
-        #-------------------------------------------------------------
+        def relationship_target
+          image_data || image_url
+        end
 
         #=============== GETTERS ==============================
 
         [:width, :height].each do |m|
-          define_method "formatted_#{ m }" do
-            value = send("image_#{ m }")
+          define_method "formatted_#{m}" do
+            value = send("image_#{m}")
             pixels_to_emus(value, image_ppi)
           end
         end
 
         [:top, :bottom, :left, :right].each do |m|
-          define_method "formatted_#{ m }" do
-            value = send("image_#{ m }")
-            pixels_to_emus(value, 72)
+          define_method "formatted_#{m}" do
+            value = send("image_#{m}")
+            pixels_to_emus(value, 72) # NOT image_ppi!
           end
         end
-
-        def relationship_target
-          image_data || image_url
-        end
-
 
         #=============== SETTERS ==============================
-
-        # integers
-        [:ppi, :width, :height, :top, :bottom, :left, :right].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@image_#{ m }", value.to_i)
-          end
-        end
-
-        # strings
-        [:data, :url].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@image_#{ m }", value.to_s)
-          end
-        end
-
-        # symbols
-        [:align].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@image_#{ m }", value.to_s.to_sym)
-          end
-        end
 
         def anchor(value)
           if value
@@ -117,10 +76,6 @@ module Caracal
           dims.all? { |d| d > 0 }
         end
 
-
-        #-------------------------------------------------------------
-        # Private Methods
-        #-------------------------------------------------------------
         private
 
         def option_keys

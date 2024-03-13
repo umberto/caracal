@@ -9,38 +9,16 @@ module Caracal
       # table of contents data.
       #
       class TableOfContentModel < BaseModel
+        use_prefix :toc
 
-        #--------------------------------------------------
-        # Configuration
-        #--------------------------------------------------
+        has_integer_attribute :start_level, default: 1
+        has_integer_attribute :end_level, default: 3
 
-        # constants
-        const_set(:DEFAULT_START_LEVEL, 1)
-        const_set(:DEFAULT_END_LEVEL,   3)
-
-        # accessors
-        attr_reader :toc_start_level
-        attr_reader :toc_end_level
-
-        # initialization
         def initialize(options={}, &block)
           @toc_start_level = DEFAULT_START_LEVEL
           @toc_end_level = DEFAULT_END_LEVEL
 
           super options, &block
-        end
-
-        #--------------------------------------------------
-        # Public Instance Methods
-        #--------------------------------------------------
-
-        #========== SETTERS ===============================
-
-        # integers
-        [:start_level, :end_level].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@toc_#{ m }", value.to_i)
-          end
         end
 
         #========== STATE HELPER ===========================
@@ -60,10 +38,6 @@ module Caracal
           toc_start_level <= toc_end_level
         end
 
-
-        #--------------------------------------------------
-        # Private Instance Methods
-        #--------------------------------------------------
         private
 
         def option_keys
@@ -71,7 +45,6 @@ module Caracal
         end
 
       end
-
     end
   end
 end

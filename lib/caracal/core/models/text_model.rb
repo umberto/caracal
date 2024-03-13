@@ -9,34 +9,28 @@ module Caracal
       # text data.
       #
       class TextModel < BaseModel
+        use_prefix :text
 
-        #--------------------------------------------------
-        # Configuration
-        #--------------------------------------------------
+        has_string_attribute :bgcolor
+        has_string_attribute :color
+        has_string_attribute :content
+        has_string_attribute :font
+        has_string_attribute :highlight_color
+        has_string_attribute :style
 
-        # accessors
-        attr_reader :text_content
-        attr_reader :text_style
-        attr_reader :text_font
-        attr_reader :text_color
-        attr_reader :text_size
-        attr_reader :text_bold
-        attr_reader :text_italic
-        attr_reader :text_underline
-        attr_reader :text_bgcolor
-        attr_reader :text_highlight_color
-        attr_reader :text_vertical_align
-        attr_reader :text_end_tab
+        has_symbol_attribute :vertical_align
+        has_symbol_attribute :whitespace
 
+        has_boolean_attribute :bold
+        has_boolean_attribute :italic
+        has_boolean_attribute :underline
+        has_boolean_attribute :end_tab
+        has_boolean_attribute :rtl
 
-
-        #--------------------------------------------------
-        # Public Methods
-        #--------------------------------------------------
+        has_integer_attribute :size
 
         #========== GETTERS ===============================
 
-        # .run_attributes
         def run_attributes
           {
             style:            text_style,
@@ -53,38 +47,6 @@ module Caracal
           }
         end
 
-
-        #========== SETTERS ===============================
-
-        # booleans
-        [:bold, :italic, :underline, :end_tab].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@text_#{ m }", !!value)
-          end
-        end
-
-        # integers
-        [:size].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@text_#{ m }", value.to_i)
-          end
-        end
-
-        # strings
-        [:bgcolor, :color, :content, :font, :highlight_color, :style].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@text_#{ m }", value.to_s)
-          end
-        end
-
-        # symbols
-        [:vertical_align].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@text_#{ m }", value.to_s.to_sym)
-          end
-        end
-
-
         #========== VALIDATION ============================
 
         def valid?
@@ -93,26 +55,22 @@ module Caracal
         end
 
 
-        #--------------------------------------------------
-        # Private Methods
-        #--------------------------------------------------
         private
 
         def option_keys
           [:content, :style, :font, :color, :size, :bold, :italic, :underline, :bgcolor, :highlight_color, :vertical_align, :end_tab]
         end
 
-        def method_missing(method, *args, &block)
-          # I'm on the fence with respect to this implementation. We're ignoring
-          # :method_missing errors to allow syntax flexibility for paragraph-type
-          # models.  The issue is the syntax format of those models--the way we pass
-          # the content value as a special argument--coupled with the model's
-          # ability to accept nested instructions.
-          #
-          # By ignoring method missing errors here, we can pass the entire paragraph
-          # block in the initial, built-in call to :text.
-        end
-
+        # def method_missing(method, *args, &block)
+        #   # I'm on the fence with respect to this implementation. We're ignoring
+        #   # :method_missing errors to allow syntax flexibility for paragraph-type
+        #   # models.  The issue is the syntax format of those models--the way we pass
+        #   # the content value as a special argument--coupled with the model's
+        #   # ability to accept nested instructions.
+        #   #
+        #   # By ignoring method missing errors here, we can pass the entire paragraph
+        #   # block in the initial, built-in call to :text.
+        # end
       end
 
     end

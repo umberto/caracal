@@ -9,50 +9,24 @@ module Caracal
       # namespace data.
       #
       class NamespaceModel < BaseModel
+        use_prefix :namespace
 
-        #-------------------------------------------------------------
-        # Configuration
-        #-------------------------------------------------------------
-
-        # accessors
-        attr_reader :namespace_prefix
-        attr_reader :namespace_href
-
-        #-------------------------------------------------------------
-        # Public Instance Methods
-        #-------------------------------------------------------------
+        has_string_attribute :prefix
+        has_string_attribute :href
 
         def ns_hash
           {namespace_prefix => namespace_href}
         end
 
-        #=================== SETTERS =============================
-
-        # strings
-        [:href, :prefix].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@namespace_#{ m }", value.to_s)
-          end
-        end
-
-
-        #=================== STATE ===============================
-
         def matches?(str)
           namespace_prefix == str.to_s or namespace_prefix == "xmlns:#{str}"
         end
-
-
-        #=============== VALIDATION ===========================
 
         def valid?
           required = [:href, :prefix]
           required.all? { |m| !send("namespace_#{ m }").nil? }
         end
 
-        #-------------------------------------------------------------
-        # Private Instance Methods
-        #-------------------------------------------------------------
         private
 
         def option_keys

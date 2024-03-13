@@ -12,32 +12,26 @@ module Caracal
       # collections.
       #
       class TableCellModel < BaseModel
+        use_prefix :cell
 
-        #-------------------------------------------------------------
-        # Configuration
-        #-------------------------------------------------------------
+        has_string_attribute :background
+        has_string_attribute :style
+        has_string_attribute :border_color,    default: 'auto'
 
-        # constants
-        const_set(:DEFAULT_CELL_BACKGROUND,       nil)
-        const_set(:DEFAULT_CELL_MARGINS,          Caracal::Core::Models::MarginModel.new({ top: 100, bottom: 100, left: 100, right: 100 }))
-        const_set(:DEFAULT_CELL_VERTICAL_ALIGN,   :top)
-        const_set(:DEFAULT_CELL_BORDER_COLOR,     'auto')
-        const_set(:DEFAULT_CELL_BORDER_LINE,      :single)
-        const_set(:DEFAULT_CELL_BORDER_SIZE,      0)          # units in 1/8 points
-        const_set(:DEFAULT_CELL_BORDER_SPACING,   0)
+        has_symbol_attribute :vertical_align,  default: :top
+        has_symbol_attribute :border_line,     default: :single
+
+        has_integer_attribute :border_size,    default: 0 # in 1/8pt
+        has_integer_attribute :border_spacing, default: 0 # in 1/8pt
+        has_integer_attribute :colspan,        default: 1
+        has_integer_attribute :rowspan,        default: 1
+        has_integer_attribute :width
+
+        has_model_attribute :margins,
+            model: Caracal::Core::Models::MarginModel,
+            default: Caracal::Core::Models::MarginModel.new(top: 100, bottom: 100, left: 100, right: 100)
 
         # accessors
-        attr_reader :cell_style
-        attr_reader :cell_background
-        attr_reader :cell_width
-        attr_reader :cell_margins
-        attr_reader :cell_vertical_align
-        attr_reader :cell_rowspan
-        attr_reader :cell_colspan
-        attr_reader :cell_border_color
-        attr_reader :cell_border_line
-        attr_reader :cell_border_size
-        attr_reader :cell_border_spacing
         attr_reader :cell_border_top         # returns border model
         attr_reader :cell_border_bottom      # returns border model
         attr_reader :cell_border_left        # returns border model
@@ -47,6 +41,8 @@ module Caracal
 
         # initialization
         def initialize(options={}, &block)
+          @cell_rowspan        = DEFAULT_CELL_ROWSPAN
+          @cell_colspan        = DEFAULT_CELL_COLSPAN
           @cell_background     = DEFAULT_CELL_BACKGROUND
           @cell_margins        = DEFAULT_CELL_MARGINS
           @cell_vertical_align = DEFAULT_CELL_VERTICAL_ALIGN
@@ -89,7 +85,6 @@ module Caracal
         def contents
           @contents ||= []
         end
-
 
         #=============== STYLES ===============================
 
@@ -191,48 +186,12 @@ module Caracal
           end
         end
 
-        # integers
-        [:width, :colspan, :rowspan, :border_size, :border_spacing].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@cell_#{ m }", value.to_i)
-          end
-        end
-
-        # models
-        [:margins].each do |m|
-          define_method "#{ m }" do |options = {}, &block|
-            instance_variable_set("@cell_#{ m }", Caracal::Core::Models::MarginModel.new(options, &block))
-          end
-        end
-
-        # strings
-        [:background, :border_color].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@cell_#{ m }", value.to_s)
-          end
-        end
-
-        #symbols
-        [:vertical_align, :border_line].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@cell_#{ m }", value.to_s.to_sym)
-          end
-        end
-
-        def style(style_name)
-          @cell_style = style_name.to_s
-        end
-
         #=============== VALIDATION ===========================
 
         def valid?
           contents.size > 0
         end
 
-
-        #-------------------------------------------------------------
-        # Private Instance Methods
-        #-------------------------------------------------------------
         private
 
         def option_keys

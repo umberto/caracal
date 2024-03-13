@@ -1,44 +1,21 @@
 module Caracal
   module Core
     module Models
+
       # This class encapsulates the logic needed to store and manipulate
       # fields.
-      #
       class FieldModel < TextModel
+        use_prefix :field
 
-        #--------------------------------------------------
-        # Configuration
-        #--------------------------------------------------
-
-        # accessors
-        attr_reader :field_name
-
-        #--------------------------------------------------
-        # Public Methods
-        #--------------------------------------------------
-
-        #========== GETTERS ===============================
-
-        #========== SETTERS ===============================
-
-        # strings
-        [:name].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@field_#{ m }", value.to_s)
-          end
-        end
+        has_string_attribute :name
 
         #========== VALIDATION ============================
 
         def valid?
           a = [:name]
-          a.map { |m| send("field_#{ m }") }.compact.size == a.size
+          a.map { |m| send "field_#{m}" }.compact.size == a.size
         end
 
-
-        #--------------------------------------------------
-        # Private Methods
-        #--------------------------------------------------
         private
 
         def option_keys

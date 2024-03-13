@@ -9,20 +9,12 @@ module Caracal
       # method.
       #
       class PageSizeModel < BaseModel
+        use_prefix :page
 
-        #-------------------------------------------------------------
-        # Configuration
-        #-------------------------------------------------------------
+        has_integer_attribute :width,  default: 12240 #  8.5in in twips
+        has_integer_attribute :height, default: 15840 # 11.0in in twips
 
-        # constants
-        const_set(:DEFAULT_PAGE_WIDTH,        12240)  # 8.5in  in twips
-        const_set(:DEFAULT_PAGE_HEIGHT,       15840)  # 11.0in in twips
-        const_set(:DEFAULT_PAGE_ORIENTATION,  'portrait')
-
-        # accessors
-        attr_reader :page_width
-        attr_reader :page_height
-        attr_reader :page_orientation
+        has_string_attribute :orientation, default: 'portrait'
 
         # initialization
         def initialize(options={}, &block)
@@ -33,27 +25,13 @@ module Caracal
           super options, &block
         end
 
-
-        #-------------------------------------------------------------
-        # Public Methods
-        #-------------------------------------------------------------
-
         #=============== SETTERS ==============================
-
-        def height(value)
-          @page_height = value.to_i
-        end
 
         def orientation(value)
           allowed = ['landscape','portrait']
           given   = value.to_s.downcase
           @page_orientation = allowed.include?(given) ? given : 'portrait'
         end
-
-        def width(value)
-          @page_width = value.to_i
-        end
-
 
         #=============== VALIDATION ==============================
 
@@ -62,10 +40,6 @@ module Caracal
           dims.all? { |d| d > 0 }
         end
 
-
-        #-------------------------------------------------------------
-        # Private Instance Methods
-        #-------------------------------------------------------------
         private
 
         def option_keys
@@ -73,7 +47,6 @@ module Caracal
         end
 
       end
-
     end
   end
 end

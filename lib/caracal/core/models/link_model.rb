@@ -7,21 +7,16 @@ module Caracal
 
       # This class encapsulates the logic needed to store and manipulate
       # link data.
-      #
       class LinkModel < TextModel
+        use_prefix :link
 
-        #--------------------------------------------------
-        # Configuration
-        #--------------------------------------------------
-
-        # constants
-        const_set(:DEFAULT_LINK_COLOR,      '1155cc')
-        const_set(:DEFAULT_LINK_UNDERLINE,  true)
+        has_string_attribute :color, default: '1155cc'
+        has_boolean_attribute :underline, default: true
+        has_boolean_attribute :internal
+        has_string_attribute :href
 
         # readers (create aliases for superclass methods to conform
         # to expected naming convention.)
-        attr_reader  :link_href
-        attr_reader  :link_internal
         alias_method :link_content,         :text_content
         alias_method :link_font,            :text_font
         alias_method :link_color,           :text_color
@@ -41,34 +36,11 @@ module Caracal
           super options, &block
         end
 
-
-        #--------------------------------------------------
-        # Public Instance Methods
-        #--------------------------------------------------
-
-        #========== SETTERS ===============================
-
-        # booleans
-        [:internal].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@link_#{ m }", !!value)
-          end
-        end
-
-        # strings
-        [:href].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@link_#{ m }", value.to_s)
-          end
-        end
-
-
         #========== STATE HELPERS =========================
 
         def external?
           !link_internal
         end
-
 
         #========== VALIDATION ============================
 
@@ -77,10 +49,6 @@ module Caracal
           a.map { |m| send("link_#{ m }") }.compact.size == a.size
         end
 
-
-        #--------------------------------------------------
-        # Private Instance Methods
-        #--------------------------------------------------
         private
 
         def option_keys
@@ -88,7 +56,6 @@ module Caracal
         end
 
       end
-
     end
   end
 end

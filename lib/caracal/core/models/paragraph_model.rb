@@ -13,26 +13,27 @@ module Caracal
       # paragraph data.
       #
       class ParagraphModel < BaseModel
+        use_prefix :paragraph
 
-        #--------------------------------------------------
-        # Configuration
-        #--------------------------------------------------
+        has_string_attribute :bgcolor
+        has_string_attribute :color
+        has_string_attribute :style
 
-        # readers
-        attr_reader :paragraph_style
-        attr_reader :paragraph_align
-        attr_reader :paragraph_color
-        attr_reader :paragraph_size
-        attr_reader :paragraph_bold
-        attr_reader :paragraph_italic
-        attr_reader :paragraph_underline
-        attr_reader :paragraph_bgcolor
-        attr_reader :paragraph_keep_next
+        has_symbol_attribute :align
+
+        has_integer_attribute :size
+        has_integer_attribute :top
+        has_integer_attribute :bottom
+        has_integer_attribute :line
+
+        has_boolean_attribute :bold
+        has_boolean_attribute :italic
+        has_boolean_attribute :underline
+        has_boolean_attribute :keep_next
+        has_boolean_attribute :keep_lines
+        has_boolean_attribute :widow_control
+
         attr_reader :paragraph_tabs
-        attr_reader :paragraph_top
-        attr_reader :paragraph_bottom
-        attr_reader :paragraph_line
-
 
         # initialization
         def initialize(options={}, &block)
@@ -51,12 +52,10 @@ module Caracal
 
         #========== GETTERS ===============================
 
-        # .runs
         def runs
           @runs ||= []
         end
 
-        # .run_attributes
         def run_attributes
           {
             color:      paragraph_color,
@@ -68,7 +67,6 @@ module Caracal
           }
         end
 
-        # .plaintext
         def plain_text
           runs.collect { |run| run.try(:text_content).to_s }.join(' ').strip
         end
@@ -82,34 +80,6 @@ module Caracal
         end
 
         #========== SETTERS ===============================
-
-        # booleans
-        [:bold, :italic, :keep_next, :underline].each do |m|
-          define_method m do |value|
-            instance_variable_set "@paragraph_#{ m }", !!value
-          end
-        end
-
-        # integers
-        [:size, :top, :bottom, :line].each do |m|
-          define_method m do |value|
-            instance_variable_set "@paragraph_#{ m }", value.to_i
-          end
-        end
-
-        # strings
-        [:bgcolor, :color, :style].each do |m|
-          define_method m do |value|
-            instance_variable_set "@paragraph_#{ m }", value.to_s
-          end
-        end
-
-        # symbols
-        [:align].each do |m|
-          define_method m do |value|
-            instance_variable_set "@paragraph_#{ m }", value.to_s.to_sym
-          end
-        end
 
         # Getter/setter
         def indent(hash = nil)

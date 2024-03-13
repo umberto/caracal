@@ -5,29 +5,20 @@ module Caracal
     module Models
 
       # This class handles block options passed to the img method.
-      #
       class IFrameModel < BaseModel
+        use_prefix :iframe
 
-        #--------------------------------------------------
-        # Configuration
-        #--------------------------------------------------
 
-        # accessors
-        attr_reader :iframe_url
-        attr_reader :iframe_data
+        has_string_attribute :url
+        has_string_attribute :data
+
         attr_reader :iframe_ignorables
         attr_reader :iframe_namespaces
         attr_reader :iframe_relationships
 
-        # initialization
         def initialize(options={}, &block)
           super options, &block
         end
-
-
-        #--------------------------------------------------
-        # Public Methods
-        #--------------------------------------------------
 
         #=============== PROCESSING =======================
 
@@ -66,6 +57,7 @@ module Caracal
               end
               hash
             end
+
             @iframe_relationships = pic_nodes.reduce([]) do |array, node|
               r_node  = node.children[1].children[0]
               r_id    = r_node.attributes['embed'].value.to_s
@@ -111,17 +103,6 @@ module Caracal
           @iframe_relationships || []
         end
 
-
-        #=============== SETTERS ==========================
-
-        # strings
-        [:data, :url].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@iframe_#{ m }", value.to_s)
-          end
-        end
-
-
         #=============== VALIDATION =======================
 
         def valid?
@@ -130,11 +111,6 @@ module Caracal
           vals.size > 0
         end
 
-
-
-        #--------------------------------------------------
-        # Private Methods
-        #--------------------------------------------------
         private
 
         def option_keys
@@ -142,7 +118,6 @@ module Caracal
         end
 
       end
-
     end
   end
 end

@@ -1,7 +1,7 @@
 require 'caracal/core/models/base_model'
 require 'caracal/core/models/border_model'
 require 'caracal/core/models/table_cell_model'
-
+require 'caracal/core/models/table_look_model'
 
 module Caracal
   module Core
@@ -9,30 +9,32 @@ module Caracal
 
       # This class handles block options passed to the table
       # method.
-      #
       class TableModel < BaseModel
+        use_prefix :table
 
-        #-------------------------------------------------------------
-        # Configuration
-        #-------------------------------------------------------------
+        has_string_attribute :caption, default: 'TableNormal'
+        has_string_attribute :style, default: 'TableNormal'
+        has_string_attribute :border_color, default: 'auto'
+        has_string_attribute :layout, default: 'auto'
+        has_string_attribute :bgcolor
+        has_string_attribute :bgstyle, default: 'clear'
 
-        # constants
-        const_set(:DEFAULT_TABLE_STYLE,             'TableNormal')
-        const_set(:DEFAULT_TABLE_ALIGN,             :center)    # weirdly, works better w/ full width
-        const_set(:DEFAULT_TABLE_BORDER_COLOR,      'auto')
-        const_set(:DEFAULT_TABLE_BORDER_LINE,       :single)
-        const_set(:DEFAULT_TABLE_BORDER_SIZE,       0)          # units in 1/8 points
-        const_set(:DEFAULT_TABLE_BORDER_SPACING,    0)
-        const_set(:DEFAULT_TABLE_REPEAT_HEADER,     0)
+        has_symbol_attribute :align, default: :center
+        has_symbol_attribute :border_line, default: :single
+
+        has_integer_attribute :border_size, default: 0
+        has_integer_attribute :border_spacing, default: 0
+        has_integer_attribute :repeat_header, default: 0
+        has_integer_attribute :row_band_size, default: 1
+        has_integer_attribute :col_band_size, default: 1
+        has_integer_attribute :width
+        has_integer_attribute :indent
+
+        has_model_attribute :look,
+            model: Caracal::Core::Models::TableLookModel,
+            default: Caracal::Core::Models::TableLookModel.new
 
         # accessors
-        attr_reader :table_style
-        attr_reader :table_align
-        attr_reader :table_width
-        attr_reader :table_border_color
-        attr_reader :table_border_line
-        attr_reader :table_border_size
-        attr_reader :table_border_spacing
         attr_reader :table_border_top         # returns border model
         attr_reader :table_border_bottom      # returns border model
         attr_reader :table_border_left        # returns border model
@@ -40,7 +42,7 @@ module Caracal
         attr_reader :table_border_horizontal  # returns border model
         attr_reader :table_border_vertical    # returns border model
         attr_reader :table_column_widths
-        attr_reader :table_repeat_header
+
 
         # initialization
         def initialize(options={}, &block)
@@ -52,6 +54,10 @@ module Caracal
           @table_border_size    = DEFAULT_TABLE_BORDER_SIZE
           @table_border_spacing = DEFAULT_TABLE_BORDER_SPACING
           @table_repeat_header  = DEFAULT_TABLE_REPEAT_HEADER
+          @table_row_band_size  = DEFAULT_TABLE_ROW_BAND_SIZE
+          @table_col_band_size  = DEFAULT_TABLE_COL_BAND_SIZE
+          @table_layout         = DEFAULT_TABLE_LAYOUT
+          @table_look           = DEFAULT_TABLE_LOOK
 
           super options, &block
         end
@@ -62,6 +68,17 @@ module Caracal
         #-------------------------------------------------------------
 
         #=============== DATA ACCESSORS =======================
+
+        def table_align
+          case @table_align
+          when :left
+            :start
+          when :right
+            :end
+          else
+            @table_align
+          end
+        end
 
         def cells
           rows.flatten
@@ -134,38 +151,17 @@ module Caracal
 
         #=============== SETTERS ==============================
 
-        # integers
-        [:border_size, :border_spacing, :width, :repeat_header].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@table_#{ m }", value.to_i)
-          end
-        end
-
         # models
         [:top, :bottom, :left, :right, :horizontal, :vertical].each do |m|
           define_method "border_#{ m }" do |options = {}, &block|
             options.merge!({ type: m })
-            instance_variable_set("@table_border_#{ m }", Caracal::Core::Models::BorderModel.new(options, &block))
-          end
-        end
-
-        # strings
-        [:border_color, :style].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@table_#{ m }", value.to_s)
-          end
-        end
-
-        # symbols
-        [:border_line, :align].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@table_#{ m }", value.to_s.to_sym)
+            instance_variable_set "@table_border_#{ m }", Caracal::Core::Models::BorderModel.new(options, &block)
           end
         end
 
         # column widths
         def column_widths(value)
-          @table_column_widths = value.map(&:to_i) if value.is_a?(Array)
+          @table_column_widths = value.map &:to_i if value.is_a? Array
         end
 
         # .data
@@ -199,22 +195,19 @@ module Caracal
           cells.first.is_a?(Caracal::Core::Models::TableCellModel)
         end
 
-
-        #-------------------------------------------------------------
-        # Private Instance Methods
-        #-------------------------------------------------------------
         private
 
+        # FIXME: needs to be replaced with proper handling of multiple table styles
         def merge_named_styles(options)
           named_style = options.delete(:style)
           if named_style
             raise "If you use cell styles, you must create the table using #table" unless @document
             ns = @document.styles.find{|s| s.style_id == named_style }
             raise "style #{named_style} is not available in document" unless ns
-            raise "style #{named_style} is a #{ns.style_type} but should be a table_cell or table_row style" unless %w(table_row table_cell).include?(ns.style_type)
-            ns.to_h.merge options
+            raise "style #{named_style} is a #{ns.style_type} but should be a table, table_cell, or table_row style" unless %w(table table_row table_cell).include?(ns.style_type)
+            ns.to_h.merge options.compact
           else
-            options
+            options.compact
           end
         end
 
@@ -227,11 +220,11 @@ module Caracal
 
         def option_keys
           k = []
-          k << [:data, :align, :width, :style]
+          k << [:data, :align, :width, :style, :layout, :bgcolor, :bgstyle, :caption, :indent]
           k << [:border_color, :border_line, :border_size, :border_spacing]
           k << [:border_bottom, :border_left, :border_right, :border_top, :border_horizontal, :border_vertical]
           k << [:column_widths]
-          k << [:repeat_header]
+          k << [:repeat_header, :row_band_size, :col_band_size]
           k.flatten
         end
 

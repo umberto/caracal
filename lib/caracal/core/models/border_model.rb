@@ -1,32 +1,21 @@
 require 'caracal/core/models/base_model'
 
-
 module Caracal
   module Core
     module Models
 
       # This class handles block options passed to the page margins
       # method.
-      #
       class BorderModel < BaseModel
+        use_prefix :border
 
-        #-------------------------------------------------------------
-        # Configuration
-        #-------------------------------------------------------------
+        has_string_attribute :color, default: 'auto'
 
-        # constants
-        const_set(:DEFAULT_BORDER_COLOR,    'auto')
-        const_set(:DEFAULT_BORDER_LINE,     :single)
-        const_set(:DEFAULT_BORDER_SIZE,     4)        # 0.5pt in 1/8 points
-        const_set(:DEFAULT_BORDER_SPACING,  1)        # 0.125pt in 1/8 points
-        const_set(:DEFAULT_BORDER_TYPE,     :top)
+        has_symbol_attribute :line, default: :single
+        has_symbol_attribute :type, default: :top
 
-        # accessors
-        attr_reader :border_color
-        attr_reader :border_line
-        attr_reader :border_size
-        attr_reader :border_spacing
-        attr_reader :border_type
+        has_integer_attribute :size, default: 4 # 0.5pt in 1/8 points
+        has_integer_attribute :spacing, default: 1 # 0.125pt in 1/8 points
 
         # initialization
         def initialize(options={}, &block)
@@ -55,11 +44,6 @@ module Caracal
           }[type.to_s.to_sym]
         end
 
-
-        #-------------------------------------------------------------
-        # Public Methods
-        #-------------------------------------------------------------
-
         #=============== GETTERS ==============================
 
         def formatted_type
@@ -70,31 +54,6 @@ module Caracal
           border_size + (2 * border_spacing)
         end
 
-
-        #=============== SETTERS ==============================
-
-        # integers
-        [:size, :spacing].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@border_#{ m }", value.to_i)
-          end
-        end
-
-        # strings
-        [:color].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@border_#{ m }", value.to_s)
-          end
-        end
-
-        # symbols
-        [:line, :type].each do |m|
-          define_method "#{ m }" do |value|
-            instance_variable_set("@border_#{ m }", value.to_s.to_sym)
-          end
-        end
-
-
         #=============== VALIDATION ==============================
 
         def valid?
@@ -102,10 +61,6 @@ module Caracal
           dims.all? { |d| d > 0 }
         end
 
-
-        #-------------------------------------------------------------
-        # Private Instance Methods
-        #-------------------------------------------------------------
         private
 
         def option_keys
@@ -113,7 +68,6 @@ module Caracal
         end
 
       end
-
     end
   end
 end
