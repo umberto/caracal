@@ -1,255 +1,237 @@
 require 'nokogiri'
-
 require 'caracal/renderers/xml_renderer'
 require 'caracal/errors'
-
+require 'caracal/renderers/render_helpers'
 
 module Caracal
   module Renderers
     class StylesRenderer < XmlRenderer
-
-      #----------------------------------------------------
-      # Public Methods
-      #----------------------------------------------------
+      include RenderHelpers
 
       # This method produces the xml required for the `word/styles.xml`
       # sub-document.
-      #
       def to_xml
         builder = ::Nokogiri::XML::Builder.with(declaration_xml) do |xml|
-          wordml = xml['w']
-          wordml.styles root_options do
-
+          w = xml['w']
+          w.styles root_options do
             #========== DEFAULT STYLES ====================
 
             unless s = document.default_style
               raise Caracal::Errors::NoDefaultStyleError 'Document must declare a default paragraph style.'
             end
-            default_id = s.style_id
 
-            wordml.docDefaults do
-              wordml.rPrDefault do
-                wordml.rPr do
-                  wordml.rFonts font_options(s)
-                  wordml.b('w:val' => (s.style_bold ? '1' : '0'))
-                  wordml.i('w:val' => (s.style_italic ? '1' : '0'))
-                  wordml.caps('w:val' => (s.style_caps ? '1' : '0'))
-                  wordml.smallCaps('w:val' => '0')
-                  wordml.strike('w:val' => '0')
-                  wordml.color('w:val' => s.style_color)
-                  wordml.sz('w:val' => s.style_size)
-                  wordml.u('w:val' => (s.style_underline ? 'single' : 'none'))
-                  wordml.vertAlign('w:val' => 'baseline')
-                end
+            w.docDefaults do
+              w.rPrDefault do
+                render_run_attributes w, s, skip_empty: false
               end
-              wordml.pPrDefault do
-                wordml.pPr do
-                  wordml.keepNext('w:val' => '0')
-                  wordml.keepLines('w:val' => '0')
-                  wordml.widowControl('w:val' => '1')
-                  wordml.spacing(spacing_options(s, true))
-                  wordml.ind(indentation_options(s, true))
-                  wordml.jc('w:val' => s.style_align.to_s)
+
+              w.pPrDefault do
+                w.pPr do
+                  w.keepNext     'w:val' => s.style_keep_next  ? 1 : 0 unless s.style_keep_next.nil?
+                  w.keepLines    'w:val' => s.style_keep_lines ? 1 : 0 unless s.style_keep_lines.nil?
+                  w.widowControl 'w:val' => s.style_widow_control unless s.style_widow_control.nil?
+                  w.spacing spacing_options(s, true)
+                  w.ind indentation_options(s, true)
+                  w.jc 'w:val' => s.style_align.to_s
                 end
               end
             end
 
-            wordml.style('w:styleId' => default_id, 'w:type' => 'paragraph', 'w:default' => '1') do
-              wordml.name('w:val' => s.style_name)
-            end
+            # w.latentStyles 'w:defLockedState' => 0, 'w:defPriority' => 99, 'w:defSemiHidden' => 1, 'w:defUnhideWhenUsed' => 1, 'w:defQFormat' => 0, 'w:count' => document.styles.size do
+            #   document.styles.each do |model|
+            #     w.lsdException 'w:name' => model.style_name, 'w:semiHidden' => 0, 'w:qFormat' => 1, 'w:priority' => 1, 'w:locked' => 0
+            #   end
+            # end
 
-            wordml.style('w:styleId' => 'TableNormal', 'w:type' => 'table', 'w:default' => '1') do
-              wordml.name('w:val' => 'Table Normal')
-              wordml.pPr do
-                wordml.spacing('w:lineRule' => 'exact', 'w:line' => (s.style_size * 20 * 1.15).to_i, 'w:before' => '0', 'w:after' => '0')
+            # first, render the default paragraph and table styles. If no custom style is marked
+            # as default, we render a fallback "Normal"/"TableNormal" style with no real style info.
+            default_paragraph_style = document.styles.find{|s| s.style_type == :paragraph and s.style_default }
+            default_table_style     = document.styles.find{|s| s.style_type == :table     and s.style_default }
+
+            if default_paragraph_style
+              render_paragraph_style w, default_paragraph_style
+            else
+              w.style 'w:styleId' => 'Normal', 'w:type' => 'paragraph', 'w:default' => true do
+                w.name 'w:val' => 'normal'
               end
             end
 
-            document.styles.select{|s| %(table_row table_cell table).include? s.style_type }.each do |s|
-              wordml.style 'w:styleId' => s.style_id, 'w:type' => 'table' do
-                wordml.name 'w:val' => s.style_name
-                wordml.basedOn 'w:val' => (s.style_base || 'TableNormal')
-
-                wordml.tblPr do
-                  # wordml.tblW 'w:val' => 1.0 # Preferred Table Width
-                  wordml.tblStyleRowBandSize 'w:val' => '1'
-                  wordml.tblStyleColBandSize 'w:val' => '1'
+            if default_table_style
+              render_table_style w, default_table_style
+            else
+              w.style 'w:styleId' => 'TableNormal', 'w:type' => 'table', 'w:default' => true do
+                w.name 'w:val' => 'Table Normal'
+                w.pPr do
+                  w.spacing 'w:lineRule' => 'exact', 'w:line' => (s.style_size * 20 * 1.15).to_i, 'w:before' => '0', 'w:after' => '0'
                 end
-
-                wordml.trPr do
-                  wordml.cantSplit 'w:val' => '1'
-                end
-
-                wordml.tcPr do
-                  wordml.shd 'w:fill' => s.style_background, 'w:val' => 'clear' unless s.style_background.nil?
-                  wordml.shd 'w:vAlign' => 'top'
-                  wordml.jc 'w:val' => s.style_align.to_s unless s.style_align.nil?
-                  spacing = spacing_options s
-                  wordml.tcCellSpacing spacing unless spacing.nil?
-                  indentation = indentation_options s
-                  wordml.tcInd indentation unless indentation.nil?
-                  render_borders wordml, 'tblBorders', s
-                end
-
-                ## CONDITIONAL FORMATTING
-                #wordml.tblStylePr('w:type' => 'wholeTable')
-
-                #%w(band1Horz band1Vert band2Horz band2Vert).each do |type|
-                  #wordml.tblStylePr('w:type' => type)
-                #end
-                #%w(firstCol firstRow lastCol lastRow).each do |type|
-                  #wordml.tblStylePr('w:type' => type)
-                #end
-                #%w(neCell nwCell seCell swCell).each do |type|
-                  #wordml.tblStylePr('w:type' => type)
-                #end
               end
             end
 
-
-            #========== PARA/CHAR STYLES ==================
-
-            document.styles.each do |s|
-              next if s.style_id == default_id
-              next if %w(table_row table_cell table).include? s.style_type
-
-              wordml.style 'w:styleId' => s.style_id, 'w:type' => s.style_type do
-                wordml.name    'w:val' => s.style_name
-                wordml.basedOn 'w:val' => s.style_base
-                wordml.next    'w:val' => s.style_next
-
-                # paragraph properties
-                wordml.pPr do
-                  spacing = spacing_options s
-                  indentation = indentation_options s
-                  wordml.keepNext     'w:val' => '0'
-                  wordml.keepLines    'w:val' => '0'
-                  wordml.widowControl 'w:val' => '1'
-                  wordml.spacing spacing unless spacing.nil?
-                  wordml.ind indentation unless indentation.nil?
-                  wordml.jc         'w:val' => s.style_align.to_s       unless s.style_align.nil?
-                  wordml.outlineLvl 'w:val' => s.style_outline_lvl.to_s unless s.style_outline_lvl.nil?
-                end
-
-                # run properties
-                wordml.rPr do
-                  wordml.rFonts font_options(s) unless s.style_font.nil?
-                  wordml.b     'w:val' => (s.style_bold   ? '1' : '0')  unless s.style_bold.nil?
-                  wordml.i     'w:val' => (s.style_italic ? '1' : '0')  unless s.style_italic.nil?
-                  wordml.caps  'w:val' => (s.style_caps   ? '1' : '0')  unless s.style_caps.nil?
-                  wordml.color 'w:val' => s.style_color                 unless s.style_color.nil?
-                  wordml.sz    'w:val' => s.style_size                  unless s.style_size.nil?
-                  wordml.u     'w:val' => (s.style_underline ? 'single' : 'none') unless s.style_underline.nil?
-                end
-
-                ## only applies to table styles
-                #if s.style_type == 'table'
-                  #wordml.tblPr do
-                    ##w:tblStyle [0..1]      Referenced Table Style
-                    ##w:tblpPr [0..1]        Floating Table Positioning
-                    ##w:tblOverlap [0..1]    Floating Table Allows Other Tables to Overlap
-                    ##w:bidiVisual [0..1]    Visually Right to Left Table
-                    ##w:tblStyleRowBandSize [0..1]    Number of Rows in Row Band
-                    ##w:tblStyleColBandSize [0..1]    Number of Columns in Column Band
-                    ##w:tblW [0..1]          Preferred Table Width
-                    #wordml.jc('w:val' => s.style_align.to_s) unless s.style_align.nil?
-                    #wordml.tblCellSpacing(spacing_options(s)) unless spacing_options(s).nil?
-                    #wordml.tblInd(indentation_options(s)) unless indentation_options(s).nil?
-                    #render_borders(wordml, 'tblBorders', s)
-                    #wordml.shd 'w:fill' => s.style_background, 'w:val' => 'clear' unless s.style_background.nil?
-                    ##w:tblLayout [0..1]     Table Layout
-                    ##w:tblCellMar [0..1]    Table Cell Margin Defaults
-                    ##w:tblLook [0..1]       Table Style Conditional Formatting Settings
-                  #end
-                #end
-
-                ## only applies to table row styles
-                #if s.style_type == 'table_row'
-                  #wordml.trPr do
-                    ##w:cnfStyle [0..1]     Table Row Conditional Formatting
-                    ##w:divId [0..1]        Associated HTML div ID
-                    ##w:gridBefore [0..1]   Grid Columns Before First Cell
-                    ##w:gridAfter [0..1]    Grid Columns After Last Cell
-                    ##w:wBefore [0..1]      Preferred Width Before Table Row
-                    ##w:wAfter [0..1]       Preferred Width After Table Row
-                    ##w:cantSplit [0..1]    Table Row Cannot Break Across Pages
-                    ##w:trHeight [0..1]     Table Row Height
-                    ##w:tblHeader [0..1]    Repeat Table Row on Every New Page
-                    #wordml.tblCellSpacing(spacing_options(s)) unless spacing_options(s).nil?
-                    #wordml.jc('w:val' => s.style_align.to_s) unless s.style_align.nil?
-                    ##w:hidden [0..1]       Hidden Table Row Marker
-                  #end
-                #end
-
-                # only applies to table cell styles
-                #if s.style_type == 'table_cell'
-                  #wordml.tcPr do
-                    ##w:cnfStyle [0..1]      Table Cell Conditional Formatting
-                    ##w:tcW [0..1]           Preferred Table Cell Width
-                    ##w:gridSpan [0..1]      Grid Columns Spanned by Current Table Cell
-                    ##w:hMerge [0..1]        Horizontally Merged Cell
-                    ##w:vMerge [0..1]        Vertically Merged Cell
-                    #render_borders(wordml, 'tcBorders', s)
-                    #wordml.shd 'w:fill' => s.style_background, 'w:val' => 'clear' unless s.style_background.nil?
-                    ##w:noWrap [0..1]        Don't Wrap Cell Content
-                    ##w:tcMar [0..1]         Single Table Cell Margins
-                    ##w:textDirection [0..1] Table Cell Text Flow Direction
-                    ##w:tcFitText [0..1]     Fit Text Within Cell
-                    ##w:vAlign [0..1]        Table Cell Vertical Alignment
-                    ##w:hideMark [0..1]      Ignore End Of Cell Marker In Row Height Calculation
-                  #end
-                #end
+            # render all user defined styles
+            document.styles.each do |style|
+              next if style.style_default
+              case style.style_type
+              when :paragraph, :character
+                render_paragraph_style w, style
+              when :table, :table_row
+                render_table_style w, style
+              when :table_cell
+                render_table_cell_style w, style
+              else
+                raise "unknown style type: #{style.style_type}" # TODO: what about caracter/run styles?
               end
             end
-
           end
         end
+
         builder.to_xml save_options
       end
 
-
-
-      #----------------------------------------------------
-      # Private Methods
-      #----------------------------------------------------
       private
 
-      def render_borders(wordml, border_type, style)
-        borders = %w(top left bottom right).select do |m|
-          style.send("style_border_#{ m }_size") > 0
-        end
+      def render_table_cell_style(w, model)
+        render_style w, model, 'table' do
+          w.tcPr do
+            render_background w, model, :style
+            render_borders    w, model, 'tcBorders', :style
+            render_margins    w, model, 'tcMar', :style
 
-        unless borders.empty?
-          wordml.method_missing(border_type) do
-            borders.each do |m|
-              options = {
-                'w:color' => style.send("style_border_#{ m }_color"),
-                'w:val'   => style.send("style_border_#{ m }_style"),
-                'w:sz'    => style.send("style_border_#{ m }_size")
-              }
-              wordml.method_missing Caracal::Core::Models::BorderModel.formatted_type(m), options
-            end
+            w.vAlign 'w:val' => model.style_vertical_align unless model.style_vertical_align.nil?
+            w.jc     'w:val' => model.style_align.to_s     unless model.style_align.nil?
+
+            # spacing = spacing_options model
+            # w.tcCellSpacing spacing unless spacing.nil?
+
+            # indentation = indentation_options model
+            # w.tcInd indentation unless indentation.nil?
           end
         end
       end
 
+      def render_style(w, model, type)
+        style_opts = {'w:type' => type, 'w:styleId' => model.style_id}
+        if model.style_default
+          style_opts['w:default'] = '1'
+        elsif not Document.default_styles.find{|s| s[:id] == model.style_id }
+          style_opts['w:customStyle'] = '1'
+        end
 
-      def font_options(style)
-        name = style.style_font
-        { 'w:cs' => name, 'w:hAnsi' => name, 'w:eastAsia' => name, 'w:ascii' => name }
+        w.style style_opts do
+          w.name    'w:val' => model.style_name
+          w.basedOn 'w:val' => model.style_base unless model.style_base.nil?
+          w.next    'w:val' => model.style_next unless model.style_next.nil?
+          w.locked if model.style_locked
+
+          yield w, model
+        end
       end
 
-      def indentation_options(style, default=false)
-        left    = (default) ? style.style_indent_left.to_i  : style.style_indent_left
-        right   = (default) ? style.style_indent_right.to_i : style.style_indent_right
-        first   = (default) ? style.style_indent_first.to_i : style.style_indent_first
+      def render_paragraph_style(w, model)
+        spacing     = spacing_options model
+        indentation = indentation_options model
+
+        render_style w, model, 'paragraph' do
+          # paragraph properties
+          w.pPr do
+            w.keepNext     'w:val' => model.style_keep_next     unless model.style_keep_next.nil?
+            w.keepLines    'w:val' => model.style_keep_lines    unless model.style_keep_lines.nil?
+            # w.pageBreakBefore # TODO: Start Paragraph on Next Page
+            w.widowControl 'w:val' => model.style_widow_control unless model.style_widow_control.nil?
+            render_borders    w, model, 'pBdr', :style
+            render_background w, model, :style
+            # w.tabs # TODO List of tabs
+            # w.suppressAutoHyphens # TODO: Suppress Hyphenation for Paragraph
+            w.wordWrap     'w:val' => model.style_word_wrap unless model.style_word_wrap.nil?
+            w.autoSpaceDE  'w:val' => '1'
+            w.spacing spacing unless spacing.nil?
+            w.ind indentation unless indentation.nil?
+            # w.contextualSpacing # TODO: Ignore Spacing Above and Below When Using Identical Styles
+            w.jc            'w:val' => model.style_align.to_s       unless model.style_align.nil?
+            w.textAlignment 'w:val' => model.style_vertical_align   unless model.style_vertical_align.nil?
+            w.outlineLvl    'w:val' => model.style_outline_lvl.to_s unless model.style_outline_lvl.nil?
+          end
+
+          # run properties
+          render_run_attributes w, model, skip_empty: false
+        end
+      end
+
+      def render_table_style(w, model)
+        render_style w, model, 'table' do
+          w.tblPr do
+            w.tblStyleRowBandSize 'w:val'  => model.style_row_band_size.to_i              unless model.style_row_band_size.nil?
+            w.tblStyleColBandSize 'w:val'  => model.style_row_band_size.to_i              unless model.style_col_band_size.nil?
+            # w.tblW                'w:w'    => 0, 'w:type' => 'auto' # Preferred Table Width
+            w.jc                  'w:val'  => model.style_align.to_s                      unless model.style_align.nil?
+            w.tblCellSpacing      'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
+            w.tblInd              'w:w'    => model.style_indent_left.to_i                unless model.style_indent_left.nil?
+            render_borders    w, model, 'tblBorders', :style
+            render_background w, model, :style
+            render_margins    w, model, 'tblCellMar', :style
+          end
+
+          # only applies to table row styles
+          # w.trPr do
+            # w.cantSplit 'w:val' => '1'
+            ##w:cnfStyle [0..1]     Table Row Conditional Formatting
+            ##w:divId [0..1]        Associated HTML div ID
+            ##w:gridBefore [0..1]   Grid Columns Before First Cell
+            ##w:gridAfter [0..1]    Grid Columns After Last Cell
+            ##w:wBefore [0..1]      Preferred Width Before Table Row
+            ##w:wAfter [0..1]       Preferred Width After Table Row
+            ##w:cantSplit [0..1]    Table Row Cannot Break Across Pages
+            ##w:trHeight [0..1]     Table Row Height
+            ##w:tblHeader [0..1]    Repeat Table Row on Every New Page
+            #w.tblCellSpacing(spacing_options(s)) unless spacing_options(s).nil?
+            #w.jc('w:val' => model.style_align.to_s) unless model.style_align.nil?
+            ##w:hidden [0..1]       Hidden Table Row Marker
+          # end
+
+          ## CONDITIONAL FORMATTING
+          model.conditional_formats.each do |cf|
+            w.tblStylePr 'w:type' => cf.style_type do
+              w.tcPr do # paragraph properties
+                render_borders    w, cf, 'tcBorders', :style
+                render_background w, cf, :style
+                render_margins    w, cf, 'tcMar', :style
+                w.vAlign 'w:val' => cf.style_content_vertical_align unless model.style_content_vertical_align.nil?
+              end
+            end
+          end
+
+        end
+      end
+
+      def indentation_options(model, default = false)
+        left    = default ? model.style_indent_left.to_i  : model.style_indent_left
+        right   = default ? model.style_indent_right.to_i : model.style_indent_right
+        first   = default ? model.style_indent_first.to_i : model.style_indent_first
         options = nil
         if [left, right, first].compact.size > 0
-          options                  = {}
-          options['w:left']        = left    unless left.nil?
-          options['w:right']       = right   unless right.nil?
-          options['w:firstLine']   = first   unless first.nil?
+          options                = {}
+          options['w:start']     = left  unless left.nil?
+          options['w:end']       = right unless right.nil?
+          options['w:firstLine'] = first unless first.nil?
         end
+        options
+      end
+
+      def spacing_options(model, default=false)
+        top     = default ? model.style_top.to_i    : model.style_top
+        bottom  = default ? model.style_bottom.to_i : model.style_bottom
+        line    = model.style_line
+        options = nil
+
+        if [top, bottom, line].compact.size > 0
+          options               = {}
+          options['w:lineRule'] = model.style_line_rule unless model.style_line_rule.nil?
+          options['w:before']   = top                   unless top.nil?
+          options['w:after']    = bottom                unless bottom.nil?
+          options['w:line']     = line                  unless line.nil?
+          options['w:afterAutospacing']  = model.style_before_autospacing unless model.style_before_autospacing.nil?
+          options['w:beforeAutospacing'] = model.style_after_autospacing  unless model.style_after_autospacing.nil?
+        end
+
         options
       end
 
@@ -271,24 +253,6 @@ module Caracal
           'xmlns:lc'  => 'http://schemas.openxmlformats.org/drawingml/2006/lockedCanvas',
           'xmlns:dgm' => 'http://schemas.openxmlformats.org/drawingml/2006/diagram'
         }
-      end
-
-      def spacing_options(style, default=false)
-        top     = default ? style.style_top.to_i    : style.style_top
-        bottom  = default ? style.style_bottom.to_i : style.style_bottom
-        line    = style.style_line
-
-        options = nil
-        if [top, bottom, line].compact.size > 0
-          options               = {}
-          options['w:lineRule'] = 'exact'
-          options['w:before']   = top      unless top.nil?
-          options['w:after']    = bottom   unless bottom.nil?
-          options['w:line']     = line     unless line.nil?
-          options['w:afterAutospacing']  = true if style.style_name.starts_with? 'Heading'
-          options['w:beforeAutospacing'] = true if style.style_name.starts_with? 'Heading'
-        end
-        options
       end
 
     end

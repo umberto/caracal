@@ -57,15 +57,13 @@ module Caracal
         #=============== VALIDATION ===========================
 
         def valid?
-          a = [:type, :level]
-          required = a.map { |m| send("list_item_#{ m }") }.compact.size == a.size
-          required and !runs.empty?
+          [:type, :level].all? {|a| validate_presence a } and not runs.empty?
         end
 
         private
 
         def option_keys
-          [:type, :level, :content, :style, :color, :size, :bold, :italic, :underline, :bgcolor]
+          super + %i[type level]
         end
 
       end

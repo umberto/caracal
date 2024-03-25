@@ -24,6 +24,7 @@ require 'caracal/core/tables'
 require 'caracal/core/table_of_contents'
 require 'caracal/core/text'
 require 'caracal/core/raw_xml'
+require 'caracal/core/theme'
 
 require 'caracal/renderers/app_renderer'
 require 'caracal/renderers/content_types_renderer'
@@ -38,6 +39,7 @@ require 'caracal/renderers/package_relationships_renderer'
 require 'caracal/renderers/relationships_renderer'
 require 'caracal/renderers/settings_renderer'
 require 'caracal/renderers/styles_renderer'
+require 'caracal/renderers/theme_renderer'
 
 
 module Caracal
@@ -59,6 +61,7 @@ module Caracal
     include Caracal::Core::PageNumbers
     include Caracal::Core::Styles
     include Caracal::Core::ListStyles
+    include Caracal::Core::Theme
 
     include Caracal::Core::Bookmarks
     include Caracal::Core::IFrames
@@ -128,7 +131,7 @@ module Caracal
       page_numbers
 
       [:font, :list_style, :namespace, :relationship, :style].each do |method|
-        collection = self.class.send("default_#{ method }s")
+        collection = self.class.send("default_#{method}s")
         collection.each do |item|
           if (item[:if] and send(item[:if])) or not item[:if]
             send(method, item)
@@ -158,7 +161,7 @@ module Caracal
     #
     def render
       buffer = ::Zip::OutputStream.write_buffer do |zip|
-        %w(package_relationships content_types app core custom fonts header footer settings styles document relationships header_relationships media numbering).each do |what|
+        %w(package_relationships content_types app core custom fonts header footer settings styles document relationships header_relationships media numbering theme).each do |what|
           send "render_#{what}", zip
         end
       end
@@ -182,70 +185,74 @@ module Caracal
     #============ RENDERERS ===============================
 
     def render_app(zip)
-      content = ::Caracal::Renderers::AppRenderer.render(self)
+      content = ::Caracal::Renderers::AppRenderer.render self
 
-      zip.put_next_entry('docProps/app.xml')
-      zip.write(content)
+      zip.put_next_entry 'docProps/app.xml'
+      zip.write content
     end
 
     def render_content_types(zip)
-      content = ::Caracal::Renderers::ContentTypesRenderer.render(self)
+      content = ::Caracal::Renderers::ContentTypesRenderer.render self
 
-      zip.put_next_entry('[Content_Types].xml')
-      zip.write(content)
+      zip.put_next_entry '[Content_Types].xml'
+      zip.write content
     end
 
     def render_core(zip)
-      content = ::Caracal::Renderers::CoreRenderer.render(self)
+      content = ::Caracal::Renderers::CoreRenderer.render self
 
-      zip.put_next_entry('docProps/core.xml')
-      zip.write(content)
+      zip.put_next_entry 'docProps/core.xml'
+      zip.write content
     end
 
     def render_custom(zip)
-      content = ::Caracal::Renderers::CustomRenderer.render(self)
+      content = ::Caracal::Renderers::CustomRenderer.render self
 
-      zip.put_next_entry('docProps/custom.xml')
-      zip.write(content)
+      zip.put_next_entry 'docProps/custom.xml'
+      zip.write content
     end
 
     def render_document(zip)
-      content = ::Caracal::Renderers::DocumentRenderer.render(self)
+      content = ::Caracal::Renderers::DocumentRenderer.render self
 
-      zip.put_next_entry('word/document.xml')
-      zip.write(content)
+      zip.put_next_entry 'word/document.xml'
+      zip.write content
     end
 
     def render_fonts(zip)
-      content = ::Caracal::Renderers::FontsRenderer.render(self)
+      content = ::Caracal::Renderers::FontsRenderer.render self
 
-      zip.put_next_entry('word/fontTable.xml')
-      zip.write(content)
+      zip.put_next_entry 'word/fontTable.xml'
+      zip.write content
     end
 
     def render_header(zip)
       relationships_by_type(:header).each do |rel|
-        content = ::Caracal::Renderers::HeaderRenderer.render(rel.owner)
+        content = ::Caracal::Renderers::HeaderRenderer.render rel.owner
 
-        zip.put_next_entry("word/#{rel.formatted_target}")
-        zip.write(content)
+        zip.put_next_entry "word/#{rel.formatted_target}"
+        zip.write content
       end
     end
 
     def render_footer(zip)
       relationships_by_type(:footer).each do |rel|
-        content = ::Caracal::Renderers::FooterRenderer.render(rel.owner)
+        content = ::Caracal::Renderers::FooterRenderer.render rel.owner
 
-        zip.put_next_entry("word/#{rel.formatted_target}")
-        zip.write(content)
+        zip.put_next_entry "word/#{rel.formatted_target}"
+        zip.write content
       end
     end
 
     def render_media(zip)
-      images = relationships_by_type(:image)
-      relationships_by_type(:header).each do |rel|
+      images = relationships_by_type(:image) # get images from main doc
+      relationships_by_type(:header).each do |rel| # get image rels from headers
         images.concat rel.owner.relationships_by_type(:image)
       end
+      relationships_by_type(:footer).each do |rel| # get image rels from footers
+        images.concat rel.owner.relationships_by_type(:image)
+      end
+
       images.each do |rel|
         if rel.relationship_data.to_s.size > 0
           content = rel.relationship_data
@@ -254,30 +261,30 @@ module Caracal
           content = open(rel.relationship_target).read
         end
 
-        zip.put_next_entry("word/#{rel.formatted_target}")
-        zip.write(content)
+        zip.put_next_entry "word/#{rel.formatted_target}"
+        zip.write content
       end
     end
 
     def render_numbering(zip)
-      content = ::Caracal::Renderers::NumberingRenderer.render(self)
+      content = ::Caracal::Renderers::NumberingRenderer.render self
 
-      zip.put_next_entry('word/numbering.xml')
-      zip.write(content)
+      zip.put_next_entry 'word/numbering.xml'
+      zip.write content
     end
 
     def render_package_relationships(zip)
-      content = ::Caracal::Renderers::PackageRelationshipsRenderer.render(self)
+      content = ::Caracal::Renderers::PackageRelationshipsRenderer.render self
 
-      zip.put_next_entry('_rels/.rels')
-      zip.write(content)
+      zip.put_next_entry '_rels/.rels'
+      zip.write content
     end
 
     def render_relationships(zip)
-      content = ::Caracal::Renderers::RelationshipsRenderer.render(self)
+      content = ::Caracal::Renderers::RelationshipsRenderer.render self
 
-      zip.put_next_entry('word/_rels/document.xml.rels')
-      zip.write(content)
+      zip.put_next_entry 'word/_rels/document.xml.rels'
+      zip.write content
     end
 
     def render_header_relationships(zip)
@@ -285,26 +292,36 @@ module Caracal
         header = rel.owner
 
         if header.relationships.any?
-          content = ::Caracal::Renderers::RelationshipsRenderer.render(header)
+          content = ::Caracal::Renderers::RelationshipsRenderer.render header
 
-          zip.put_next_entry("word/_rels/#{rel.formatted_target}.rels")
-          zip.write(content)
+          zip.put_next_entry "word/_rels/#{rel.formatted_target}.rels"
+          zip.write content
         end
       end
     end
 
     def render_settings(zip)
-      content = ::Caracal::Renderers::SettingsRenderer.render(self)
+      content = ::Caracal::Renderers::SettingsRenderer.render self
 
-      zip.put_next_entry('word/settings.xml')
-      zip.write(content)
+      zip.put_next_entry 'word/settings.xml'
+      zip.write content
     end
 
     def render_styles(zip)
-      content = ::Caracal::Renderers::StylesRenderer.render(self)
+      content = ::Caracal::Renderers::StylesRenderer.render self
 
-      zip.put_next_entry('word/styles.xml')
-      zip.write(content)
+      zip.put_next_entry 'word/styles.xml'
+      zip.write content
+    end
+
+    def render_theme(zip)
+      relationships_by_type(:theme).each do |rel|
+        content = ::Caracal::Renderers::ThemeRenderer.render self, rel.owner
+
+        zip.put_next_entry "word/#{rel.formatted_target}"
+        zip.write content
+      end
+
     end
 
   end

@@ -8,6 +8,7 @@ describe Caracal::Core::Models::StyleModel do
       font      'Arial'
       size      20
       line      360
+      color     '333333'
     end
   end
 
@@ -19,16 +20,16 @@ describe Caracal::Core::Models::StyleModel do
 
     # constants
     describe 'constants' do
-      it { expect(described_class::DEFAULT_STYLE_TYPE).to eq 'paragraph' }
-      it { expect(described_class::DEFAULT_STYLE_COLOR).to eq '333333' }
+      it { expect(described_class::DEFAULT_STYLE_TYPE).to eq :paragraph }
+      it { expect(described_class::DEFAULT_STYLE_COLOR).to eq nil }
       it { expect(described_class::DEFAULT_STYLE_SIZE).to eq 20 }
-      it { expect(described_class::DEFAULT_STYLE_BOLD).to eq false }
-      it { expect(described_class::DEFAULT_STYLE_ITALIC).to eq false }
-      it { expect(described_class::DEFAULT_STYLE_UNDERLINE).to eq false }
-      it { expect(described_class::DEFAULT_STYLE_CAPS).to eq false }
+      it { expect(described_class::DEFAULT_STYLE_BOLD).to eq nil }
+      it { expect(described_class::DEFAULT_STYLE_ITALIC).to eq nil }
+      it { expect(described_class::DEFAULT_STYLE_UNDERLINE).to eq nil }
+      it { expect(described_class::DEFAULT_STYLE_CAPS).to eq nil }
       it { expect(described_class::DEFAULT_STYLE_ALIGN).to eq :left }
-      it { expect(described_class::DEFAULT_STYLE_TOP).to eq 0 }
-      it { expect(described_class::DEFAULT_STYLE_BOTTOM).to eq 0 }
+      it { expect(described_class::DEFAULT_STYLE_TOP).to eq nil }
+      it { expect(described_class::DEFAULT_STYLE_BOTTOM).to eq nil }
       it { expect(described_class::DEFAULT_STYLE_LINE).to eq 360 }
       it { expect(described_class::DEFAULT_STYLE_BASE).to eq 'Normal' }
       it { expect(described_class::DEFAULT_STYLE_NEXT).to eq 'Normal' }
@@ -39,19 +40,19 @@ describe Caracal::Core::Models::StyleModel do
       it { expect(subject.style_default).to eq true }
       it { expect(subject.style_id).to eq 'Normal' }
       it { expect(subject.style_name).to eq 'normal' }
-      it { expect(subject.style_type).to eq 'paragraph' }
+      it { expect(subject.style_type).to eq :paragraph }
       it { expect(subject.style_color).to eq '333333' }
       it { expect(subject.style_font).to eq 'Arial' }
       it { expect(subject.style_size).to eq 20 }
-      it { expect(subject.style_bold).to eq false }
-      it { expect(subject.style_italic).to eq false }
-      it { expect(subject.style_underline).to eq false }
-      it { expect(subject.style_caps).to eq false }
+      it { expect(subject.style_bold).to eq nil }
+      it { expect(subject.style_italic).to eq nil }
+      it { expect(subject.style_underline).to eq nil }
+      it { expect(subject.style_caps).to eq nil }
       it { expect(subject.style_align).to eq :left }
-      it { expect(subject.style_top).to eq 0 }
-      it { expect(subject.style_bottom).to eq 0 }
+      it { expect(subject.style_top).to eq nil }
+      it { expect(subject.style_bottom).to eq nil }
       it { expect(subject.style_line).to eq 360 }
-      it { expect(subject.style_base).to eq 'Normal' }
+      it { expect(subject.style_base).to eq nil }
       it { expect(subject.style_next).to eq 'Normal' }
     end
 
@@ -157,14 +158,14 @@ describe Caracal::Core::Models::StyleModel do
     # custom
     describe '.type' do
       describe 'when valid' do
-        before { subject.type 'character'}
+        before { subject.type :character }
 
-        it { expect(subject.style_type).to eq 'character' }
+        it { expect(subject.style_type).to eq :character }
       end
       describe 'when invalid' do
         before { subject.type 'bogus'}
 
-        it { expect(subject.style_type).to eq 'paragraph' }
+        it { expect(subject.valid?).to eq false }
       end
     end
 
@@ -192,6 +193,7 @@ describe Caracal::Core::Models::StyleModel do
       describe 'when type and id provided' do
         it { expect(subject.valid?).to eq true }
       end
+
       [:id, :name].each do |prop|
         describe "when #{ prop } nil" do
           before do
@@ -215,11 +217,10 @@ describe Caracal::Core::Models::StyleModel do
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:type, :bold, :italic, :underline, :caps, :top, :bottom, :size, :line, :id, :name, :color, :font, :align, :indent_left, :indent_right, :indent_first].sort }
+      let(:expected) { [:type, :bold, :italic, :underline, :caps, :top, :bottom, :size, :line, :id, :name, :color, :font, :align, :indent_left, :indent_right, :indent_first, :base, :bgcolor, :bgstyle, :keep_lines, :keep_next, :left, :right, :theme_bgcolor, :theme_color, :widow_control, :word_wrap, :border, :line_rule, :locked, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :border_top, :border_bottom, :border_horizontal, :border_vertical, :border_left, :border_right].sort }
 
       it { expect(actual).to eq expected }
     end
-
   end
 
 end

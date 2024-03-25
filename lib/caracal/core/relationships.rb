@@ -41,15 +41,17 @@ module Caracal
           #============== ATTRIBUTES ==========================
 
           def relationship(options={}, &block)
-            id = relationship_counter.to_i + 1
-            options.merge!({ id: id })
+            return if find_relationship options[:key] # FIXME: this only takes the key into account, not the type
 
-            model = Caracal::Core::Models::RelationshipModel.new(options, &block)
+            id = relationship_counter.to_i + 1
+            options = options.merge id: id
+
+            model = Caracal::Core::Models::RelationshipModel.new options, &block
             if model.valid?
               @relationship_counter = id
-              rel = register_relationship(model)
+              rel = register_relationship model
             else
-              raise Caracal::Errors::InvalidModelError, 'relationship must specify the :id, :target, and :type attributes.'
+              raise Caracal::Errors::InvalidModelError, model.errors.inspect
             end
             rel
           end
@@ -62,7 +64,7 @@ module Caracal
           end
 
           def find_relationship(target)
-            relationships.find { |r| r.matches?(target) }
+            relationships.find { |r| r.matches? target }
           end
 
           def relationships_by_type(type)
@@ -73,7 +75,9 @@ module Caracal
           #============== REGISTRATION ========================
 
           def register_relationship(model)
-            unless (r = find_relationship(model.relationship_target))
+            if (r = find_relationship(model.relationship_target))
+              # ignore already registered relationships
+            else
               relationships << model
               r = model
             end

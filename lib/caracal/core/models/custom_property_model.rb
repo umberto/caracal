@@ -17,7 +17,7 @@ module Caracal
 
         def valid?
           required = option_keys
-          required.all? { |m| !send("custom_property_#{ m }").nil? }
+          required.all? {|m| validate_presenc m }
         end
 
         private

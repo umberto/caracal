@@ -56,8 +56,7 @@ module Caracal
         #=============== VALIDATION ===========================
 
         def valid?
-          a = [:type, :level, :format, :value]
-          a.map { |m| send("style_#{ m }") }.compact.size == a.size
+          [:type, :level, :format, :value].all? {|a| validate_presence a }
         end
 
         private

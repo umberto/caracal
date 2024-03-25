@@ -1,17 +1,11 @@
 require 'nokogiri'
-
 require 'caracal/renderers/xml_renderer'
-
 
 module Caracal
   module Renderers
     class CoreRenderer < XmlRenderer
-      
-      #-------------------------------------------------------------
-      # Public Methods
-      #-------------------------------------------------------------
-      
-      # This method produces the xml required for the `docProps/core.xml` 
+
+      # This method produces the xml required for the `docProps/core.xml`
       # sub-document.
       #
       def to_xml
@@ -20,15 +14,12 @@ module Caracal
             xml['dc'].title document.name
           end
         end
-        builder.to_xml(save_options)
+        builder.to_xml save_options
       end
-      
-      
-      #-------------------------------------------------------------
-      # Private Methods
-      #------------------------------------------------------------- 
+
+
       private
-      
+
       def root_options
         {
           'xmlns:cp'        => 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
@@ -38,7 +29,7 @@ module Caracal
           'xmlns:xsi'       => 'http://www.w3.org/2001/XMLSchema-instance'
         }
       end
-   
+
     end
   end
 end

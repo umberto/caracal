@@ -17,6 +17,8 @@ module Caracal
         has_integer_attribute :label_size  # in pt
         has_integer_attribute :number_size # in pt
 
+        PAGE_NUMBER_ALIGNS = [:left, :center, :right]
+
         # initialization
         def initialize(options={}, &block)
           @page_number_align        = DEFAULT_PAGE_NUMBER_ALIGN
@@ -52,7 +54,7 @@ module Caracal
         #=============== VALIDATION ===========================
 
         def valid?
-          (!page_number_show || [:left, :center, :right].include?(page_number_align))
+          not page_number_show or validate_inclusion :align, within: PAGE_NUMBER_ALIGNS
         end
 
         private

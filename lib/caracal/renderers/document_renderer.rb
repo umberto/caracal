@@ -1,24 +1,20 @@
 require 'nokogiri'
-
 require 'caracal/renderers/xml_renderer'
+require 'caracal/renderers/render_helpers'
 require 'caracal/errors'
-
 
 module Caracal
   module Renderers
     class DocumentRenderer < XmlRenderer
-      #-------------------------------------------------------------
-      # Public Methods
-      #-------------------------------------------------------------
+      include RenderHelpers
 
       # This method produces the xml required for the `word/document.xml`
       # sub-document.
-      #
       def to_xml
         builder = ::Nokogiri::XML::Builder.with(declaration_xml) do |xml|
-          xml['w'].document root_options do
-            xml['w'].background 'w:color' => 'FFFFFF'
-            xml['w'].body do
+          w = xml['w']
+          w.document root_options do
+            w.body do
               #============= CONTENTS ===================================
 
               document.contents.each do |model|
@@ -28,22 +24,22 @@ module Caracal
 
               #============= PAGE SETTINGS ==============================
 
-              xml['w'].sectPr do
+              w.sectPr do
                 document.relationships_by_type(:header).each do |rel|
                   header = rel.owner
-                  xml['w'].headerReference 'r:id' => rel.formatted_id, 'w:type' => (header.type || 'default')
+                  w.headerReference 'r:id' => rel.formatted_id, 'w:type' => (header.type || 'default')
                 end
 
                 document.relationships_by_type(:footer).each do |rel|
                   footer = rel.owner
-                  xml['w'].footerReference 'r:id' => rel.formatted_id, 'w:type' => (footer.type || 'default')
+                  w.footerReference 'r:id' => rel.formatted_id, 'w:type' => (footer.type || 'default')
                 end
 
-                # FIXME: dirty hack to let word create a blank header for the first page which is the cover
-                xml['w'].titlePg
+                w.pgSz page_size_options
+                w.pgMar page_margin_options
 
-                xml['w'].pgSz page_size_options
-                xml['w'].pgMar page_margin_options
+                # FIXME: dirty hack to let word create a blank header for the first page which is the cover
+                w.titlePg
               end
 
             end
@@ -52,10 +48,6 @@ module Caracal
         builder.to_xml save_options
       end
 
-
-      #-------------------------------------------------------------
-      # Private Methods
-      #-------------------------------------------------------------
       private
 
       #============= COMMON RENDERERS ==========================
@@ -63,43 +55,9 @@ module Caracal
       # This method converts a model class name to a rendering
       # function on this class (e.g., Caracal::Core::Models::ParagraphModel
       # translates to `render_paragraph`).
-      #
       def render_method_for_model(model)
         type = model.class.name.split('::').last.downcase.gsub('model', '')
         "render_#{ type }"
-      end
-
-      # This method renders a standard node of run properties based on the
-      # model's attributes.
-      #
-      def render_run_attributes(xml, model, paragraph_level=false)
-        if model.respond_to? :run_attributes
-          attrs = model.run_attributes.delete_if { |k, v| v.nil? }
-          w = xml['w']
-
-          if paragraph_level && attrs.empty?
-            # skip
-          else
-            w.rPr do
-              unless attrs.empty?
-                w.rStyle    'w:val'  => attrs[:style]                           unless attrs[:style].nil?
-                w.color     'w:val'  => attrs[:color]                           unless attrs[:color].nil?
-                w.sz        'w:val'  => attrs[:size]                            unless attrs[:size].nil?
-                w.b         'w:val'  => (attrs[:bold] ? '1' : '0')              unless attrs[:bold].nil?
-                w.i         'w:val'  => (attrs[:italic] ? '1' : '0')            unless attrs[:italic].nil?
-                w.u         'w:val'  => (attrs[:underline] ? 'single' : 'none') unless attrs[:underline].nil?
-                w.shd       'w:val'  => 'clear', 'w:fill' => attrs[:bgcolor]    unless attrs[:bgcolor].nil?
-                w.highlight 'w:val'  => attrs[:highlight_color]                 unless attrs[:highlight_color].nil?
-                w.vertAlign 'w:val'  => attrs[:vertical_align]                  unless attrs[:vertical_align].nil?
-                unless attrs[:font].nil?
-                  f = attrs[:font]
-                  w.rFonts 'w:ascii' => f, 'w:hAnsi' => f, 'w:eastAsia' => f, 'w:cs' => f
-                end
-              end
-              w.rtl 'w:val' => '0'
-            end
-          end
-        end
       end
 
 
@@ -132,7 +90,7 @@ module Caracal
             model = document.relationship(r_hash)   # the parent document assigns the embedded
             index = model.relationship_id           # relationship an id.
 
-            r_node  = fragment.at_xpath("//a:blip[@r:embed='#{ id }']", { a: ns.t('a'), r: ns.t('r') })
+            r_node  = fragment.at_xpath("//a:blip[@r:embed='#{id}']", { a: ns.t('a'), r: ns.t('r') })
             if (r_attr = r_node.attributes['embed'])
               r_attr.value = "rId#{ index }"
             end
@@ -195,21 +153,22 @@ module Caracal
         unless ds = document.default_style
           raise Caracal::Errors::NoDefaultStyleError 'Document must declare a default paragraph style.'
         end
+        w = xml['w']
 
-        xml['w'].p paragraph_options do
-          xml['w'].pPr do
-            xml['w'].spacing 'w:lineRule' => 'auto', 'w:line' => ds.style_line
-            xml['w'].contextualSpacing 'w:val' => '0'
-            xml['w'].jc 'w:val' => model.image_align.to_s
-            xml['w'].rPr
+        w.p paragraph_options do
+          w.pPr do
+            w.spacing 'w:lineRule' => 'auto', 'w:line' => ds.style_line
+            w.contextualSpacing 'w:val' => '0'
+            w.jc 'w:val' => model.image_align.to_s
+            w.rPr
           end
 
-          xml['w'].r run_options do
-            xml['w'].drawing do
+          w.r run_options do
+            w.drawing do
               dist = {distR: model.formatted_right, distT: model.formatted_top, distB: model.formatted_bottom, distL: model.formatted_left}
 
               if model.image_anchor
-                xml['wp'].anchor dist.merge(relativeHeight: '0', simplePos: '0', locked: '1', layoutInCell: '0', allowOverlap: '0', behindDoc: '0') do
+                xml['wp'].anchor dist.merge(relativeHeight: false, simplePos: false, locked: true, layoutInCell: false, allowOverlap: false, behindDoc: false) do
                   xml['wp'].simplePos x: 0, y: 0
                   xml['wp'].positionH relativeFrom: 'page' do # TODO: allow other relativeFrom values
                     xml['wp'].align model.image_align
@@ -228,92 +187,95 @@ module Caracal
             end
           end
 
-          xml['w'].r run_options do
-            xml['w'].rPr do
-              xml['w'].rtl 'w:val' => '0'
+          w.r run_options do
+            w.rPr do
+              # w.rtl 'w:val' => false
             end
           end
         end
       end
 
       def render_linebreak(xml, model)
-        xml['w'].r do
-          xml['w'].br
+        w = xml['w']
+        w.r do
+          w.br
         end
       end
 
       def render_tableofcontent(xml, model)
-        xml['w'].p paragraph_options do
-          xml['w'].r do
-            xml['w'].fldChar 'w:fldCharType' => 'begin'
+        w = xml['w']
+        w.p paragraph_options do
+          w.r do
+            w.fldChar 'w:fldCharType' => 'begin'
           end
-          xml['w'].r do
-            xml['w'].instrText(
+          w.r do
+            w.instrText(
               { 'xml:space' => 'preserve' },
               " TOC \\o \"#{model.toc_start_level}-#{model.toc_end_level}\" \\h \\z \\u"
             )
           end
-          xml['w'].r do
-            xml['w'].fldChar 'w:fldCharType' => 'separate'
+          w.r do
+            w.fldChar 'w:fldCharType' => 'separate'
           end
         end
 
         bookmarks_for(headings).each do |bookmark|
           next unless model.includes? bookmark[:level] # Skip levels outside the accepted range
 
-          xml['w'].p paragraph_options do
-            xml['w'].pStyle 'w:val' => "TOC#{ bookmark[:level] }"
-            xml['w'].tabs do
-              xml['w'].tab 'w:val' => 'right', 'w:leader' => 'dot'
+          w.p paragraph_options do
+            w.pStyle 'w:val' => "TOC#{ bookmark[:level] }"
+            w.tabs do
+              w.tab 'w:val' => 'right', 'w:leader' => 'dot'
             end
-            xml['w'].hyperlink 'w:anchor' => bookmark[:ref], 'w:history' => '1' do
-              xml['w'].r do
-                xml['w'].pPr do
-                  xml['w'].rStyle 'w:val' => 'Hyperlink'
+            w.hyperlink 'w:anchor' => bookmark[:ref], 'w:history' => true do
+              w.r do
+                w.pPr do
+                  w.rStyle 'w:val' => 'Hyperlink'
                 end
-                xml['w'].t bookmark[:text]
+                w.t bookmark[:text]
               end
-              xml['w'].r do
-                xml['w'].tab
+              w.r do
+                w.tab
               end
-              xml['w'].r do
-                xml['w'].fldChar 'w:fldCharType' => 'begin'
+              w.r do
+                w.fldChar 'w:fldCharType' => 'begin'
               end
-              xml['w'].r do
-                xml['w'].instrText(
+              w.r do
+                w.instrText(
                   { 'xml:space' => 'preserve' },
                   "  PAGEREF #{ bookmark[:ref] } \\h "
                 )
               end
-              xml['w'].r do
-                xml['w'].fldChar 'w:fldCharType' => 'separate'
+              w.r do
+                w.fldChar 'w:fldCharType' => 'separate'
               end
               # Insert page reference here if it can be calculated
-              xml['w'].r do
-                xml['w'].fldChar 'w:fldCharType' => 'end'
+              w.r do
+                w.fldChar 'w:fldCharType' => 'end'
               end
             end
           end
         end
-        xml['w'].p paragraph_options do
-          xml['w'].r do
-            xml['w'].fldChar 'w:fldCharType' => 'end'
+        w.p paragraph_options do
+          w.r do
+            w.fldChar 'w:fldCharType' => 'end'
           end
         end
       end
 
       def render_link(xml, model)
+        w = xml['w']
         if model.external?
-          rel = document.relationship({ target: model.link_href, type: :link })
+          rel = document.relationship target: model.link_href, type: :link
           hyperlink_options = { 'r:id' => rel.formatted_id }
         else
           hyperlink_options = { 'w:anchor' => model.link_href }
         end
 
-        xml['w'].hyperlink(hyperlink_options) do
-          xml['w'].r run_options do
-            render_run_attributes(xml, model, false)
-            xml['w'].t({ 'xml:space' => 'preserve' }, model.link_content)
+        w.hyperlink(hyperlink_options) do
+          w.r run_options do
+            render_run_attributes xml, model, skip_empty: true
+            w.t({ 'xml:space' => 'preserve' }, model.link_content)
           end
         end
       end
@@ -332,18 +294,17 @@ module Caracal
       def render_listitem(xml, model, list_num)
         ls      = document.find_list_style(model.list_item_type, model.list_item_level)
         hanging = ls.style_left.to_i - ls.style_indent.to_i - 1
+        w = xml['w']
 
-        xml['w'].p paragraph_options do
-          xml['w'].pPr do
-            xml['w'].numPr do
-              xml['w'].ilvl 'w:val' => model.list_item_level
-              xml['w'].numId 'w:val' => list_num
+        w.p paragraph_options do
+          w.pPr do
+            w.numPr do
+              w.ilvl 'w:val' => model.list_item_level
+              w.numId 'w:val' => list_num
             end
-            xml['w'].ind 'w:start' => ls.style_left, 'w:hanging' => hanging
-            xml['w'].contextualSpacing 'w:val' => '1'
-            xml['w'].rPr do
-              xml['w'].u 'w:val' => 'none'
-            end
+            w.ind 'w:start' => ls.style_left, 'w:hanging' => hanging
+            w.contextualSpacing 'w:val' => true
+            render_run_attributes w, model, skip_empty: true
           end
 
           model.runs.each do |run|
@@ -354,15 +315,16 @@ module Caracal
       end
 
       def render_pagebreak(xml, model)
+        w = xml['w']
         if model.page_break_wrap
-          xml['w'].p paragraph_options do
-            xml['w'].r run_options do
-              xml['w'].br 'w:type' => 'page'
+          w.p paragraph_options do
+            w.r run_options do
+              w.br 'w:type' => 'page'
             end
           end
         else
-          xml['w'].r run_options do
-            xml['w'].br 'w:type' => 'page'
+          w.r run_options do
+            w.br 'w:type' => 'page'
           end
         end
       end
@@ -371,26 +333,17 @@ module Caracal
         w = xml['w']
         w.p paragraph_options do
           w.pPr do
-            w.pStyle 'w:val' => model.paragraph_style unless model.paragraph_style.nil?
-            w.jc     'w:val' => model.paragraph_align unless model.paragraph_align.nil?
-            w.ind    "w:#{model.indent[:side]}" => model.indent[:value] unless model.indent.nil?
+            w.pStyle 'w:val' => model.paragraph_style || 'Normal'
             w.keepNext if model.paragraph_keep_next == true
+            render_borders    w, model, 'pBdr', :paragraph
+            render_background w, model, :paragraph
+            render_tabs       w, model, model.paragraph_tabs if model.paragraph_tabs&.any?
             spacing = spacing_options model
             w.spacing spacing unless spacing.nil?
-            render_run_attributes(xml, model, true)
-            if model.paragraph_tabs&.any?
-              w.tabs do
-                model.paragraph_tabs.each do |t|
-                  case t
-                  when Numeric
-                    w.tab 'w:val' => 'start', 'w:pos' => t.to_i, 'w:leader' => 'none'
-                  else
-                    w.tab 'w:val' => t[:val], 'w:pos' => t[:pos].to_i, 'w:leader' => (t[:leader] || 'none')
-                  end
-                end
-              end
-              w.contextualSpacing 'w:val' => '0'
-            end
+            w.ind               "w:#{model.indent[:side]}" => model.indent[:value] unless model.indent.nil?
+            w.contextualSpacing 'w:val' => false
+            w.jc                'w:val' => model.paragraph_align unless model.paragraph_align.nil?
+            render_run_attributes xml, model, skip_empty: false
           end
 
           model.runs.each do |run|
@@ -402,137 +355,115 @@ module Caracal
 
       def render_rule(xml, model)
         options = { 'w:color' => model.rule_color, 'w:sz' => model.rule_size, 'w:val' => model.rule_line, 'w:space' => model.rule_spacing }
+        w = xml['w']
 
-        xml['w'].p paragraph_options do
-          xml['w'].pPr do
-            xml['w'].pBdr do
-              xml['w'].top options
+        w.p paragraph_options do
+          w.pPr do
+            w.pBdr do
+              w.top options
             end
           end
         end
       end
 
       def render_text(xml, model)
-        xml['w'].r run_options do
-          render_run_attributes(xml, model, false)
-          xml['w'].t({ 'xml:space' => 'preserve' }, model.text_content)
-          xml['w'].tab if model.text_end_tab
+        w = xml['w']
+        w.r run_options do
+          render_run_attributes(xml, model, skip_empty: true)
+          opts = {}
+          opts['xml:space'] = model.text_whitespace.to_s unless model.text_whitespace.nil?
+          w.t opts, model.text_content
+          w.tab if model.text_end_tab
         end
       end
 
       def render_field(xml, model)
-        xml['w'].r run_options do
-          render_run_attributes(xml, model, false)
-          xml['w'].fldChar({ 'w:fldCharType' => 'begin' })
-          xml['w'].instrText({ 'xml:space' => 'preserve' }) do
+        w = xml['w']
+        w.r run_options do
+          render_run_attributes(xml, model, skip_empty: true)
+          w.fldChar 'w:fldCharType' => 'begin'
+          w.instrText 'xml:space' => 'preserve' do
             xml.text model.field_name
           end
-          xml['w'].fldChar({ 'w:fldCharType' => 'end' })
+          w.fldChar 'w:fldCharType' => 'end'
         end
       end
 
       def render_table(xml, model)
-        wordml = xml['w']
-        borders = %w(top left bottom right horizontal vertical).select do |m|
-          model.send("table_border_#{ m }_size") > 0
-        end
+        w = xml['w']
+        tbl_look = table_look_options(model)
 
-        wordml.tbl do
-          wordml.tblPr do
-            wordml.tblStyle 'w:val' => (model.table_style || 'TableNormal')
-            #wordml.bidiVisual 'w:val' => 'false'
-            wordml.tblW 'w:w' => model.table_width.to_i, 'w:type' => 'dxa'
-            wordml.jc 'w:val' => model.table_align
-            wordml.tblInd 'w:w' => 0, 'w:type' => 'dxa'
-            unless borders.empty?
-              wordml.tblBorders do
-                borders.each do |m|
-                  options = {
-                    'w:color' => model.send("table_border_#{ m }_color"),
-                    'w:val'   => model.send("table_border_#{ m }_line"),
-                    'w:sz'    => model.send("table_border_#{ m }_size"),
-                    'w:space' => model.send("table_border_#{ m }_spacing")
-                  }
-                  wordml.method_missing "#{ Caracal::Core::Models::BorderModel.formatted_type(m) }", options
-                end
-              end
-            end
-            # TODO: w:shd [0..1]    Table Shading
-            wordml.tblLayout 'w:type' => 'fixed'
-            # TODO: w:tblCellMar [0..1]    Table Cell Margin Defaults
-            wordml.tblLook 'w:val'  => '0600'
+        w.tbl do
+          w.tblPr do
+            w.tblStyle            'w:val' => model.table_style || 'TableNormal'         #unless model.table_style.nil?
+            # w.tblStyleRowBandSize 'w:val' => model.table_row_band_size unless model.table_row_band_size.nil?
+            # w.tblStyleColBandSize 'w:val' => model.table_col_band_size unless model.table_col_band_size.nil?
+            w.tblW                'w:w'   => model.table_width.to_i, 'w:type' => 'dxa' unless model.table_width.nil?
+            w.jc                  'w:val' => model.table_align
+            w.tblCellSpacing      'w:w'   => model.table_border_spacing, 'w:type' => 'dxa' unless model.table_border_spacing.nil?
+            w.tblInd              'w:w'   => model.table_indent, 'w:type' => 'dxa' unless model.table_indent.nil?
+            render_borders    w, model, 'tblBorders', :table
+            render_background w, model, :table
+            w.tblLayout           'w:type' => model.table_layout unless model.table_layout.nil?
+            # render_margins w, model, 'tblCellMar', :table # TODO: table_margin_top is not yet implemented (should it?)
+            w.tblLook             tbl_look unless tbl_look.nil?
+            w.tblCaption          'w:val'  => model.table_caption unless model.table_caption.nil?
           end
 
-          wordml.tblGrid do
+          w.tblGrid do
             column_widths = model.table_column_widths
             column_widths ||= model.rows.first.map do |tc|
-              [tc.cell_width] * (tc.cell_colspan || 1)
+              if tc.cell_width
+                [tc.cell_width] * (tc.cell_colspan || 1) # FIXME: this blatantly ignores defined column widths combined with merged cells!
+              end
             end.flatten
 
             column_widths.each do |width|
-              wordml.gridCol 'w:w' => width
+              if width
+                w.gridCol 'w:w' => width
+              else
+                w.gridCol
+              end
             end
           end
 
           rowspan_hash = {}
           model.rows.each_with_index do |row, index|
-            wordml.tr do
-              if model.table_repeat_header > 0
-                if index < model.table_repeat_header
-                  wordml.trPr do
-                    wordml.tblHeader
-                  end
+            w.tr do
+              w.trPr do
+                if model.table_repeat_header > 0 and index < model.table_repeat_header
+                  w.tblHeader
                 end
+                # w.cantSplit
+                # w.trHeight
+                # w.tblCellSpacing 'w:w' => 90, 'w:type' => 'dxa'
               end
-              row.each_with_index do |tc, tc_index|
-                wordml.tc do
-                  wordml.tcPr do
+
+              row.each_with_index do |tc, tc_index| # NOTE: tc_index is modified inline at end of method!
+                w.tc do
+                  w.tcPr do
+                    # w.cnfStyle 'w:val' => tc.cell_style unless tc.cell_style.nil?
+
                     # applying colspan
                     if tc.cell_colspan
-                      wordml.gridSpan 'w:val' => tc.cell_colspan
+                      w.gridSpan 'w:val' => tc.cell_colspan
                     end
 
                     # applying rowspan
-                    if tc.cell_rowspan && tc.cell_rowspan > 0
+                    if tc.cell_rowspan and tc.cell_rowspan > 0
                       rowspan_hash[tc_index] = tc.cell_rowspan - 1
-                      wordml.vMerge 'w:val' => 'restart'
-                    elsif rowspan_hash[tc_index] && rowspan_hash[tc_index] > 0
-                      wordml.vMerge 'w:val' => 'continue'
+                      w.vMerge 'w:val' => 'restart'
+                    elsif rowspan_hash[tc_index] and rowspan_hash[tc_index] > 0
+                      w.vMerge 'w:val' => 'continue'
                       rowspan_hash[tc_index] -= 1
+                    elsif rowspan_hash[tc_index] == 0
+                      w.vMerge
+                      rowspan_hash[tc_index] = nil
                     end
-
-                    # only set borders where width > 0.
-                    # NOTICE: if border is set by table cell styling, we cannot unset a border here!
-                    borders = %w(top left bottom right horizontal vertical).select do |m|
-                      tc.send("cell_border_#{ m }_size") > 0
-                    end
-
-                    unless borders.empty?
-                      wordml.tcBorders do
-                        borders.each do |m|
-                          options = {
-                            'w:color' => tc.send("cell_border_#{ m }_color"),
-                            'w:val'   => tc.send("cell_border_#{ m }_line"),
-                            'w:sz'    => tc.send("cell_border_#{ m }_size"),
-                            'w:space' => tc.send("cell_border_#{ m }_spacing")
-                          }
-                          wordml.method_missing Caracal::Core::Models::BorderModel.formatted_type(m), options
-                        end
-                      end
-                    end
-
-                    if tc.cell_background
-                      wordml.shd 'w:fill' => tc.cell_background, 'w:val' => 'clear'
-                    end
-
-                    wordml.tcMar do
-                      wordml.top    'w:w' => tc.send("cell_margin_top").to_i,    'w:type' => 'dxa'
-                      wordml.start  'w:w' => tc.send("cell_margin_left").to_i,   'w:type' => 'dxa'
-                      wordml.bottom 'w:w' => tc.send("cell_margin_bottom").to_i, 'w:type' => 'dxa'
-                      wordml.end    'w:w' => tc.send("cell_margin_right").to_i,  'w:type' => 'dxa'
-                    end
-
-                    wordml.vAlign 'w:val' => tc.cell_vertical_align if tc.cell_vertical_align
+                    render_borders    w, tc, 'tcBorders', :cell
+                    render_background w, tc, :cell
+                    render_margins    w, tc, 'tcMar', :cell
+                    w.vAlign 'w:val' => tc.cell_vertical_align if tc.cell_vertical_align
                   end
 
                   tc.contents.each do |m|
@@ -566,8 +497,8 @@ module Caracal
         bookmarks = []
         headings.each do |heading|
           bookmarks << {
-            ref: bookmark_for(heading),
-            text: heading.plain_text,
+            ref:   bookmark_for(heading),
+            text:  heading.plain_text,
             level: heading.try(:paragraph_style).match(/Heading(\d)\Z/) { |m| m[1] || 1 }
           }
         end
@@ -577,12 +508,12 @@ module Caracal
       # Returns the name (reference) of the first bookmark in the given model
       # Wraps the model contents in a bookmark if necessary
       def bookmark_for(model)
-        if (run = model.runs.select { |run| run.is_a?(Caracal::Core::Models::BookmarkModel) }.first)
+        if (run = model.runs.select { |run| run.is_a? Caracal::Core::Models::BookmarkModel }.first)
           run.bookmark_name
         else
           name = "_Toc#{ model.object_id }"
-          model.runs.prepend(Caracal::Core::Models::BookmarkModel.new(start: true, name: name))
-          model.runs.append(Caracal::Core::Models::BookmarkModel.new(start: false))
+          model.runs.prepend(Caracal::Core::Models::BookmarkModel.new start: true, name: name)
+          model.runs.append(Caracal::Core::Models::BookmarkModel.new start: false)
           name
         end
       end
@@ -595,7 +526,7 @@ module Caracal
           opts[model.namespace_prefix] = model.namespace_href
         end
         unless document.ignorables.empty?
-          v = document.ignorables.join(' ')
+          v = document.ignorables.join ' '
           opts['mc:Ignorable'] = v
         end
         opts
@@ -618,19 +549,48 @@ module Caracal
         }
       end
 
+      def table_look_options(model)
+        return unless model.respond_to? :table_look
+        opts = model.table_look
+
+        hsh = {}
+        hsh['w:firstColumn'] = true if opts.table_look_first_col
+        hsh['w:lastColumn']  = true if opts.table_look_last_col
+        hsh['w:firstRow']    = true if opts.table_look_first_row
+        hsh['w:lastRow' ]    = true if opts.table_look_last_row
+        hsh['w:noHBand']     = true if opts.table_look_no_hband
+        hsh['w:noVBand']     = true if opts.table_look_no_vband
+        hsh
+      end
+
       def spacing_options(model)
         return unless model.respond_to? :spacing_options
         opts = model.spacing_options
         return if opts.all? &:nil?
 
-        options             = {}
-        options['w:before'] = opts[:top].to_i    unless opts[:top].nil?
-        options['w:after']  = opts[:bottom].to_i unless opts[:bottom].nil?
-        options['w:line']   = opts[:line].to_i   unless opts[:line].nil?
-        options
+        hsh = {}
+        hsh['w:before'] = opts[:top].to_i    unless opts[:top].nil?
+        hsh['w:after']  = opts[:bottom].to_i unless opts[:bottom].nil?
+        hsh['w:line']   = opts[:line].to_i   unless opts[:line].nil?
+        if hsh.empty?
+          nil
+        else
+          hsh
+        end
       end
 
-
+      def render_tabs(w, tabs)
+        w.tabs do
+          tabs.each do |t|
+            case t
+            when Numeric
+              w.tab 'w:val' => 'start', 'w:pos' => t.to_i, 'w:leader' => 'none'
+            else
+              w.tab 'w:val' => t[:val], 'w:pos' => t[:pos].to_i, 'w:leader' => (t[:leader] || 'none')
+            end
+          end
+        end
+      end
     end
   end
 end

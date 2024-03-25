@@ -7,23 +7,28 @@ module Caracal
       # This class handles block options passed to the page margins
       # method.
       class BorderModel < BaseModel
+        ATTRS = [:color, :theme_color, :line, :size, :spacing].freeze
+        TYPES = [:top, :bottom, :left, :right, :horizontal, :vertical].freeze
+
         use_prefix :border
 
         has_string_attribute :color, default: 'auto'
 
-        has_symbol_attribute :line, default: :single
-        has_symbol_attribute :type, default: :top
+        has_model_attribute :theme_color,
+            model: Caracal::Core::Models::ThemeColorModel
 
-        has_integer_attribute :size, default: 4 # 0.5pt in 1/8 points
-        has_integer_attribute :spacing, default: 1 # 0.125pt in 1/8 points
+        has_symbol_attribute :line
+        has_symbol_attribute :type
+
+        has_integer_attribute :size    # 1/8 points
+        has_integer_attribute :spacing # 1/8 points
 
         # initialization
         def initialize(options={}, &block)
-          @border_color   = DEFAULT_BORDER_COLOR
-          @border_line    = DEFAULT_BORDER_LINE
-          @border_size    = DEFAULT_BORDER_SIZE
-          @border_spacing = DEFAULT_BORDER_SPACING
-          @border_type    = DEFAULT_BORDER_TYPE
+          @border_type = DEFAULT_BORDER_TYPE
+          ATTRS.each do |attr|
+            instance_variable_set "@border_#{attr}", self.class.const_get("DEFAULT_BORDER_#{attr.to_s.upcase}")
+          end
 
           super options, &block
         end
@@ -47,24 +52,33 @@ module Caracal
         #=============== GETTERS ==============================
 
         def formatted_type
-          self.class.formatted_type(border_type)
+          self.class.formatted_type(border_type) || ''
         end
 
         def total_size
-          border_size + (2 * border_spacing)
+          if undefined?
+            0
+          else
+            border_size + (2 * border_spacing)
+          end
         end
 
         #=============== VALIDATION ==============================
 
         def valid?
-          dims = [border_size, border_spacing]
-          dims.all? { |d| d > 0 }
+          dims = [:size, :spacing]
+          (undefined? or dims.all? {|d| validate_size d, at_least: 0 }) and
+              validate_inclusion :type, within: TYPES
+        end
+
+        def undefined?
+          self.border_line == :none or self.border_line.nil?
         end
 
         private
 
         def option_keys
-          [:color, :line, :size, :spacing, :type]
+          ATTRS + [:type]
         end
 
       end

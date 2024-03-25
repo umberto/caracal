@@ -21,8 +21,7 @@ module Caracal
         #=============== VALIDATION ===========================
 
         def valid?
-          a = [:name]
-          a.map { |m| send "font_#{m}" }.compact.size == a.size
+          validate_presence :name
         end
 
         private

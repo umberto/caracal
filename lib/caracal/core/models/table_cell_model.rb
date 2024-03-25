@@ -1,55 +1,40 @@
 require 'caracal/core/models/base_model'
 require 'caracal/core/models/border_model'
-require 'caracal/core/models/margin_model'
 require 'caracal/core/models/paragraph_model'
+require 'caracal/core/models/has_background'
+require 'caracal/core/models/has_borders'
 
 
 module Caracal
   module Core
     module Models
-
-      # This class handles block options passed to tables via their data
-      # collections.
-      #
+      # This class handles block options passed to tables via their data collections.
       class TableCellModel < BaseModel
         use_prefix :cell
 
-        has_string_attribute :background
+        include HasBackground
+        include HasBorders
+        extend HasMargins
+
+        has_margins top: 100, left: 100, right: 100, bottom: 100
+
         has_string_attribute :style
-        has_string_attribute :border_color,    default: 'auto'
 
         has_symbol_attribute :vertical_align,  default: :top
-        has_symbol_attribute :border_line,     default: :single
 
-        has_integer_attribute :border_size,    default: 0 # in 1/8pt
-        has_integer_attribute :border_spacing, default: 0 # in 1/8pt
         has_integer_attribute :colspan,        default: 1
         has_integer_attribute :rowspan,        default: 1
         has_integer_attribute :width
-
-        has_model_attribute :margins,
-            model: Caracal::Core::Models::MarginModel,
-            default: Caracal::Core::Models::MarginModel.new(top: 100, bottom: 100, left: 100, right: 100)
-
-        # accessors
-        attr_reader :cell_border_top         # returns border model
-        attr_reader :cell_border_bottom      # returns border model
-        attr_reader :cell_border_left        # returns border model
-        attr_reader :cell_border_right       # returns border model
-        attr_reader :cell_border_horizontal  # returns border model
-        attr_reader :cell_border_vertical    # returns border model
 
         # initialization
         def initialize(options={}, &block)
           @cell_rowspan        = DEFAULT_CELL_ROWSPAN
           @cell_colspan        = DEFAULT_CELL_COLSPAN
-          @cell_background     = DEFAULT_CELL_BACKGROUND
-          @cell_margins        = DEFAULT_CELL_MARGINS
           @cell_vertical_align = DEFAULT_CELL_VERTICAL_ALIGN
-          @cell_border_color   = DEFAULT_CELL_BORDER_COLOR
-          @cell_border_line    = DEFAULT_CELL_BORDER_LINE
-          @cell_border_size    = DEFAULT_CELL_BORDER_SIZE
-          @cell_border_spacing = DEFAULT_CELL_BORDER_SPACING
+          @cell_top            = DEFAULT_CELL_TOP
+          @cell_left           = DEFAULT_CELL_LEFT
+          @cell_right          = DEFAULT_CELL_RIGHT
+          @cell_bottom         = DEFAULT_CELL_BOTTOM
 
           if content = options.delete(:content)
             if content.is_a? BaseModel
@@ -101,24 +86,30 @@ module Caracal
           options = opts.dup
 
           # first, try apply to self
-          options.each do |(k,v)|
-            send(k, v) if respond_to?(k)
+          options.each do |k, v|
+            if respond_to? k
+              send k, v
+              options.delete k
+            end
           end
 
-          # prevent top-level attrs from trickling down
-          options.delete_if { |(k,v)| option_keys.include?(k) }
+          # # prevent top-level attrs from trickling down
+          # options.delete_if { |(k,v)| option_keys.include?(k) }
 
           # then, try apply to contents
           contents.each do |model|
             options.each do |k,v|
-              model.send(k, v) if model.respond_to?(k)
+              if model.respond_to?(k)
+                model.send k, v
+                options.delete k
+              end
             end
 
             # finally, apply to runs. options do trickle down
             # because paragraph-level styles don't seem to
             # affect runs within tables. weirdsies.
             # only sets options on runs that don't have that option already set.
-            if model.respond_to?(:runs)
+            if model.respond_to? :runs
               model.runs.each do |run|
                 ra = run.respond_to?(:run_attributes) ? run.run_attributes : {}
                 options.each do |k, v|
@@ -129,83 +120,46 @@ module Caracal
           end
         end
 
-        def calculate_width(default_width)
-          width(default_width) unless cell_width.to_i > 0
+        def relevant_cell_style(container)
+          if self.cell_style
+            @relevant_cell_style = container.find_style self.cell_style
+          elsif container.table_style
+            @relevant_cell_style = container.find_style container.table_style
+          else
+             # TODO: handle conditional styles! => determine relevant table styles based on this cell's grid position
+          end
+        end
 
-          container_width = cell_width - cell_margin_left - cell_margin_right
+        def calculate_width(default_width, container)
+          # return unless self.cell_width.to_i > 0
+          self.width default_width unless self.cell_width.to_i > 0
+
+          # raise container.inspect # use to determine currently active style, then extract left and right
+          l = self.cell_left  || relevant_cell_style(container)&.style_left || 0
+          r = self.cell_right || relevant_cell_style(container)&.style_right || 0
+          available_container_width = self.cell_width - l - r
 
           contents.each do |model|
-            if model.respond_to?(:calculate_width)
-              model.calculate_width(container_width)    # will always be a TableModel
+            if model.respond_to? :calculate_width
+              model.calculate_width available_container_width, container # FIXME: disabled for debugging
             end
           end
         end
 
-
-        #=============== GETTERS ==============================
-
-        # border attrs
-        [:top, :bottom, :left, :right, :horizontal, :vertical].each do |m|
-          [:color, :line, :size, :spacing].each do |attr|
-            define_method "cell_border_#{ m }_#{ attr }" do
-              model = send("cell_border_#{ m }")
-              value = model ? model.send("border_#{ attr }") : send("cell_border_#{ attr }")
-            end
-          end
-
-          define_method "cell_border_#{ m }_total_size" do
-            model = send("cell_border_#{ m }")
-            value = model ? model.total_size : cell_border_size + (2 * cell_border_spacing)
-          end
-        end
-
-        # margin attrs
-        [:top, :bottom, :left, :right].each do |m|
-          define_method "cell_margin_#{ m }" do
-            v = cell_margins ? cell_margins.send("margin_#{ m }") : 0
-          end
-        end
-
-
-        #=============== SETTERS ==============================
-
-
-        # models
-        [:top, :bottom, :left, :right, :horizontal, :vertical].each do |m|
-          define_method "border_#{m}" do |options = {}, &block|
-            options.merge! type: m
-            instance_variable_set "@cell_border_#{ m }", Caracal::Core::Models::BorderModel.new(options, &block)
-          end
-
-          [:color, :line, :size, :spacing].each do |a|
-            define_method "border_#{m}_#{a}" do |v|
-              model = instance_variable_get("@cell_border_#{m}") || instance_variable_set("@cell_border_#{m}", Caracal::Core::Models::BorderModel.new)
-
-              model.send a, v
-            end
-          end
-        end
 
         #=============== VALIDATION ===========================
 
         def valid?
-          contents.size > 0
+          validate_size :width, at_least: 0, allow_nil: true and
+              self.valid_bgstyle? and
+              self.validate('must at least contain one content element') { self.contents.size > 0 }
         end
 
         private
 
         def option_keys
-          @options_keys ||= [:style, :background, :margins, :width, :vertical_align, :rowspan, :colspan,
-           :border_color, :border_line, :border_size, :border_spacing,
-           :border_bottom, :border_left, :border_right, :border_top, :border_horizontal, :border_vertical] +
-
-            [:top, :bottom, :left, :right, :horizontal, :vertical].map do |b|
-              [:color, :line, :size, :spacing].map do |a|
-                :"border_#{b}_#{a}"
-              end
-            end.flatten
-         end
-
+          @options_keys ||= [:style, :width, :vertical_align, :rowspan, :colspan] + HasBackground::ATTRS + HasBorders::ATTRS + HasMargins::ATTRS
+        end
       end
 
     end

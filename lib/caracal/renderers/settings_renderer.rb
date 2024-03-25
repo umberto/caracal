@@ -6,33 +6,36 @@ require 'caracal/renderers/xml_renderer'
 module Caracal
   module Renderers
     class SettingsRenderer < XmlRenderer
-      
+
       #-------------------------------------------------------------
       # Public Methods
       #-------------------------------------------------------------
-      
-      # This method produces the xml required for the `word/settings.xml` 
+
+      # This method produces the xml required for the `word/settings.xml`
       # sub-document.
       #
       def to_xml
         builder = ::Nokogiri::XML::Builder.with(declaration_xml) do |xml|
-          xml['w'].settings root_options do
-            xml['w'].displayBackgroundShape({ 'w:val' => '1' })
-            xml['w'].defaultTabStop({ 'w:val' => '720' })
-            xml['w'].compat do
-              xml['w'].compatSetting({ 'w:val' => '14', 'w:name' => 'compatibilityMode', 'w:uri' => 'http://schemas.microsoft.com/office/word' })
+          w = xml['w']
+          w.settings root_options do
+            w.displayBackgroundShape 'w:val' => '1'
+            w.defaultTabStop 'w:val' => '720'
+            w.compat do # see http://www.datypic.com/sc/ooxml/e-w_compat-1.html for options
+              w.compatSetting 'w:val' => '14', 'w:name' => 'compatibilityMode', 'w:uri' => 'http://schemas.microsoft.com/office/word'
+              # w.autoHyphenation 'w:val' => '1' # Automatically Hyphenate Document Contents When Displayed
+              # w.consecutiveHyphenLimit 'w:val' => 2 #    Maximum Number of Consecutively Hyphenated Lines
             end
           end
         end
         builder.to_xml(save_options)
       end
-      
-      
+
+
       #-------------------------------------------------------------
       # Private Methods
-      #------------------------------------------------------------- 
+      #-------------------------------------------------------------
       private
-      
+
       def root_options
         {
           'xmlns:mc'   => 'http://schemas.openxmlformats.org/markup-compatibility/2006',
@@ -52,7 +55,7 @@ module Caracal
           'xmlns:dgm'  => 'http://schemas.openxmlformats.org/drawingml/2006/diagram'
         }
       end
-   
+
     end
   end
 end

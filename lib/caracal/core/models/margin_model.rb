@@ -29,8 +29,7 @@ module Caracal
         #=============== VALIDATION ==============================
 
         def valid?
-          dims = [:bottom, :left, :right, :top]
-          dims.map { |d| send("margin_#{ d }") }.all? { |d| d > 0 }
+          [:bottom, :left, :right, :top].all? {|a| validate_size a, at_least: 0 }
         end
 
         private

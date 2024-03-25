@@ -15,19 +15,20 @@ module Caracal
             options = Caracal::Utilities.extract_options! args
             options.merge! data: args.first if args.first
 
-            model = Caracal::Core::Models::TableModel.new(options.merge(document: self), &block)
-            if respond_to? :page_width
-              container_width = page_width - page_margin_left - page_margin_right
-              model.calculate_width(container_width)
+            table_model = Caracal::Core::Models::TableModel.new options.merge(document: self), &block
+
+            if self.respond_to? :page_width
+              available_container_width = self.page_width - self.page_margin_left - self.page_margin_right
+              table_model.calculate_width available_container_width, self
             end
 
-            if model.valid?
-              contents << model
+            if table_model.valid?
+              contents << table_model
             else
-              raise Caracal::Errors::InvalidModelError, 'Table must be provided data for at least one cell.'
+              raise Caracal::Errors::InvalidModelError, table_model.errors.inspect
             end
 
-            model
+            table_model
           end
 
         end

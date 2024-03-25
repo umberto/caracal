@@ -15,8 +15,8 @@ module Caracal
         has_integer_attribute :end_level, default: 3
 
         def initialize(options={}, &block)
-          @toc_start_level = DEFAULT_START_LEVEL
-          @toc_end_level = DEFAULT_END_LEVEL
+          @toc_start_level = DEFAULT_TOC_START_LEVEL
+          @toc_end_level   = DEFAULT_TOC_END_LEVEL
 
           super options, &block
         end
@@ -33,7 +33,6 @@ module Caracal
           [:start_level, :end_level].each do |method|
             value = send("toc_#{method}")
             return false if value <= 0 || value > 6
-
           end
           toc_start_level <= toc_end_level
         end

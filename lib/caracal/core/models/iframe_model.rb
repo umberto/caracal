@@ -8,7 +8,6 @@ module Caracal
       class IFrameModel < BaseModel
         use_prefix :iframe
 
-
         has_string_attribute :url
         has_string_attribute :data
 
@@ -16,7 +15,10 @@ module Caracal
         attr_reader :iframe_namespaces
         attr_reader :iframe_relationships
 
+        attr_reader :document
+
         def initialize(options={}, &block)
+          @document = options[:document]
           super options, &block
         end
 
@@ -106,9 +108,11 @@ module Caracal
         #=============== VALIDATION =======================
 
         def valid?
-          vals = option_keys.map { |m| send("iframe_#{ m }") }.compact
-          vals = vals.reject { |v| v.size == 0 }
-          vals.size > 0
+          if iframe_data
+            validate_presence :data
+          else
+            validate_presence :url
+          end
         end
 
         private

@@ -75,9 +75,7 @@ module Caracal
         #=============== VALIDATION ===========================
 
         def valid?
-          a = [:type, :level]
-          required = a.map { |m| send("list_#{ m }") }.compact.size == a.size
-          required && !items.empty?
+          [:type, :level].all? {|a| validate_presence a } and not items.empty?
         end
 
         private

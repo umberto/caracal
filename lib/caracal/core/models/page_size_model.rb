@@ -36,8 +36,7 @@ module Caracal
         #=============== VALIDATION ==============================
 
         def valid?
-          dims = [page_width, page_height]
-          dims.all? { |d| d > 0 }
+          [:width, :height].all? {|a| validate_size a, at_least: 0 }
         end
 
         private

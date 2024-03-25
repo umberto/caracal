@@ -72,8 +72,7 @@ module Caracal
         #=============== VALIDATION ==============================
 
         def valid?
-          dims = [:ppi, :width, :height, :top, :bottom, :left, :right].map { |m| send("image_#{ m }") }
-          dims.all? { |d| d > 0 }
+          [:ppi, :width, :height, :top, :bottom, :left, :right].all? {|a| validate_size a, at_least: 0 }
         end
 
         private

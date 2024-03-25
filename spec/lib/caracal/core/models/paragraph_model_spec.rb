@@ -55,7 +55,7 @@ describe Caracal::Core::Models::ParagraphModel do
     describe '.run_attributes' do
       let(:expected) { { color: '666666', size: 20, bold: false, italic: false, underline: true, bgcolor: 'cccccc' } }
 
-      it { expect(subject.run_attributes).to eq expected }
+      it { expect(subject.run_attributes.to_h).to eq expected }
     end
 
 
@@ -193,7 +193,7 @@ describe Caracal::Core::Models::ParagraphModel do
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:content, :style, :align, :color, :size, :bold, :italic, :underline, :bgcolor].sort }
+      let(:expected) { [:align, :bgcolor, :bgstyle, :bold, :border, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :bottom, :bottom, :color, :content, :italic, :keep_lines, :keep_next, :left, :line, :right, :size, :style, :tabs, :theme_bgcolor, :theme_color, :top, :top, :underline, :widow_control, :border_bottom, :border_horizontal, :border_vertical, :border_top, :border_left, :border_right].sort }
 
       it { expect(actual).to eq expected }
     end

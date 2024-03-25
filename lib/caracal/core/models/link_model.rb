@@ -5,15 +5,16 @@ module Caracal
   module Core
     module Models
 
-      # This class encapsulates the logic needed to store and manipulate
-      # link data.
+      # This class encapsulates the logic needed to store and manipulate link data.
       class LinkModel < TextModel
         use_prefix :link
 
-        has_string_attribute :color, default: '1155cc'
+        DEFAULT_LINK_COLOR = '1155cc'
+
+        has_string_attribute :href
+
         has_boolean_attribute :underline, default: true
         has_boolean_attribute :internal
-        has_string_attribute :href
 
         # readers (create aliases for superclass methods to conform
         # to expected naming convention.)
@@ -45,8 +46,7 @@ module Caracal
         #========== VALIDATION ============================
 
         def valid?
-          a = [:content, :href]
-          a.map { |m| send("link_#{ m }") }.compact.size == a.size
+          [:content, :href].all? {|a| validate_presence a }
         end
 
         private

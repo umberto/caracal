@@ -17,7 +17,7 @@ module Caracal
           #-------------------------------------------------------------
 
           def iframe(options={}, &block)
-            model = Caracal::Core::Models::IFrameModel.new(options, &block)
+            model = Caracal::Core::Models::IFrameModel.new(options.merge(document: self), &block)
             if model.valid?
               model.preprocess!
               model.namespaces.each do |(prefix, href)|
@@ -29,7 +29,7 @@ module Caracal
 
               contents << model
             else
-              raise Caracal::Errors::InvalidModelError, 'IFrameModel requires either the :url or :data argument.'
+              raise Caracal::Errors::InvalidModelError, model.errors.inspect
             end
             model
           end

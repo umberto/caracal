@@ -49,9 +49,9 @@ describe Caracal::Core::Models::TextModel do
 
     # .run_attributes
     describe '.run_attributes' do
-      let(:expected) { { style: nil, font: 'Courier New', color: '666666', size: 20, bold: false, italic: false, underline: true, bgcolor: 'cccccc', highlight_color: 'yellow', vertical_align: :subscript } }
+      let(:expected) { { font: 'Courier New', color: '666666', size: 20, bold: false, italic: false, underline: true, bgcolor: 'cccccc', highlight_color: 'yellow', vertical_align: :subscript } }
 
-      it { expect(subject.run_attributes).to eq expected }
+      it { expect(subject.run_attributes.to_h).to eq expected }
     end
 
 
@@ -121,6 +121,7 @@ describe Caracal::Core::Models::TextModel do
       describe 'when required attributes provided' do
         it { expect(subject.valid?).to eq true }
       end
+
       [:content].each do |prop|
         describe "when #{ prop } nil" do
           before do
@@ -144,7 +145,7 @@ describe Caracal::Core::Models::TextModel do
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:bgcolor, :bold, :color, :content, :font, :highlight_color, :italic, :size, :style, :underline, :vertical_align].sort }
+      let(:expected) { [:bgcolor, :bold, :color, :content, :font, :highlight_color, :italic, :size, :style, :underline, :vertical_align, :end_tab, :theme_bgcolor, :bgstyle, :theme_color].sort }
 
       it { expect(actual).to eq expected }
     end

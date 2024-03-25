@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Caracal::Core::Relationships do
-  let(:m1) { Caracal::Core::Models::RelationshipModel.new({ target: 'footer.xml', type: :footer }) }
-  let(:m2) { Caracal::Core::Models::RelationshipModel.new({ target: 'setting.xml', type: :setting }) }
+  let(:nonexisting) { Caracal::Core::Models::RelationshipModel.new target: 'footer1.xml',  type: :footer }
+  let(:existing) { Caracal::Core::Models::RelationshipModel.new target: 'settings.xml', type: :setting }
 
   subject  { Caracal::Document.new }
 
@@ -15,7 +15,7 @@ describe Caracal::Core::Relationships do
 
     # .default_relationships
     describe '.default_relationships' do
-      let(:expected) { [:font, :header, :footer, :numbering, :setting, :style] }
+      let(:expected) { [:font, :footer, :numbering, :setting, :style] }
       let(:actual)   { subject.class.default_relationships.map { |r| r[:type] } }
 
       it { expect(actual).to eq expected }
@@ -36,7 +36,7 @@ describe Caracal::Core::Relationships do
     describe '.relationship' do
       it 'delegates to registration method' do
         expect(subject).to receive(:register_relationship)
-        subject.relationship({ target: 'new.gif', type: :image })
+        subject.relationship target: 'new.gif', type: :image
       end
     end
 
@@ -53,64 +53,63 @@ describe Caracal::Core::Relationships do
       let(:actual)  { subject.find_relationship(key) }
 
       before do
-        allow(subject).to receive(:relationships).and_return([m1])
+        allow(subject).to receive(:relationships).and_return([nonexisting])
       end
 
       describe 'when key is registered' do
-        let(:key) { m1.relationship_key }
+        let(:key) { nonexisting.relationship_key }
 
-        it { expect(actual).to eq m1 }
+        it { expect(actual).to eq nonexisting }
       end
+
       describe 'when key is not registered' do
-        let(:key) { m2.relationship_key }
+        let(:key) { existing.relationship_key }
 
         it { expect(actual).to eq nil }
       end
     end
 
-
     #============== REGISTRATION ========================
 
     # .register_relationship
     describe '.register_relationship' do
-      let(:default_length) { subject.class.default_relationships.size }
+      let(:default_length) { 4 }
 
       describe 'when not already registered' do
         before do
-          subject.register_relationship(m1)
+          subject.register_relationship(nonexisting)
         end
 
         it { expect(subject.relationships.size).to eq default_length + 1 }
       end
+
       describe 'when already registered' do
         before do
-          subject.register_relationship(m1)
-          subject.register_relationship(m1)
+          subject.register_relationship(existing)
         end
 
-        it { expect(subject.relationships.size).to eq default_length + 1 }
+        it { expect(subject.relationships.size).to eq default_length }
       end
     end
 
     # .unregister_relationship
     describe '.unregister_relationship' do
-      let(:default_length) { subject.class.default_relationships.size }
+      let(:default_length) { 4 }
 
       describe 'when registered' do
         before do
-          subject.register_relationship(m1)
-          subject.unregister_relationship(m1.relationship_target)
+          subject.unregister_relationship existing.relationship_target
+        end
+
+        it { expect(subject.relationships.size).to eq default_length - 1 }
+      end
+
+      describe 'when not registered' do
+        before do
+          subject.unregister_relationship nonexisting.relationship_target
         end
 
         it { expect(subject.relationships.size).to eq default_length }
-      end
-      describe 'when not registered' do
-        before do 
-          subject.register_relationship(m1)
-          subject.unregister_relationship(m2.relationship_target)
-        end
-
-        it { expect(subject.relationships.size).to eq default_length + 1 }
       end
     end
 

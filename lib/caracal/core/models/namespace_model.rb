@@ -23,8 +23,7 @@ module Caracal
         end
 
         def valid?
-          required = [:href, :prefix]
-          required.all? { |m| !send("namespace_#{ m }").nil? }
+          [:href, :prefix].all? {|a| validate_presence a }
         end
 
         private

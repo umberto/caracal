@@ -2,7 +2,13 @@ require 'caracal/core/models/base_model'
 require 'caracal/core/models/bookmark_model'
 require 'caracal/core/models/link_model'
 require 'caracal/core/models/text_model'
+require 'caracal/core/models/theme_color_model'
+require 'caracal/core/models/has_color'
+require 'caracal/core/models/has_background'
+require 'caracal/core/models/has_borders'
+require 'caracal/core/models/has_margins'
 require 'caracal/errors'
+require 'ostruct'
 
 
 module Caracal
@@ -11,19 +17,21 @@ module Caracal
 
       # This class encapsulates the logic needed to store and manipulate
       # paragraph data.
-      #
       class ParagraphModel < BaseModel
         use_prefix :paragraph
 
-        has_string_attribute :bgcolor
-        has_string_attribute :color
+        include HasColor
+        include HasBackground
+        include HasBorders
+        extend HasMargins
+
+        has_margins
+
         has_string_attribute :style
 
         has_symbol_attribute :align
 
         has_integer_attribute :size
-        has_integer_attribute :top
-        has_integer_attribute :bottom
         has_integer_attribute :line
 
         has_boolean_attribute :bold
@@ -57,14 +65,18 @@ module Caracal
         end
 
         def run_attributes
-          {
-            color:      paragraph_color,
-            size:       paragraph_size,
-            bold:       paragraph_bold,
-            italic:     paragraph_italic,
-            underline:  paragraph_underline,
-            bgcolor:    paragraph_bgcolor
-          }
+          attrs = {
+            color:         self.paragraph_color,
+            theme_color:   self.paragraph_theme_color,
+            size:          self.paragraph_size,
+            bold:          self.paragraph_bold,
+            italic:        self.paragraph_italic,
+            underline:     self.paragraph_underline,
+            bgcolor:       self.paragraph_bgcolor,
+            theme_bgcolor: self.paragraph_theme_bgcolor,
+            bgstyle:       self.paragraph_bgstyle
+          }.compact
+          OpenStruct.new attrs
         end
 
         def plain_text
@@ -106,7 +118,7 @@ module Caracal
           if model.valid?
             runs << model
           else
-            raise Caracal::Errors::InvalidModelError, ':field method must receive a string for the field name.'
+            raise Caracal::Errors::InvalidModelError, model.errors.inspect
           end
           model
         end
@@ -120,7 +132,7 @@ module Caracal
           if model.valid?
             runs << model
           else
-            raise Caracal::Errors::InvalidModelError, 'Bookmark starting tags require an id and a name.'
+            raise Caracal::Errors::InvalidModelError, model.errors.inspect
           end
           model
         end
@@ -133,7 +145,7 @@ module Caracal
           if model.valid?
             runs << model
           else
-            raise Caracal::Errors::InvalidModelError, 'Bookmark ending tags require an id.'
+            raise Caracal::Errors::InvalidModelError, model.errors.inspect
           end
           model
         end
@@ -155,7 +167,7 @@ module Caracal
           if model.valid?
             runs << model
           else
-            raise Caracal::Errors::InvalidModelError, ':link method must receive strings for the display text and the external href.'
+            raise Caracal::Errors::InvalidModelError, model.errors.inspect
           end
           model
         end
@@ -176,7 +188,7 @@ module Caracal
           if model.valid?
             runs << model
           else
-            raise Caracal::Errors::InvalidModelError, ':text method must receive a string for the display text.'
+            raise Caracal::Errors::InvalidModelError, model.errors.inspect
           end
           model
         end
@@ -190,17 +202,13 @@ module Caracal
         #========== VALIDATION ============================
 
         def valid?
-          runs.size > 0
+          runs.any? and self.valid_bgstyle?
         end
 
-
-        #--------------------------------------------------
-        # Private Instance Methods
-        #--------------------------------------------------
         private
 
         def option_keys
-          [:content, :style, :align, :color, :size, :bold, :italic, :underline, :bgcolor, :tabs, :top, :bottom, :line]
+          %i[content style align size bold italic underline tabs top bottom line keep_next keep_lines widow_control] + HasBackground::ATTRS + HasColor::ATTRS + HasBorders::ATTRS + HasMargins::ATTRS
         end
 
       end

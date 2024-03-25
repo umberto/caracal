@@ -53,13 +53,13 @@ module Caracal
             if document.contents_for(nil).each do |model|
               method = render_method_for_model(model)
               model.style('Header') if model.respond_to? :style
-              send(method, xml, model)
+              send method, xml, model
             end.empty?
-              # Add empty paragraph to facilitate edition
+              # Add empty paragraph to facilitate editing
               xml['w'].p paragraph_options do
                 xml['w'].pPr do
-                  xml['w'].pStyle({ 'w:val' => 'Header' })
-                  xml['w'].bidi({ 'w:val' => '0' })
+                  xml['w'].pStyle 'w:val' => 'Header'
+                  xml['w'].bidi 'w:val' => '0'
                 end
               end
             end
