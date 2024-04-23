@@ -30,7 +30,7 @@ Caracal::Document.save 'example.docx' do |docx|
   docx.p  'Lorem ipsum dolor....'
   docx.p
   docx.table @my_data, border_size: 4 do
-    cell_style rows[0], background: 'cccccc', bold: true
+    cell_style rows[0], bgcolor: 'cccccc', bold: true
   end
 
   # page 2
@@ -673,7 +673,7 @@ The example will style the first row as a header and establish a fixed width for
 
 ```ruby
 docx.table [['Header 1','Header 2'],['Cell 1', 'Cell 2']], border_size: 4 do
-  cell_style rows[0], background: '3366cc', color: 'ffffff', bold: true
+  cell_style rows[0], bgcolor: '3366cc', color: 'ffffff', bold: true
   cell_style cols[0], width: 6000
 end
 ```
@@ -696,7 +696,7 @@ If your table contains more complex data (multiple paragraphs, images, lists, et
 
 ```ruby
 c1 = Caracal::Core::Models::TableCellModel.new do
-  background 'cccccc'    # sets the background color. defaults to 'ffffff'.
+  bgcolor 'cccccc'    # sets the background color. defaults to 'ffffff'.
   margins do
     top                  # sets the top margin. defaults to 100. units in twips.
     bottom               # sets the bottom margin. defaults to 100. units in twips.
@@ -745,8 +745,8 @@ row3 = ['Cell 4', 'Cell 5', 'Cell 6']
 row4 = ['Footer 1', 'Footer 2', 'Footer 3']
 c1 = Caracal::Core::Models::TableCellModel.new margins: { top: 0, bottom: 100, left: 0, right: 200 } do
   table [row1, row2, row3, row4], border_size: 4 do
-    cell_style rows[0],  bold: true, background: '3366cc', color: 'ffffff'
-    cell_style rows[-1], bold: true,   background: 'dddddd'
+    cell_style rows[0],  bold: true, bgcolor: '3366cc', color: 'ffffff'
+    cell_style rows[-1], bold: true,   bgcolor: 'dddddd'
     cell_style cells[3], italic: true, color: 'cc0000'
     cell_style cells,    size: 18, margins: { top: 100, bottom: 0, left: 100, right: 100 }
   end
@@ -760,6 +760,33 @@ docx.table [[c1,c2]] do
 end
 ```
 
+## Color Themes
+
+Instead of specifying a `color` or `bgcolor` value in your styles or other models, you may use their theme counterparts `theme_color` or `theme_bgcolor`, respectively. This combined with a custom color theme allows the consumers of your DOCX file to switch to their own color theme and have all your styles magically honor them.
+
+Word allows the following theme colors: dark1, light1, dark2, light1, accent1 ... accent1, hyperlink, visited_hyperlink. Define your color thime like so:
+
+```ruby
+docx.theme do
+  name 'My Color Theme'
+  color_dark1   '001122'
+  color_light1  'FFFFFF'
+  color_accent1 'ff0000'
+  color_accent2 '0000ff'
+end
+```
+
+and use theme colors e.g. like this:
+
+```ruby
+docx.p do
+  theme_color :accent1
+  theme_bgcolor :accent2
+  text 'this is red text on a blue background, '
+  text 'this run has inverted colors, ', theme_color: :accent2, theme_bgcolor: :accent1
+  text 'but this run has not.'
+end
+```
 
 ## Experimental Features
 
