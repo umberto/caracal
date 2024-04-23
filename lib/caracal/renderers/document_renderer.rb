@@ -371,7 +371,7 @@ module Caracal
         w.r run_options do
           render_run_attributes(xml, model, skip_empty: true)
           opts = {}
-          opts['xml:space'] = model.text_whitespace.to_s unless model.text_whitespace.nil?
+          opts['xml:space'] = model.text_whitespace || 'preserve'
           w.t opts, model.text_content
           w.tab if model.text_end_tab
         end
