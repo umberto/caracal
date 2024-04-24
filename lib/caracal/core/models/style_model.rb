@@ -100,6 +100,8 @@ module Caracal
           @style_line           ||= DEFAULT_STYLE_LINE
           @style_line_rule      ||= DEFAULT_STYLE_LINE_RULE
           @style_word_wrap      ||= DEFAULT_STYLE_WORD_WRAP
+
+          # raise options.inspect if self.style_type.to_s == 'table'
         end
 
 

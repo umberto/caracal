@@ -108,6 +108,72 @@ describe Caracal::Core::Models::TableCellModel do
       it { expect(subject.cell_vertical_align).to eq :center }
     end
 
+    describe '.border_top' do
+      before { subject.border_top line: :double, color: 'ffffff', size: 8 }
+
+      it { expect(subject.cell_border_top_line).to eq :double }
+      it { expect(subject.cell_border_top_color).to eq 'ffffff' }
+      it { expect(subject.cell_border_top_size).to eq 8 }
+
+      it { expect(subject.cell_border_top).to be_a Caracal::Core::Models::BorderModel }
+      it { expect(subject.cell_border_top.border_line).to eq :double }
+      it { expect(subject.cell_border_top.border_color).to eq 'ffffff' }
+      it { expect(subject.cell_border_top.border_size).to eq 8 }
+    end
+
+    describe '.border_top_line' do
+      before { subject.border_top_line :double }
+
+      it { expect(subject.cell_border_top_line).to eq :double }
+      it { expect(subject.cell_border_top.border_line).to eq :double }
+    end
+
+    describe '.border_top_size' do
+      before { subject.border_top_size 8 }
+
+      it { expect(subject.cell_border_top_size).to eq 8 }
+      it { expect(subject.cell_border_top.border_size).to eq 8 }
+    end
+
+    describe '.border_top theme_color with hash args' do
+      before { subject.border_top theme_color: {ref: :dark2, color: '333333'} }
+
+      it { expect(subject.cell_border_top_theme_color).to be_a Caracal::Core::Models::ThemeColorModel }
+      it { expect(subject.cell_border_top_theme_color.theme_color_ref).to eq :dark2 }
+      it { expect(subject.cell_border_top_theme_color.theme_color_val).to eq '333333' }
+    end
+
+    describe '.border_top theme_color with symbol arg' do
+      before { subject.border_top theme_color: :dark2 }
+
+      it { expect(subject.cell_border_top_theme_color).to be_a Caracal::Core::Models::ThemeColorModel }
+      it { expect(subject.cell_border_top_theme_color.theme_color_ref).to eq :dark2 }
+      it { expect(subject.cell_border_top_theme_color.theme_color_val).to eq 'auto' }
+    end
+
+    describe '.border_top_theme_color with symbol arg' do
+      before { subject.border_top_theme_color :dark2 }
+
+      it { expect(subject.cell_border_top_theme_color).to be_a Caracal::Core::Models::ThemeColorModel }
+      it { expect(subject.cell_border_top_theme_color.theme_color_ref).to eq :dark2 }
+      it { expect(subject.cell_border_top_theme_color.theme_color_val).to eq 'auto' }
+    end
+
+    describe '.border_top theme_color with block' do
+      before do
+        subject.border_top do
+          theme_color do
+            ref :dark2
+            color '333333'
+          end
+        end
+      end
+
+      it { expect(subject.cell_border_top_theme_color).to be_a Caracal::Core::Models::ThemeColorModel }
+      it { expect(subject.cell_border_top_theme_color.theme_color_ref).to eq :dark2 }
+      it { expect(subject.cell_border_top_theme_color.theme_color_val).to eq '333333' }
+    end
+
 
     #=============== CONTENT FNS =======================
 

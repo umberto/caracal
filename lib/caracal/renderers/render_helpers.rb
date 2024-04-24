@@ -22,6 +22,7 @@ module Caracal
           v and v != 'none'
         end
 
+        raise "#{borders.inspect} for #{model.inspect}" if model.respond_to? :style_id and model.style_id == 'DefaultTable'
         if borders.any?
           w.send border_type do
             borders.each do |dir|

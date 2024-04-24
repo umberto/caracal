@@ -12,7 +12,6 @@ module Caracal
 
           base.has_string_attribute :color
         end
-
       end
     end
   end

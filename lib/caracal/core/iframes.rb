@@ -21,8 +21,9 @@ module Caracal
             if model.valid?
               model.preprocess!
               model.namespaces.each do |(prefix, href)|
-                namespace({ prefix: prefix, href: href })
+                namespace prefix: prefix, href: href
               end
+
               model.ignorables.each do |prefix|
                 ignorable(prefix)
               end

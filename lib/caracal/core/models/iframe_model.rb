@@ -17,8 +17,9 @@ module Caracal
 
         attr_reader :document
 
-        def initialize(options={}, &block)
-          @document = options[:document]
+        def initialize(args={}, &block)
+          options = args.dup
+          @document = options.delete :document
           super options, &block
         end
 

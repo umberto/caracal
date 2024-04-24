@@ -26,6 +26,7 @@ module Caracal
         # initialization
         def initialize(options={}, &block)
           @border_type = DEFAULT_BORDER_TYPE
+
           ATTRS.each do |attr|
             instance_variable_set "@border_#{attr}", self.class.const_get("DEFAULT_BORDER_#{attr.to_s.upcase}")
           end
@@ -67,8 +68,8 @@ module Caracal
 
         def valid?
           dims = [:size, :spacing]
-          (undefined? or dims.all? {|d| validate_size d, at_least: 0 }) and
-              validate_inclusion :type, within: TYPES
+          (undefined? or dims.all? {|d| validate_size d, at_least: 0, allow_nil: true }) and
+              validate_inclusion :type, within: TYPES, allow_nil: true
         end
 
         def undefined?

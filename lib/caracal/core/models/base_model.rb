@@ -14,7 +14,8 @@ module Caracal
           @alignment = options.key?(:align) && StyleModel::HORIZONTAL_ALIGNS.include?(options[:align]) ? options[:align] : nil
 
           options.each do |(key, value)|
-            send(key, value) if option_keys.include?(key)
+            # send(key, value) if option_keys.include?(key) # safer, but need to define complete border model accessors first.
+            send(key, value) if respond_to? key
           end
 
           if block_given?
@@ -40,7 +41,9 @@ module Caracal
 
         def validate_size(attr, at_least: 0, allow_nil: false)
           value = self.send "#{self.class.attr_prefix}_#{attr}"
-          if (value.nil? and allow_nil) or value > at_least
+          if value.nil? and allow_nil
+            true
+          elsif not value.nil? and value > at_least
             true
           else
             @errors << {message: "#{attr} must be greater than #{at_least}", model: self, attribute: attr, value: value}
@@ -148,16 +151,18 @@ module Caracal
           define_reader_and_default name, default: default
 
           prefix = self.attr_prefix
-          define_method name do |options, &block|
+          define_method name do |options={}, &block|
             case options
             when model
+              if block_given?
+                options.instance_eval &block
+              end
               v = options
             when nil
               v = nil
             else
               v = model.new(options, &block)
             end
-
             if v.valid?
               instance_variable_set "@#{prefix}_#{name}", v
             else
