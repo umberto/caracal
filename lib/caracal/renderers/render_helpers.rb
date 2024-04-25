@@ -5,7 +5,7 @@ module Caracal
       def render_margins(w, model, margin_type, type)
         margins = %w(top left bottom right).select do |dir|
           v = model.send "#{type}_#{dir}"
-          v and v > 0
+          not v.nil?
         end
 
         w.send margin_type do
