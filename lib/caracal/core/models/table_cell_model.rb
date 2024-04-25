@@ -20,7 +20,8 @@ module Caracal
 
         has_string_attribute :style
 
-        has_symbol_attribute :vertical_align,  default: :top
+        has_symbol_attribute :vertical_align
+        has_symbol_attribute :content_vertical_align,  default: :top
 
         has_integer_attribute :colspan,        default: 1
         has_integer_attribute :rowspan,        default: 1
@@ -30,11 +31,11 @@ module Caracal
         def initialize(options={}, &block)
           @cell_rowspan        = DEFAULT_CELL_ROWSPAN
           @cell_colspan        = DEFAULT_CELL_COLSPAN
-          @cell_vertical_align = DEFAULT_CELL_VERTICAL_ALIGN
           @cell_top            = DEFAULT_CELL_TOP
           @cell_left           = DEFAULT_CELL_LEFT
           @cell_right          = DEFAULT_CELL_RIGHT
           @cell_bottom         = DEFAULT_CELL_BOTTOM
+          @cell_content_vertical_align = DEFAULT_CELL_CONTENT_VERTICAL_ALIGN
 
           if content = options.delete(:content)
             if content.is_a? BaseModel
@@ -158,7 +159,7 @@ module Caracal
         private
 
         def option_keys
-          @options_keys ||= [:style, :width, :vertical_align, :rowspan, :colspan] + HasBackground::ATTRS + HasBorders::ATTRS + HasMargins::ATTRS
+          @options_keys ||= [:style, :width, :vertical_align, :content_vertical_align, :rowspan, :colspan] + HasBackground::ATTRS + HasBorders::ATTRS + HasMargins::ATTRS
         end
       end
 

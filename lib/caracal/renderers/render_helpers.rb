@@ -19,10 +19,9 @@ module Caracal
         borders = %w(top left bottom right horizontal vertical).select do |dir|
           method_name = "#{type}_border_#{dir}_line"
           v = model.send method_name #if model.respond_to? method_name
-          v and v != 'none'
+          v and v != :none
         end
 
-        raise "#{borders.inspect} for #{model.inspect}" if model.respond_to? :style_id and model.style_id == 'DefaultTable'
         if borders.any?
           w.send border_type do
             borders.each do |dir|
@@ -32,6 +31,7 @@ module Caracal
                 'w:space' => model.send("#{type}_border_#{dir}_spacing") || 0
               }
               color_opts = theme_color_options model.send("#{type}_border_#{dir}_theme_color"), model.send("#{type}_border_#{dir}_color"), 'w:color'
+
               w.send Caracal::Core::Models::BorderModel.formatted_type(dir), options.merge(color_opts)
             end
           end

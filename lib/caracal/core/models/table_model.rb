@@ -116,10 +116,10 @@ module Caracal
         # where 'MyTableRowStyle' is a style with type 'table_row'
         #
         def cell_style(models, options={})
-          styles = merge_named_styles(options)
+          # styles = merge_named_styles(options)
 
           [models].flatten.compact.each do |m|
-            m.apply_styles styles
+            m.apply_styles options
           end
         end
 
@@ -146,11 +146,12 @@ module Caracal
                 case data_cell
                 when Caracal::Core::Models::TableCellModel
                   if data_cell.cell_style
-                    data_cell.apply_styles merge_named_styles(style: data_cell.cell_style)
+                    # data_cell.apply_styles merge_named_styles(style: data_cell.cell_style)
+                    data_cell.apply_styles style: data_cell.cell_style
                   end
                   data_cell
                 when Hash
-                  Caracal::Core::Models::TableCellModel.new merge_named_styles(data_cell)
+                  Caracal::Core::Models::TableCellModel.new data_cell
                 when Proc
                   Caracal::Core::Models::TableCellModel.new &data_cell
                 else

@@ -11,6 +11,7 @@ describe Caracal::Core::Models::TableCellModel do
         right         104
       # end
       width           2000
+      content_vertical_align :bottom
     end
   end
 
@@ -23,7 +24,8 @@ describe Caracal::Core::Models::TableCellModel do
     # constants
     describe 'constants' do
       it { expect(described_class::DEFAULT_CELL_BGCOLOR).to        eq nil }
-      it { expect(described_class::DEFAULT_CELL_VERTICAL_ALIGN).to eq :top }
+      it { expect(described_class::DEFAULT_CELL_VERTICAL_ALIGN).to eq nil }
+      it { expect(described_class::DEFAULT_CELL_CONTENT_VERTICAL_ALIGN).to eq :top }
       # it { expect(described_class::DEFAULT_CELL_MARGINS).to               be_a(Caracal::Core::Models::MarginModel) }
       it { expect(described_class::DEFAULT_CELL_TOP).to            eq 100 }
       it { expect(described_class::DEFAULT_CELL_BOTTOM).to         eq 100 }
@@ -39,7 +41,7 @@ describe Caracal::Core::Models::TableCellModel do
       it { expect(subject.cell_left).to           eq 103 }
       it { expect(subject.cell_right).to          eq 104 }
       it { expect(subject.cell_width).to          eq 2000 }
-      it { expect(subject.cell_vertical_align).to eq :top }
+      it { expect(subject.cell_content_vertical_align).to eq :bottom }
     end
 
   end
@@ -289,7 +291,7 @@ describe Caracal::Core::Models::TableCellModel do
     # .option_keys
     describe '.option_keys' do
       let(:actual)     { subject.send(:option_keys).sort }
-      let(:expected)   { [:bgcolor, :bgstyle, :border, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :bottom, :colspan, :left, :right, :rowspan, :style, :theme_bgcolor, :top, :vertical_align, :width, :border_bottom, :border_horizontal, :border_vertical, :border_top, :border_left, :border_right].sort }
+      let(:expected)   { [:bgcolor, :bgstyle, :border, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :bottom, :colspan, :left, :right, :rowspan, :style, :theme_bgcolor, :top, :vertical_align, :content_vertical_align, :width, :border_bottom, :border_horizontal, :border_vertical, :border_top, :border_left, :border_right].sort }
 
       it { expect(actual).to eq expected }
     end

@@ -434,7 +434,7 @@ module Caracal
                 if model.table_repeat_header > 0 and index < model.table_repeat_header
                   w.tblHeader
                 end
-                # w.cantSplit
+                # w.cantSplit # to not split table cells across pages
                 # w.trHeight
                 # w.tblCellSpacing 'w:w' => 90, 'w:type' => 'dxa'
               end
@@ -463,7 +463,7 @@ module Caracal
                     render_borders    w, tc, 'tcBorders', :cell
                     render_background w, tc, :cell
                     render_margins    w, tc, 'tcMar', :cell
-                    w.vAlign 'w:val' => tc.cell_vertical_align if tc.cell_vertical_align
+                    w.vAlign 'w:val' => tc.cell_content_vertical_align if tc.cell_content_vertical_align
                   end
 
                   tc.contents.each do |m|

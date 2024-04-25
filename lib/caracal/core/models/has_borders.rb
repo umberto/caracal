@@ -50,11 +50,19 @@ module Caracal
                 model: Caracal::Core::Models::BorderModel,
                 default: nil
 
-            # # writer for optional border model, e.g. border_top
-            # base.define_method model_writer_name do |options = {}, &block|
-            #   options.merge! type: dir
-            #   instance_variable_set "@#{model_reader_name}", Caracal::Core::Models::BorderModel.new(options, &block)
-            # end
+            # writer for optional border model, e.g. border_top
+            base.define_method model_writer_name do |options = {}, &block|
+              case options
+              when Hash
+                options.merge! type: dir
+                instance_variable_set "@#{model_reader_name}", Caracal::Core::Models::BorderModel.new(options, &block)
+              when Caracal::Core::Models::BorderModel
+                options.instance_eval &block if block_given?
+                instance_variable_set "@#{model_reader_name}", options
+              else
+                raise ArgumentError, "don't know how to handle #{options.inspect}, expecting hash or Caracal::Core::Models::BorderModel"
+              end
+            end
 
             BorderModel::ATTRS.each do |attr|
               bdr_attr         = :"border_#{attr}"               # e.g. border_color

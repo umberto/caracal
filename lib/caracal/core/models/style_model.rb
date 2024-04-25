@@ -24,6 +24,7 @@ module Caracal
 
         has_string_attribute :id
         has_string_attribute :name
+        has_string_attribute :aliases
         has_string_attribute :font
         has_string_attribute :highlight_color
         has_string_attribute :base, default: 'Normal'
@@ -161,7 +162,7 @@ module Caracal
         private
 
         def option_keys
-          [:type, :base, :bold, :italic, :underline, :caps, :size, :line, :line_rule, :id, :name, :font, :align, :widow_control, :word_wrap, :keep_lines, :keep_next, :locked] +
+          [:aliases, :type, :base, :bold, :italic, :underline, :caps, :size, :line, :line_rule, :id, :name, :font, :align, :widow_control, :word_wrap, :keep_lines, :keep_next, :locked] +
               HasBackground::ATTRS +
               HasColor::ATTRS +
               HasMargins::ATTRS +

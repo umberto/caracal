@@ -27,8 +27,8 @@ module Caracal
 
               w.pPrDefault do
                 w.pPr do
-                  w.keepNext     'w:val' => s.style_keep_next  ? 1 : 0 unless s.style_keep_next.nil?
-                  w.keepLines    'w:val' => s.style_keep_lines ? 1 : 0 unless s.style_keep_lines.nil?
+                  w.keepNext     'w:val' => s.style_keep_next     unless s.style_keep_next.nil?
+                  w.keepLines    'w:val' => s.style_keep_lines    unless s.style_keep_lines.nil?
                   w.widowControl 'w:val' => s.style_widow_control unless s.style_widow_control.nil?
                   w.spacing spacing_options(s, true)
                   w.ind indentation_options(s, true)
@@ -91,19 +91,20 @@ module Caracal
 
       def render_table_cell_style(w, model)
         render_style w, model, 'table' do
+          w.tblPr do
+            w.jc             'w:val'  => model.style_align.to_s                      unless model.style_align.nil?
+            w.tblCellSpacing 'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
+
+            render_borders    w, model, 'tblBorders', :style
+            render_background w, model, :style
+            render_margins    w, model, 'tblCellMar', :style
+          end
+
           w.tcPr do
             render_background w, model, :style
-            render_borders    w, model, 'tcBorders', :style
             render_margins    w, model, 'tcMar', :style
 
-            w.vAlign 'w:val' => model.style_vertical_align unless model.style_vertical_align.nil?
-            w.jc     'w:val' => model.style_align.to_s     unless model.style_align.nil?
-
-            # spacing = spacing_options model
-            # w.tcCellSpacing spacing unless spacing.nil?
-
-            # indentation = indentation_options model
-            # w.tcInd indentation unless indentation.nil?
+            w.vAlign 'w:val' => model.style_content_vertical_align unless model.style_content_vertical_align.nil?
           end
         end
       end
@@ -118,8 +119,9 @@ module Caracal
 
         w.style style_opts do
           w.name    'w:val' => model.style_name
-          w.basedOn 'w:val' => model.style_base unless model.style_base.nil?
-          w.next    'w:val' => model.style_next unless model.style_next.nil?
+          w.aliases 'w:val' => model.style_aliases unless model.style_aliases.nil?
+          w.basedOn 'w:val' => model.style_base    unless model.style_base.nil?
+          w.next    'w:val' => model.style_next    unless model.style_next.nil?
           w.locked if model.style_locked
 
           yield w, model
@@ -170,9 +172,14 @@ module Caracal
             render_margins    w, model, 'tblCellMar', :style
           end
 
+          w.tcPr do
+            render_background w, model, :style
+          end
+
           # only applies to table row styles
           # w.trPr do
             # w.cantSplit 'w:val' => '1'
+            # w.tblHeader
             ##w:cnfStyle [0..1]     Table Row Conditional Formatting
             ##w:divId [0..1]        Associated HTML div ID
             ##w:gridBefore [0..1]   Grid Columns Before First Cell
