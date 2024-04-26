@@ -38,6 +38,7 @@ module Caracal
 
         # accessors
         attr_reader :table_column_widths
+        attr_accessor :document
 
         # initialization
         def initialize(options={}, &block)
@@ -127,7 +128,7 @@ module Caracal
         #=============== GETTERS ==============================
 
         def find_style(*args)
-          @document.find_style *args
+          self.document.find_style *args
         end
 
 
@@ -160,6 +161,7 @@ module Caracal
                 end
 
                 cell.document = self.document
+                cell
               end
             end
           #rescue
