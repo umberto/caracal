@@ -62,7 +62,7 @@ module Caracal
         has_boolean_attribute :after_autospacing, default: true
 
         has_symbol_attribute :line_rule, default: :exact
-        has_symbol_attribute :type, default: :paragraph, downcase: true
+        has_symbol_attribute :type, default: :paragraph
         has_symbol_attribute :align, default: :left
         has_symbol_attribute :vertical_align, default: :baseline
 

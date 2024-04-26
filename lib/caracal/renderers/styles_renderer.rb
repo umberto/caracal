@@ -198,14 +198,16 @@ module Caracal
             ##w:hidden [0..1]       Hidden Table Row Marker
           # end
 
-          ## CONDITIONAL FORMATTING
-          model.conditional_formats.each do |cf|
-            w.tblStylePr 'w:type' => cf.style_type do
-              w.tcPr do # paragraph properties
-                render_borders    w, cf, 'tcBorders', :style
-                render_background w, cf, :style
-                render_margins    w, cf, 'tcMar', :style
-                w.vAlign 'w:val' => cf.style_content_vertical_align unless model.style_content_vertical_align.nil?
+          if model.conditional_formats
+            ## CONDITIONAL FORMATTING
+            model.conditional_formats.each do |cf|
+              w.tblStylePr 'w:type' => cf.style_type do
+                w.tcPr do # paragraph properties
+                  render_borders    w, cf, 'tcBorders', :style
+                  render_background w, cf, :style
+                  render_margins    w, cf, 'tcMar', :style
+                  w.vAlign 'w:val' => cf.style_content_vertical_align unless model.style_content_vertical_align.nil?
+                end
               end
             end
           end

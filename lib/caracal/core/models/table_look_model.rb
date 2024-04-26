@@ -68,7 +68,7 @@ module Caracal
         #=============== VALIDATION ==============================
 
         def valid?
-          option_keys.all? {|o| o.in? [true, false, nil] }
+          option_keys.all? {|o| validate_inclusion o, within: [true, false, nil] }
         end
 
         #-------------------------------------------------------------
@@ -77,7 +77,7 @@ module Caracal
         private
 
         def option_keys
-          [:first_col, :last_col, :first_row, :last_row, :hband, :vband, :no_hband, :no_vband, :ne_cell, :nw_cell, :se_cell, :sw_cell]
+          [:first_col, :last_col, :first_row, :last_row, :hband, :vband, :no_hband, :no_vband]
         end
 
       end

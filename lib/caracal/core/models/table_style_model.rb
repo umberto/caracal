@@ -23,7 +23,7 @@ module Caracal
 
         def initialize(options = {}, &block)
           @style_default                = false
-          @conditional_formats          = {}
+          @conditional_formats          = nil
           @style_col_band_size          = DEFAULT_STYLE_COL_BAND_SIZE
           @style_row_band_size          = DEFAULT_STYLE_ROW_BAND_SIZE
           @style_cell_spacing           = DEFAULT_STYLE_CELL_SPACING
@@ -33,11 +33,12 @@ module Caracal
         end
 
         def conditional_format(options, &block)
+          @conditional_formats ||= {}
           @conditional_formats[options[:type]] = Caracal::Core::Models::TableStyleModel.new(options, &block)
         end
 
         def conditional_formats
-          @conditional_formats.values
+          @conditional_formats&.values
         end
 
         def run_attributes
@@ -59,7 +60,7 @@ module Caracal
         end
 
         def valid?
-          super and self.conditional_formats.all? &:valid?
+          super #and validate_all :conditional_formats, allow_nil: true
         end
       end
 

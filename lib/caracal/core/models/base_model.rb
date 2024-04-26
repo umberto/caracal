@@ -39,6 +39,18 @@ module Caracal
           []
         end
 
+        def validate_all(attr, allow_nil: false)
+          array = self.send attr
+          if array.nil? and allow_nil
+            true
+          elsif array.all? :valid?
+            true
+          else
+            @errors << {message: array.reject{|a| a.errors.nil? or a.errors.empty? }.map{|a| a.errors }, model: self, attribute: attr}
+            false
+          end
+        end
+
         def validate_size(attr, at_least: 0, allow_nil: false)
           value = self.send "#{self.class.attr_prefix}_#{attr}"
           if value.nil? and allow_nil
