@@ -27,8 +27,11 @@ module Caracal
         has_integer_attribute :rowspan,        default: 1
         has_integer_attribute :width
 
+        attr_accessor :document
+
         # initialization
         def initialize(options={}, &block)
+          @document            = options.delete :document
           @cell_rowspan        = DEFAULT_CELL_ROWSPAN
           @cell_colspan        = DEFAULT_CELL_COLSPAN
           @cell_top            = DEFAULT_CELL_TOP
@@ -147,6 +150,9 @@ module Caracal
           end
         end
 
+        def find_style(*args)
+          self.document.find_style *args
+        end
 
         #=============== VALIDATION ===========================
 

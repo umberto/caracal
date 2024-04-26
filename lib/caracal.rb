@@ -40,4 +40,6 @@ Caracal::Core::Models::TableCellModel.class_eval do
   include Caracal::Core::Rules
   include Caracal::Core::Tables
   include Caracal::Core::Text
+
+  # add themes stuff later
 end

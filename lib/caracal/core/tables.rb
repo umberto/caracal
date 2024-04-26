@@ -15,7 +15,7 @@ module Caracal
             options = Caracal::Utilities.extract_options! args
             options.merge! data: args.first if args.first
 
-            table_model = Caracal::Core::Models::TableModel.new options.merge(document: self), &block
+            table_model = Caracal::Core::Models::TableModel.new options.merge(document: @document || self), &block
 
             if self.respond_to? :page_width
               available_container_width = self.page_width - self.page_margin_left - self.page_margin_right

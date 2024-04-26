@@ -143,7 +143,7 @@ module Caracal
           begin
             @table_data = value.map do |data_row|
               data_row.map do |data_cell|
-                case data_cell
+                cell = case data_cell
                 when Caracal::Core::Models::TableCellModel
                   if data_cell.cell_style
                     data_cell.apply_styles merge_named_styles(style: data_cell.cell_style)
@@ -157,6 +157,8 @@ module Caracal
                 else
                   Caracal::Core::Models::TableCellModel.new content: data_cell.to_s
                 end
+
+                cell.document = self.document
               end
             end
           #rescue
