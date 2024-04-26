@@ -367,6 +367,7 @@ module Caracal
       end
 
       def render_text(xml, model)
+        return if model.text_content == '' and not model.text_end_tab
         w = xml['w']
         w.r run_options do
           render_run_attributes(xml, model, skip_empty: true)

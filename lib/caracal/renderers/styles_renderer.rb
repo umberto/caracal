@@ -160,6 +160,10 @@ module Caracal
 
       def render_table_style(w, model)
         render_style w, model, 'table' do
+          w.pPr do
+            w.jc 'w:val' => model.style_align.to_s       unless model.style_align.nil?
+          end
+
           w.tblPr do
             w.tblStyleRowBandSize 'w:val'  => model.style_row_band_size.to_i              unless model.style_row_band_size.nil?
             w.tblStyleColBandSize 'w:val'  => model.style_row_band_size.to_i              unless model.style_col_band_size.nil?
