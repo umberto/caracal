@@ -16,7 +16,7 @@ module Caracal
         include HasBorders
         extend HasMargins
 
-        has_margins top: 100, left: 100, right: 100, bottom: 100
+        has_margins #top: 100, left: 100, right: 100, bottom: 100
 
         has_string_attribute :style
 

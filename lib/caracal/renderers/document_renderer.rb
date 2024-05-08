@@ -436,8 +436,8 @@ module Caracal
                   w.tblHeader
                 end
                 # w.cantSplit # to not split table cells across pages
-                # w.trHeight
-                # w.tblCellSpacing 'w:w' => 90, 'w:type' => 'dxa'
+                w.trHeight 'w:hRule' => 'auto'
+                # w.tblCellSpacing 'w:w' => 0, 'w:type' => 'dxa'
               end
 
               row.each_with_index do |tc, tc_index| # NOTE: tc_index is modified inline at end of method!

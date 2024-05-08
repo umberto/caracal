@@ -95,7 +95,7 @@ module Caracal
             w.jc             'w:val'  => model.style_align.to_s                      unless model.style_align.nil?
             w.tblCellSpacing 'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
 
-            render_borders    w, model, 'tblBorders', :style
+            render_borders    w, model, 'tcBorders', :style
             render_background w, model, :style
             render_margins    w, model, 'tblCellMar', :style
           end
