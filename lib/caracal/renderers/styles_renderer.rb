@@ -93,7 +93,7 @@ module Caracal
         render_style w, model, 'table' do
           w.tblPr do
             w.jc             'w:val'  => model.style_align.to_s                      unless model.style_align.nil?
-            w.tblCellSpacing 'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
+            # w.tblCellSpacing 'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
 
             render_borders    w, model, 'tcBorders', :style
             render_background w, model, :style
@@ -169,7 +169,11 @@ module Caracal
             w.tblStyleColBandSize 'w:val'  => model.style_row_band_size.to_i              unless model.style_col_band_size.nil?
             # w.tblW                'w:w'    => 0, 'w:type' => 'auto' # Preferred Table Width
             w.jc                  'w:val'  => model.style_align.to_s                      unless model.style_align.nil?
-            w.tblCellSpacing      'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
+            if model.style_cell_spacing.nil?
+              w.tblCellSpacing 'w:w' => 0, 'w:type' => 'nil'
+            else
+              w.tblCellSpacing 'w:w' => model.style_cell_spacing, 'w:type' => 'dxa'
+            end
             w.tblInd              'w:w'    => model.style_indent_left.to_i                unless model.style_indent_left.nil?
             render_borders    w, model, 'tblBorders', :style
             render_background w, model, :style

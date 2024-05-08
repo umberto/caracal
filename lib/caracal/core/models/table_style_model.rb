@@ -17,7 +17,7 @@ module Caracal
 
         has_integer_attribute :col_band_size, default: 1
         has_integer_attribute :row_band_size, default: 1
-        has_integer_attribute :cell_spacing,  default: 0 # twips
+        has_integer_attribute :cell_spacing
 
         has_symbol_attribute :content_vertical_align, default: :top
 
