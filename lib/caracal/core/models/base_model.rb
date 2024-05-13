@@ -15,7 +15,11 @@ module Caracal
 
           options.each do |(key, value)|
             # send(key, value) if option_keys.include?(key) # safer, but need to define complete border model accessors first.
-            send(key, value) if respond_to? key
+            if respond_to? key
+              send key, value
+            else
+              raise "trying to set #{key.inspect} which is not known to #{self.inspect}"
+            end
           end
 
           if block_given?

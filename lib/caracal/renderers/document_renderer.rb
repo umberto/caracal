@@ -554,14 +554,14 @@ module Caracal
         return unless model.respond_to? :table_look
         opts = model.table_look
 
-        hsh = {}
-        hsh['w:firstColumn'] = true if opts.table_look_first_col
-        hsh['w:lastColumn']  = true if opts.table_look_last_col
-        hsh['w:firstRow']    = true if opts.table_look_first_row
-        hsh['w:lastRow' ]    = true if opts.table_look_last_row
-        hsh['w:noHBand']     = true if opts.table_look_no_hband
-        hsh['w:noVBand']     = true if opts.table_look_no_vband
-        hsh
+        val = 0
+        val |= 0x0020 if opts.table_look_first_row
+        val |= 0x0040 if opts.table_look_last_row
+        val |= 0x0080 if opts.table_look_first_col
+        val |= 0x0100 if opts.table_look_last_col
+        val |= 0x0200 if opts.table_look_no_hband
+        val |= 0x0400 if opts.table_look_no_vband
+        {'w:val' => val.to_s(16).rjust(4, '0')}
       end
 
       def spacing_options(model)

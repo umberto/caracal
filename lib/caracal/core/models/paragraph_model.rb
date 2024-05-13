@@ -7,6 +7,7 @@ require 'caracal/core/models/has_color'
 require 'caracal/core/models/has_background'
 require 'caracal/core/models/has_borders'
 require 'caracal/core/models/has_margins'
+require 'caracal/core/models/has_run_attributes'
 require 'caracal/errors'
 require 'ostruct'
 
@@ -23,6 +24,7 @@ module Caracal
         include HasColor
         include HasBackground
         include HasBorders
+        include HasRunAttributes
         extend HasMargins
 
         has_margins
@@ -31,26 +33,23 @@ module Caracal
 
         has_symbol_attribute :align
 
-        has_integer_attribute :size
         has_integer_attribute :line
 
-        has_boolean_attribute :bold
-        has_boolean_attribute :italic
-        has_boolean_attribute :underline
         has_boolean_attribute :keep_next
         has_boolean_attribute :keep_lines
         has_boolean_attribute :widow_control
 
         attr_reader :paragraph_tabs
 
-        # initialization
         def initialize(options={}, &block)
-          content = options.delete(:content) { '' }
+          @indent = nil
+          o = options.dup
+          content = o.delete(:content) { '' }
+          super o, &block
+
           # TBD: maybe the block passed to #text is actually needed, but for now it seems
           # it only leads to double eval (one in wrong context)
-          text content, options.dup #, &block
-          @indent = nil
-          super options, &block
+          text content, self.run_attributes
         end
 
 
@@ -62,21 +61,6 @@ module Caracal
 
         def runs
           @runs ||= []
-        end
-
-        def run_attributes
-          attrs = {
-            color:         self.paragraph_color,
-            theme_color:   self.paragraph_theme_color,
-            size:          self.paragraph_size,
-            bold:          self.paragraph_bold,
-            italic:        self.paragraph_italic,
-            underline:     self.paragraph_underline,
-            bgcolor:       self.paragraph_bgcolor,
-            theme_bgcolor: self.paragraph_theme_bgcolor,
-            bgstyle:       self.paragraph_bgstyle
-          }.compact
-          OpenStruct.new attrs
         end
 
         def plain_text
@@ -111,7 +95,8 @@ module Caracal
         #========== SUB-METHODS ===========================
 
         def field(*args, &block)
-          options = Caracal::Utilities.extract_options! args
+          options = self.run_attributes.to_h
+          options.merge! Caracal::Utilities.extract_options!(args).dup
           options.merge! name: args.first if args.first
 
           model = Caracal::Core::Models::FieldModel.new options, &block
@@ -125,7 +110,7 @@ module Caracal
 
         # .bookmarks
         def bookmark_start(*args, &block)
-          options = Caracal::Utilities.extract_options! args
+          options = Caracal::Utilities.extract_options!(args).dup
           options.merge! start: true
 
           model = Caracal::Core::Models::BookmarkModel.new options, &block
@@ -138,7 +123,7 @@ module Caracal
         end
 
         def bookmark_end(*args, &block)
-          options = Caracal::Utilities.extract_options! args
+          options = Caracal::Utilities.extract_options!(args).dup
           options.merge! start: false
 
           model = Caracal::Core::Models::BookmarkModel.new options, &block
@@ -159,7 +144,8 @@ module Caracal
 
         # .link
         def link(*args, &block)
-          options = Caracal::Utilities.extract_options!(args)
+          options = self.run_attributes.to_h
+          options.merge! Caracal::Utilities.extract_options!(args).dup
           options.merge! content: args[0] if args[0]
           options.merge! href:    args[1] if args[1]
 
@@ -181,7 +167,8 @@ module Caracal
 
         # .text
         def text(*args, &block)
-          options = Caracal::Utilities.extract_options!(args)
+          options = Caracal::Utilities.extract_options! args
+          options.merge! self.run_attributes.to_h
           options.merge! content: args.first if args.first
 
           model = Caracal::Core::Models::TextModel.new(options, &block)
@@ -208,7 +195,12 @@ module Caracal
         private
 
         def option_keys
-          %i[content style align size bold italic underline tabs top bottom line keep_next keep_lines widow_control] + HasBackground::ATTRS + HasColor::ATTRS + HasBorders::ATTRS + HasMargins::ATTRS
+          %i[content style align tabs top bottom line keep_next keep_lines widow_control] +
+              HasBackground::ATTRS +
+              HasColor::ATTRS +
+              HasBorders::ATTRS +
+              HasMargins::ATTRS +
+              HasRunAttributes::ATTRS
         end
 
       end

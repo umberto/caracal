@@ -93,7 +93,6 @@ module Caracal
       def render_run_attributes(w, model, skip_empty: true)
         if model.respond_to? :run_attributes
           attrs = model.run_attributes # only contains non-nil values
-
           unless attrs.empty? and not skip_empty
             w.rPr do
               render_fonts w, attrs, 'rFonts'

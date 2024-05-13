@@ -1,5 +1,3 @@
-require 'caracal/core/models/base_model'
-
 module Caracal
   module Core
     module Models

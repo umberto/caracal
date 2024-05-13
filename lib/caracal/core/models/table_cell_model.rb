@@ -2,8 +2,9 @@ require 'caracal/core/models/base_model'
 require 'caracal/core/models/border_model'
 require 'caracal/core/models/paragraph_model'
 require 'caracal/core/models/has_background'
+require 'caracal/core/models/has_color'
 require 'caracal/core/models/has_borders'
-
+require 'caracal/core/models/has_run_attributes'
 
 module Caracal
   module Core
@@ -12,7 +13,9 @@ module Caracal
       class TableCellModel < BaseModel
         use_prefix :cell
 
+        include HasRunAttributes
         include HasBackground
+        include HasColor
         include HasBorders
         extend HasMargins
 
@@ -20,11 +23,11 @@ module Caracal
 
         has_string_attribute :style
 
-        has_symbol_attribute :vertical_align
-        has_symbol_attribute :content_vertical_align,  default: :top
+        has_symbol_attribute :align          # paragraph attr
+        has_symbol_attribute :content_vertical_align, default: :top
 
-        has_integer_attribute :colspan,        default: 1
-        has_integer_attribute :rowspan,        default: 1
+        has_integer_attribute :colspan, default: 1
+        has_integer_attribute :rowspan, default: 1
         has_integer_attribute :width
 
         attr_accessor :document
@@ -38,8 +41,11 @@ module Caracal
           @cell_left           = DEFAULT_CELL_LEFT
           @cell_right          = DEFAULT_CELL_RIGHT
           @cell_bottom         = DEFAULT_CELL_BOTTOM
+          @cell_vertical_align = DEFAULT_CELL_VERTICAL_ALIGN
           @cell_content_vertical_align = DEFAULT_CELL_CONTENT_VERTICAL_ALIGN
+          self.initialize_run_attributes
 
+          make_content = false
           if content = options.delete(:content)
             if content.is_a? BaseModel
               self.contents << content
@@ -52,15 +58,20 @@ module Caracal
                 end
               end
             else
-              p content, options.dup #, &block
+              make_content = true
             end
           end
 
           super options, &block
 
-          p_klass = Caracal::Core::Models::ParagraphModel     # the final tag in a table cell
-          unless contents.last.is_a? p_klass                  # *must* be a paragraph for OOXML
-            contents << p_klass.new(content: '')              # to not throw an error.
+          if make_content
+            self.p content, self.paragraph_attributes.merge(self.run_attributes.to_h)
+          else
+            # the final tag in a table cell *must* be a paragraph for OOXML to not throw an error.
+            p_klass = Caracal::Core::Models::ParagraphModel
+            unless contents.last.is_a? p_klass
+              self.contents << p_klass.new(self.paragraph_attributes.merge(content: ''))
+            end
           end
         end
 
@@ -154,6 +165,13 @@ module Caracal
           self.document.find_style *args
         end
 
+        def paragraph_attributes
+          {
+            align:          self.cell_align,
+            vertical_align: self.cell_vertical_align
+          }.compact
+        end
+
         #=============== VALIDATION ===========================
 
         def valid?
@@ -162,10 +180,14 @@ module Caracal
               self.validate('must at least contain one content element') { self.contents.size > 0 }
         end
 
+        def self.option_keys
+          @options_keys ||= [:style, :width, :align, :vertical_align, :content_vertical_align, :rowspan, :colspan] + HasBackground::ATTRS + HasBorders::ATTRS + HasMargins::ATTRS + HasRunAttributes::ATTRS
+        end
+
         private
 
         def option_keys
-          @options_keys ||= [:style, :width, :vertical_align, :content_vertical_align, :rowspan, :colspan] + HasBackground::ATTRS + HasBorders::ATTRS + HasMargins::ATTRS
+          self.class.option_keys
         end
       end
 

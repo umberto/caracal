@@ -1,6 +1,7 @@
 require 'caracal/core/models/base_model'
 require 'caracal/core/models/has_color'
 require 'caracal/core/models/has_background'
+require 'caracal/core/models/has_run_attributes'
 require 'ostruct'
 
 module Caracal
@@ -15,22 +16,12 @@ module Caracal
 
         include HasColor
         include HasBackground
+        include HasRunAttributes
 
         has_string_attribute :content
-        has_string_attribute :font
-        has_string_attribute :highlight_color
         has_string_attribute :style
 
-        has_symbol_attribute :vertical_align
-        has_symbol_attribute :whitespace
-
-        has_boolean_attribute :bold
-        has_boolean_attribute :italic
-        has_boolean_attribute :underline
         has_boolean_attribute :end_tab
-        has_boolean_attribute :rtl
-
-        has_integer_attribute :size
 
         #========== GETTERS ===============================
 
@@ -44,6 +35,9 @@ module Caracal
             bold:             self.text_bold,
             italic:           self.text_italic,
             underline:        self.text_underline,
+            caps:             self.text_caps,
+            strike:           self.text_strike,
+            small_caps:       self.text_small_caps,
             bgcolor:          self.text_bgcolor,
             theme_bgcolor:    self.text_theme_bgcolor,
             highlight_color:  self.text_highlight_color,
@@ -59,12 +53,15 @@ module Caracal
           validate_presence :content, allow_empty: true
         end
 
+        def self.option_keys
+          [:content, :style, :end_tab] + HasBackground::ATTRS + HasColor::ATTRS + HasRunAttributes::ATTRS
+        end
+
         private
 
         def option_keys
-          [:content, :style, :font, :size, :bold, :italic, :underline, :highlight_color, :vertical_align, :end_tab] + HasBackground::ATTRS + HasColor::ATTRS
+          self.class.option_keys
         end
-
       end
 
     end

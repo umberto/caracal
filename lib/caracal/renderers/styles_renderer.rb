@@ -91,9 +91,12 @@ module Caracal
 
       def render_table_cell_style(w, model)
         render_style w, model, 'table' do
+          # run properties
+          render_run_attributes w, model, skip_empty: true
+
           w.tblPr do
             w.jc             'w:val'  => model.style_align.to_s                      unless model.style_align.nil?
-            # w.tblCellSpacing 'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
+            w.tblCellSpacing 'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
 
             render_borders    w, model, 'tcBorders', :style
             render_background w, model, :style
@@ -160,26 +163,28 @@ module Caracal
 
       def render_table_style(w, model)
         render_style w, model, 'table' do
+          # paragraph properties
           w.pPr do
-            w.jc 'w:val' => model.style_align.to_s       unless model.style_align.nil?
+            w.jc 'w:val' => model.style_align.to_s unless model.style_align.nil?
           end
 
+          # run properties
+          render_run_attributes w, model, skip_empty: true
+
+          # table properties
           w.tblPr do
             w.tblStyleRowBandSize 'w:val'  => model.style_row_band_size.to_i              unless model.style_row_band_size.nil?
             w.tblStyleColBandSize 'w:val'  => model.style_row_band_size.to_i              unless model.style_col_band_size.nil?
             # w.tblW                'w:w'    => 0, 'w:type' => 'auto' # Preferred Table Width
             w.jc                  'w:val'  => model.style_align.to_s                      unless model.style_align.nil?
-            if model.style_cell_spacing.nil?
-              w.tblCellSpacing 'w:w' => 0, 'w:type' => 'nil'
-            else
-              w.tblCellSpacing 'w:w' => model.style_cell_spacing, 'w:type' => 'dxa'
-            end
+            w.tblCellSpacing      'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
             w.tblInd              'w:w'    => model.style_indent_left.to_i                unless model.style_indent_left.nil?
             render_borders    w, model, 'tblBorders', :style
             render_background w, model, :style
             render_margins    w, model, 'tblCellMar', :style
           end
 
+          # tabe cell properties
           w.tcPr do
             render_background w, model, :style
           end
@@ -203,10 +208,21 @@ module Caracal
           # end
 
           if model.conditional_formats
-            ## CONDITIONAL FORMATTING
+            # conditional formatting
             model.conditional_formats.each do |cf|
               w.tblStylePr 'w:type' => cf.style_type do
-                w.tcPr do # paragraph properties
+                unless model.style_align.nil?
+                  # NOTE: setting any other pPr here would have no effect.
+                  w.pPr do
+                    w.jc 'w:val' => model.style_align.to_s
+                  end
+                end
+
+                # run properties
+                render_run_attributes w, cf, skip_empty: true
+
+                # table cell properties
+                w.tcPr do
                   render_borders    w, cf, 'tcBorders', :style
                   render_background w, cf, :style
                   render_margins    w, cf, 'tcMar', :style
