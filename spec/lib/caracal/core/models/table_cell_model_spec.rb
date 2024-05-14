@@ -27,10 +27,10 @@ describe Caracal::Core::Models::TableCellModel do
       it { expect(described_class::DEFAULT_CELL_VERTICAL_ALIGN).to eq nil }
       it { expect(described_class::DEFAULT_CELL_CONTENT_VERTICAL_ALIGN).to eq :top }
       # it { expect(described_class::DEFAULT_CELL_MARGINS).to               be_a(Caracal::Core::Models::MarginModel) }
-      it { expect(described_class::DEFAULT_CELL_TOP).to            eq 100 }
-      it { expect(described_class::DEFAULT_CELL_BOTTOM).to         eq 100 }
-      it { expect(described_class::DEFAULT_CELL_LEFT).to           eq 100 }
-      it { expect(described_class::DEFAULT_CELL_RIGHT).to          eq 100 }
+      it { expect(described_class::DEFAULT_CELL_TOP).to            eq nil }
+      it { expect(described_class::DEFAULT_CELL_BOTTOM).to         eq nil }
+      it { expect(described_class::DEFAULT_CELL_LEFT).to           eq nil }
+      it { expect(described_class::DEFAULT_CELL_RIGHT).to          eq nil }
     end
 
     # accessors
@@ -291,7 +291,7 @@ describe Caracal::Core::Models::TableCellModel do
     # .option_keys
     describe '.option_keys' do
       let(:actual)     { subject.send(:option_keys).sort }
-      let(:expected)   { [:bgcolor, :bgstyle, :border, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :bottom, :colspan, :left, :right, :rowspan, :style, :theme_bgcolor, :top, :vertical_align, :content_vertical_align, :width, :border_bottom, :border_horizontal, :border_vertical, :border_top, :border_left, :border_right].sort }
+      let(:expected)   { [:bgcolor, :bgstyle, :border, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :bottom, :colspan, :left, :right, :rowspan, :style, :theme_bgcolor, :top, :vertical_align, :content_vertical_align, :width, :border_bottom, :border_horizontal, :border_vertical, :border_top, :border_left, :border_right, :font, :caps, :small_caps, :highlight_color, :italic, :align, :bold, :rtl, :size, :strike, :underline, :whitespace, :color, :theme_color].sort }
 
       it { expect(actual).to eq expected }
     end

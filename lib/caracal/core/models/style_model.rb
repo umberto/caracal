@@ -1,9 +1,6 @@
 require 'ostruct'
 require 'caracal/core/models/base_model'
-require 'caracal/core/models/has_color'
-require 'caracal/core/models/has_background'
 require 'caracal/core/models/has_margins'
-require 'caracal/core/models/has_borders'
 require 'caracal/core/models/has_run_attributes'
 
 
@@ -16,9 +13,6 @@ module Caracal
       class StyleModel < BaseModel
         use_prefix :style
 
-        include HasBackground
-        include HasColor
-        include HasBorders
         include HasRunAttributes
         extend HasMargins
 
@@ -136,10 +130,7 @@ module Caracal
 
         def option_keys
           [:aliases, :type, :base, :line, :line_rule, :id, :name, :align, :widow_control, :word_wrap, :keep_lines, :keep_next, :locked] +
-              HasBackground::ATTRS +
-              HasColor::ATTRS +
               HasMargins::ATTRS +
-              HasBorders::ATTRS +
               HasRunAttributes::ATTRS +
               %w(left right first).map{|b| :"indent_#{b}" }
         end

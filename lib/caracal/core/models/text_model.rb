@@ -1,6 +1,4 @@
 require 'caracal/core/models/base_model'
-require 'caracal/core/models/has_color'
-require 'caracal/core/models/has_background'
 require 'caracal/core/models/has_run_attributes'
 require 'ostruct'
 
@@ -14,8 +12,6 @@ module Caracal
       class TextModel < BaseModel
         use_prefix :text
 
-        include HasColor
-        include HasBackground
         include HasRunAttributes
 
         has_string_attribute :content
@@ -54,7 +50,7 @@ module Caracal
         end
 
         def self.option_keys
-          [:content, :style, :end_tab] + HasBackground::ATTRS + HasColor::ATTRS + HasRunAttributes::ATTRS
+          [:content, :style, :end_tab] + HasRunAttributes::ATTRS
         end
 
         private

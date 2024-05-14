@@ -14,9 +14,6 @@ module Caracal
         use_prefix :cell
 
         include HasRunAttributes
-        include HasBackground
-        include HasColor
-        include HasBorders
         extend HasMargins
 
         has_margins #top: 100, left: 100, right: 100, bottom: 100
@@ -167,8 +164,7 @@ module Caracal
 
         def paragraph_attributes
           {
-            align:          self.cell_align,
-            vertical_align: self.cell_vertical_align
+            align: self.cell_align
           }.compact
         end
 
@@ -181,7 +177,9 @@ module Caracal
         end
 
         def self.option_keys
-          @options_keys ||= [:style, :width, :align, :vertical_align, :content_vertical_align, :rowspan, :colspan] + HasBackground::ATTRS + HasBorders::ATTRS + HasMargins::ATTRS + HasRunAttributes::ATTRS
+          @options_keys ||= [:style, :width, :align, :content_vertical_align, :rowspan, :colspan] +
+              HasMargins::ATTRS +
+              HasRunAttributes::ATTRS
         end
 
         private

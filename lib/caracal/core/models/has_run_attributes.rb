@@ -1,11 +1,22 @@
+require 'caracal/core/models/has_background'
+require 'caracal/core/models/has_color'
+require 'caracal/core/models/has_borders'
+
 module Caracal
   module Core
     module Models
       module HasRunAttributes
 
-        ATTRS = [:font, :size, :bold, :italic, :underline, :caps, :small_caps, :strike, :rtl, :highlight_color, :vertical_align, :whitespace].freeze
+        ATTRS = [:font, :size, :bold, :italic, :underline, :caps, :small_caps, :strike, :rtl, :highlight_color, :vertical_align, :whitespace] +
+            HasBackground::ATTRS +
+            HasColor::ATTRS +
+            HasBorders::ATTRS
 
         def self.included(base)
+          base.include HasBackground
+          base.include HasColor
+          base.include HasBorders
+
           base.has_string_attribute :font
           base.has_string_attribute :highlight_color
 
@@ -48,7 +59,7 @@ module Caracal
         private
 
         def initialize_run_attributes
-          # so far, no defaults do be set here.
+          # so far, no defaults to be set here.
         end
 
       end

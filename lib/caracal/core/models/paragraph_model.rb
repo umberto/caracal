@@ -3,9 +3,6 @@ require 'caracal/core/models/bookmark_model'
 require 'caracal/core/models/link_model'
 require 'caracal/core/models/text_model'
 require 'caracal/core/models/theme_color_model'
-require 'caracal/core/models/has_color'
-require 'caracal/core/models/has_background'
-require 'caracal/core/models/has_borders'
 require 'caracal/core/models/has_margins'
 require 'caracal/core/models/has_run_attributes'
 require 'caracal/errors'
@@ -21,9 +18,6 @@ module Caracal
       class ParagraphModel < BaseModel
         use_prefix :paragraph
 
-        include HasColor
-        include HasBackground
-        include HasBorders
         include HasRunAttributes
         extend HasMargins
 
@@ -192,19 +186,19 @@ module Caracal
           runs.any? and self.valid_bgstyle?
         end
 
-        private
-
-        def option_keys
+        def self.option_keys
           %i[content style align tabs top bottom line keep_next keep_lines widow_control] +
-              HasBackground::ATTRS +
-              HasColor::ATTRS +
-              HasBorders::ATTRS +
               HasMargins::ATTRS +
               HasRunAttributes::ATTRS
         end
 
-      end
+        private
 
+        def option_keys
+          self.class.option_keys
+        end
+
+      end
     end
   end
 end

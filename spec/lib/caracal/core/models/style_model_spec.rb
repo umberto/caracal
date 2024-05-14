@@ -22,7 +22,7 @@ describe Caracal::Core::Models::StyleModel do
     describe 'constants' do
       it { expect(described_class::DEFAULT_STYLE_TYPE).to eq :paragraph }
       it { expect(described_class::DEFAULT_STYLE_COLOR).to eq nil }
-      it { expect(described_class::DEFAULT_STYLE_SIZE).to eq 20 }
+      it { expect(described_class::DEFAULT_STYLE_SIZE).to eq nil }
       it { expect(described_class::DEFAULT_STYLE_BOLD).to eq nil }
       it { expect(described_class::DEFAULT_STYLE_ITALIC).to eq nil }
       it { expect(described_class::DEFAULT_STYLE_UNDERLINE).to eq nil }
@@ -48,7 +48,7 @@ describe Caracal::Core::Models::StyleModel do
       it { expect(subject.style_italic).to eq nil }
       it { expect(subject.style_underline).to eq nil }
       it { expect(subject.style_caps).to eq nil }
-      it { expect(subject.style_align).to eq :left }
+      it { expect(subject.style_align).to eq nil }
       it { expect(subject.style_top).to eq nil }
       it { expect(subject.style_bottom).to eq nil }
       it { expect(subject.style_line).to eq 360 }
@@ -217,7 +217,7 @@ describe Caracal::Core::Models::StyleModel do
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:aliases, :type, :bold, :italic, :underline, :caps, :top, :bottom, :size, :line, :id, :name, :color, :font, :align, :indent_left, :indent_right, :indent_first, :base, :bgcolor, :bgstyle, :keep_lines, :keep_next, :left, :right, :theme_bgcolor, :theme_color, :widow_control, :word_wrap, :border, :line_rule, :locked, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :border_top, :border_bottom, :border_horizontal, :border_vertical, :border_left, :border_right].sort }
+      let(:expected) { [:aliases, :type, :bold, :italic, :underline, :caps, :top, :bottom, :size, :line, :id, :name, :color, :font, :align, :indent_left, :indent_right, :indent_first, :base, :bgcolor, :bgstyle, :keep_lines, :keep_next, :left, :right, :theme_bgcolor, :theme_color, :widow_control, :word_wrap, :border, :line_rule, :locked, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :border_top, :border_bottom, :border_horizontal, :border_vertical, :border_left, :border_right, :vertical_align, :whitespace, :strike, :small_caps, :highlight_color, :rtl].sort }
 
       it { expect(actual).to eq expected }
     end

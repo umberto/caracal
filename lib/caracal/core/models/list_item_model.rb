@@ -20,13 +20,9 @@ module Caracal
 
         # readers (create aliases for superclass methods to conform
         # to expected naming convention.)
-        alias_method :list_item_style,     :paragraph_style
-        alias_method :list_item_color,     :paragraph_color
-        alias_method :list_item_size,      :paragraph_size
-        alias_method :list_item_bold,      :paragraph_bold
-        alias_method :list_item_italic,    :paragraph_italic
-        alias_method :list_item_underline, :paragraph_underline
-        alias_method :list_item_bgcolor,   :paragraph_bgcolor
+        (ParagraphModel::option_keys - %i(content )).each do |attr|
+          alias_method :"list_item_#{attr}", :"paragraph_#{attr}"
+        end
 
         #=============== SUB-METHODS ===========================
 
@@ -37,7 +33,7 @@ module Caracal
           if model.valid?
             @nested_list = model
           else
-            raise Caracal::Errors::InvalidModelError, 'Ordered lists require at least one list item.'
+            raise Caracal::Errors::InvalidModelError, model.errors.inspect
           end
           model
         end
@@ -49,7 +45,7 @@ module Caracal
           if model.valid?
             @nested_list = model
           else
-            raise Caracal::Errors::InvalidModelError, 'Unordered lists require at least one list item.'
+            raise Caracal::Errors::InvalidModelError, model.errors.inspect
           end
           model
         end
@@ -57,7 +53,7 @@ module Caracal
         #=============== VALIDATION ===========================
 
         def valid?
-          [:type, :level].all? {|a| validate_presence a } and not runs.empty?
+          super and [:type, :level].all? {|a| validate_presence a } and not runs.empty?
         end
 
         private
