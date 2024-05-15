@@ -35,8 +35,8 @@ module Caracal
         has_boolean_attribute :widow_control
         has_boolean_attribute :word_wrap
         has_boolean_attribute :locked
-        has_boolean_attribute :before_autospacing, default: true
-        has_boolean_attribute :after_autospacing, default: true
+        has_boolean_attribute :before_autospacing, default: false
+        has_boolean_attribute :after_autospacing, default: false
 
         has_symbol_attribute :line_rule, default: :exact
         has_symbol_attribute :type, default: :paragraph

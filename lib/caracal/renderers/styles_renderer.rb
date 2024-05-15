@@ -32,7 +32,7 @@ module Caracal
                   w.widowControl 'w:val' => s.style_widow_control unless s.style_widow_control.nil?
                   w.spacing spacing_options(s, true)
                   w.ind indentation_options(s, true)
-                  w.jc 'w:val' => s.style_align.to_s
+                  w.jc           'w:val' => s.style_align         unless s.style_align.nil?
                 end
               end
             end

@@ -63,7 +63,11 @@ module Caracal
           }.compact
           w.color attrs unless attrs.empty?
         elsif color = type ? model.send("#{type}_color") : model[:color]
-          w.color 'w:val' => color
+          if color == 'none'
+            w.color 'w:val' => 'auto'
+          else
+            w.color 'w:val' => color
+          end
         end
       end
 
@@ -99,7 +103,7 @@ module Caracal
               w.b         'w:val' => attrs.bold                            unless attrs.bold.nil?
               w.i         'w:val' => attrs.italic                          unless attrs.italic.nil?
               w.caps      'w:val' => attrs.caps                            unless attrs.caps.nil?
-              w.smallCaps 'w:val' => attrs.small_caps                      unless attrs.small_caps.nil?
+              w.smallCaps 'w:val' => attrs.small_caps                      unless attrs.small_caps.nil? or attrs.caps
               w.strike    'w:val' => attrs.strike                          unless attrs.strike.nil?
               render_color w, attrs
               w.sz        'w:val' => attrs.size                            unless attrs.size.nil?
