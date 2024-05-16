@@ -63,9 +63,7 @@ module Caracal
           }.compact
           w.color attrs unless attrs.empty?
         elsif color = type ? model.send("#{type}_color") : model[:color]
-          if color == 'none'
-            w.color 'w:val' => 'auto'
-          else
+          if color.to_s != 'none'
             w.color 'w:val' => color
           end
         end
@@ -83,7 +81,11 @@ module Caracal
           }.compact
           w.shd attrs unless attrs.empty?
         elsif color = type ? model.send("#{type}_bgcolor") : model[:bgcolor]
-          w.shd 'w:val' => 'solid', 'w:color' => color
+          if color.to_s == 'none'
+            w.shd 'w:val' => 'auto', 'w:color' => 'auto'
+          else
+            w.shd 'w:val' => 'solid', 'w:color' => color
+          end
         end
       end
 
