@@ -81,9 +81,7 @@ module Caracal
           }.compact
           w.shd attrs unless attrs.empty?
         elsif color = type ? model.send("#{type}_bgcolor") : model[:bgcolor]
-          if color.to_s == 'none'
-            w.shd 'w:val' => 'auto', 'w:color' => 'auto'
-          else
+          if color.to_s != 'none'
             w.shd 'w:val' => 'solid', 'w:color' => color
           end
         end
