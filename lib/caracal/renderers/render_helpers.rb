@@ -110,7 +110,7 @@ module Caracal
               # w.highlight 'w:val' => attrs.highlight_color                 unless attrs.highlight_color.nil?
               w.u         'w:val' => (attrs.underline ? 'single' : 'none') unless attrs.underline.nil?
               render_background w, attrs
-              w.vertAlign 'w:val' => model.vertical_align                  unless model.vertical_align.nil?
+              w.vertAlign 'w:val' => attrs.vertical_align                  unless attrs.vertical_align.nil?
               w.rtl       'w:val' => attrs.rtl                             unless attrs.rtl.nil?
             end
           end
