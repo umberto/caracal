@@ -43,7 +43,6 @@ module Caracal
         has_symbol_attribute :align, default: :left
 
         TYPES             = %i(character paragraph table table_row table_cell)
-        VERTICAL_ALIGNS   = %i(subscript superscript baseline center bottom auto)
         HORIZONTAL_ALIGNS = %i(left center right both)
         LINE_RULES        = %i(exact auto atLeast)
 
@@ -88,6 +87,8 @@ module Caracal
             bold:            self.style_bold,
             italic:          self.style_italic,
             underline:       self.style_underline,
+            caps:            self.style_caps,
+            small_caps:      self.style_small_caps,
             bgcolor:         self.style_bgcolor,
             theme_bgcolor:   self.style_theme_bgcolor,
             bgstyle:         self.style_bgstyle,
@@ -111,13 +112,15 @@ module Caracal
           validate_presence :id and
               validate_presence :name and
               validate_presence :type and
-              validate_inclusion :type, within: TYPES and
-              validate_inclusion :vertical_align, within: VERTICAL_ALIGNS and
+              self.valid_type? and
               validate_inclusion :align, within: HORIZONTAL_ALIGNS and
               validate_inclusion :line_rule, within: LINE_RULES and
               self.valid_bgstyle? and
-              self.valid_whitespace? and
-              self.valid_vertical_align?
+              self.valid_run_attributes?
+        end
+
+        def valid_type?
+          validate_inclusion :type, within: TYPES
         end
 
         def to_h

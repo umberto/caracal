@@ -128,7 +128,7 @@ module Caracal
             if value.nil?
               instance_variable_set "@#{prefix}_#{name}", nil
             else
-              v =  value.to_s
+              v = value.to_s
               v = v.downcase if downcase
               instance_variable_set "@#{prefix}_#{name}", v.to_sym
             end

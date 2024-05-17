@@ -12,6 +12,8 @@ module Caracal
             HasColor::ATTRS +
             HasBorders::ATTRS
 
+        VERTICAL_ALIGNS   = %i(subscript superscript baseline)
+
         def self.included(base)
           base.include HasBackground
           base.include HasColor
@@ -58,12 +60,25 @@ module Caracal
 
         private
 
+        def valid_run_attributes?
+          self.valid_whitespace? and self.valid_vertical_align? and self.valid_caps?
+        end
+
+        def valid_caps?
+          if self.send("#{self.class.attr_prefix}_caps") and self.send("#{self.class.attr_prefix}_small_caps")
+            self.errors << 'May have either caps or small caps but not both'
+            false
+          else
+            true
+          end
+        end
+
         def valid_whitespace?
           validate_inclusion :whitespace, within: %i(preserve replace collapse), allow_nil: true
         end
 
         def valid_vertical_align?
-          validate_inclusion :vertical_align, within: %i(subscript superscript baseline), allow_nil: true
+          validate_inclusion :vertical_align, within: VERTICAL_ALIGNS, allow_nil: true
         end
 
         def initialize_run_attributes

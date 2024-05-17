@@ -174,8 +174,7 @@ module Caracal
               self.validate_inclusion :content_vertical_align, within: %i(top bottom center), allow_nil: true and
               self.valid_bgstyle? and
               self.validate('must at least contain one content element') { self.contents.size > 0 } and
-              self.valid_whitespace? and
-              self.valid_vertical_align?
+              self.valid_run_attributes?
         end
 
         def self.option_keys

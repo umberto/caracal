@@ -464,7 +464,7 @@ module Caracal
                     render_borders    w, tc, 'tcBorders', :cell
                     render_background w, tc, :cell
                     render_margins    w, tc, 'tcMar', :cell
-                    w.vAlign 'w:val' => tc.cell_content_vertical_align if tc.cell_content_vertical_align
+                    w.vAlign 'w:val' => tc.cell_content_vertical_align unless tc.cell_content_vertical_align.nil?
                   end
 
                   tc.contents.each do |m|

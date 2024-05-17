@@ -7,7 +7,7 @@ module Caracal
       # This class encapsulates the logic needed to store and manipulate
       # taple style data and conditional formating.
       class TableStyleModel < StyleModel
-        CONDITIONAL_FORMAT_TYPES = %w(wholeTable band1Horz band1Vert band2Horz band2Vert firstCol firstRow lastCol lastRow neCell nwCell seCell swCell)
+        CONDITIONAL_FORMAT_TYPES = %i(wholeTable band1Horz band1Vert band2Horz band2Vert firstCol firstRow lastCol lastRow neCell nwCell seCell swCell)
         CONTENT_VERTICAL_ALIGNS  = %i(top center bottom)
 
         DEFAULT_STYLE_TYPE = :table
@@ -22,6 +22,7 @@ module Caracal
         has_symbol_attribute :content_vertical_align, default: :top
 
         def initialize(options = {}, &block)
+          @_conditional                 = options.delete :conditional
           @style_default                = false
           @conditional_formats          = nil
           @style_col_band_size          = DEFAULT_STYLE_COL_BAND_SIZE
@@ -34,7 +35,12 @@ module Caracal
 
         def conditional_format(options, &block)
           @conditional_formats ||= {}
-          @conditional_formats[options[:type]] = Caracal::Core::Models::TableStyleModel.new(options, &block)
+          model = Caracal::Core::Models::TableStyleModel.new options.merge(conditional: true), &block
+          if model.valid?
+            @conditional_formats[options[:type]] = model
+          else
+            raise Caracal::Errors::InvalidModelError, model.errors.inspect
+          end
         end
 
         def conditional_formats
@@ -50,14 +56,22 @@ module Caracal
             bold:            self.style_bold,
             italic:          self.style_italic,
             underline:       self.style_underline,
-            # bgcolor:         self.style_bgcolor,
-            # theme_bgcolor:   self.style_theme_bgcolor,
-            # bgstyle:         self.style_bgstyle,
+            caps:            self.style_caps,
+            small_caps:      self.style_small_caps,
             vertical_align:  self.style_vertical_align,
             # highlight_color: self.style_highlight_color
           }.compact
           OpenStruct.new attrs
         end
+
+        def valid_type?
+          if @_conditional
+            validate_inclusion :type, within: CONDITIONAL_FORMAT_TYPES
+          else
+            super
+          end
+        end
+
 
         def valid?
           super #and validate_all :conditional_formats, allow_nil: true
