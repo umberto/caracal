@@ -87,12 +87,6 @@ module Caracal
         end
       end
 
-      def render_vertical_align(w, model)
-        if model.vertical_align.present? and model.vertical_align.to_s != 'auto'
-          w.vertAlign 'w:val' => model.vertical_align
-        end
-      end
-
       def render_fonts(w, model, font_type, type = nil)
         font = type ? model.send("#{type}_font") : model[:font]
         unless font.nil?
@@ -116,8 +110,8 @@ module Caracal
               # w.highlight 'w:val' => attrs.highlight_color                 unless attrs.highlight_color.nil?
               w.u         'w:val' => (attrs.underline ? 'single' : 'none') unless attrs.underline.nil?
               render_background w, attrs
-              render_vertical_align w, attrs
-              w.rtl       'w:val' => attrs.rtl unless attrs.rtl.nil?
+              w.vertAlign 'w:val' => model.vertical_align                  unless model.vertical_align.nil?
+              w.rtl       'w:val' => attrs.rtl                             unless attrs.rtl.nil?
             end
           end
         end

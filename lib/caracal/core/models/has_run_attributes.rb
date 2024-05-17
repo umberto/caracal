@@ -58,6 +58,14 @@ module Caracal
 
         private
 
+        def valid_whitespace?
+          validate_inclusion :whitespace, within: %i(preserve replace collapse), allow_nil: true
+        end
+
+        def valid_vertical_align?
+          validate_inclusion :vertical_align, within: %i(subscript superscript baseline), allow_nil: true
+        end
+
         def initialize_run_attributes
           # so far, no defaults to be set here.
         end

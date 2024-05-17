@@ -115,7 +115,9 @@ module Caracal
               validate_inclusion :vertical_align, within: VERTICAL_ALIGNS and
               validate_inclusion :align, within: HORIZONTAL_ALIGNS and
               validate_inclusion :line_rule, within: LINE_RULES and
-              self.valid_bgstyle?
+              self.valid_bgstyle? and
+              self.valid_whitespace? and
+              self.valid_vertical_align?
         end
 
         def to_h

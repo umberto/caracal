@@ -46,7 +46,7 @@ module Caracal
         #========== VALIDATION ============================
 
         def valid?
-          validate_presence :content, allow_empty: true
+          validate_presence :content, allow_empty: true and self.valid_whitespace? and self.valid_vertical_align?
         end
 
         def self.option_keys

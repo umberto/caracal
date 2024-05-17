@@ -183,7 +183,7 @@ module Caracal
         #========== VALIDATION ============================
 
         def valid?
-          runs.any? and self.valid_bgstyle?
+          runs.any? and self.valid_bgstyle? and self.valid_whitespace? and self.valid_vertical_align?
         end
 
         def self.option_keys

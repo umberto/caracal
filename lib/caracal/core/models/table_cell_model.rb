@@ -38,7 +38,6 @@ module Caracal
           @cell_left           = DEFAULT_CELL_LEFT
           @cell_right          = DEFAULT_CELL_RIGHT
           @cell_bottom         = DEFAULT_CELL_BOTTOM
-          @cell_vertical_align = DEFAULT_CELL_VERTICAL_ALIGN
           @cell_content_vertical_align = DEFAULT_CELL_CONTENT_VERTICAL_ALIGN
           self.initialize_run_attributes
 
@@ -172,8 +171,11 @@ module Caracal
 
         def valid?
           validate_size :width, at_least: 0, allow_nil: true and
+              self.validate_inclusion :content_vertical_align, within: %i(top bottom center), allow_nil: true and
               self.valid_bgstyle? and
-              self.validate('must at least contain one content element') { self.contents.size > 0 }
+              self.validate('must at least contain one content element') { self.contents.size > 0 } and
+              self.valid_whitespace? and
+              self.valid_vertical_align?
         end
 
         def self.option_keys
