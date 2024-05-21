@@ -102,8 +102,14 @@ module Caracal
           unless attrs.empty? and not skip_empty
             w.rPr do
               render_fonts w, attrs, 'rFonts'
-              w.b         'w:val' => attrs.bold                            unless attrs.bold.nil?
-              w.i         'w:val' => attrs.italic                          unless attrs.italic.nil?
+              unless attrs.bold.nil?
+                w.b       'w:val' => attrs.bold
+                # w.bCs     'w:val' => attrs.bold
+              end
+              unless attrs.italic.nil?
+                w.i       'w:val' => attrs.italic
+                # w.iCs     'w:val' => attrs.italic
+              end
               w.caps      'w:val' => attrs.caps                            unless attrs.caps.nil?
               w.smallCaps 'w:val' => attrs.small_caps                      unless attrs.small_caps.nil?
               w.strike    'w:val' => attrs.strike                          unless attrs.strike.nil?
@@ -111,6 +117,7 @@ module Caracal
               w.sz        'w:val' => attrs.size                            unless attrs.size.nil?
               # w.highlight 'w:val' => attrs.highlight_color                 unless attrs.highlight_color.nil?
               w.u         'w:val' => (attrs.underline ? 'single' : 'none') unless attrs.underline.nil?
+              # TODO: w.bdr
               render_background w, attrs
               w.vertAlign 'w:val' => attrs.vertical_align                  unless attrs.vertical_align.nil?
               w.rtl       'w:val' => attrs.rtl                             unless attrs.rtl.nil?

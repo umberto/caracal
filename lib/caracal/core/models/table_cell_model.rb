@@ -27,11 +27,12 @@ module Caracal
         has_integer_attribute :rowspan, default: 1
         has_integer_attribute :width
 
-        attr_accessor :document
+        attr_accessor :document, :table_ref
 
         # initialization
         def initialize(options={}, &block)
           @document            = options.delete :document
+          @table_ref           = options.delete :table_ref
           @cell_rowspan        = DEFAULT_CELL_ROWSPAN
           @cell_colspan        = DEFAULT_CELL_COLSPAN
           @cell_top            = DEFAULT_CELL_TOP
@@ -100,7 +101,7 @@ module Caracal
           options.each do |k, v|
             if respond_to? k
               send k, v
-              options.delete k
+              # options.delete k unless HasRunAttributes::ATTRS.include? k
             end
           end
 
@@ -112,13 +113,12 @@ module Caracal
             options.each do |k,v|
               if model.respond_to?(k)
                 model.send k, v
-                options.delete k
+                # options.delete k unless HasRunAttributes::ATTRS.include? k
               end
             end
 
             # finally, apply to runs. options do trickle down
-            # because paragraph-level styles don't seem to
-            # affect runs within tables. weirdsies.
+            # because paragraph-level styles don't affect runs within tables.
             # only sets options on runs that don't have that option already set.
             if model.respond_to? :runs
               model.runs.each do |run|
@@ -167,6 +167,17 @@ module Caracal
           }.compact
         end
 
+        def cnf_style(table_ref, row, col)
+          current_table_style = document.find_style table_ref.table_style
+          if current_table_style
+            ConditionalFormat.new current_table_style, table_ref.table_look,
+                row: row,
+                col: col,
+                rows: table_ref.rows.size,
+                cols: table_ref.rows.map(&:size).max
+          end
+        end
+
         #=============== VALIDATION ===========================
 
         def valid?
@@ -190,6 +201,83 @@ module Caracal
         end
       end
 
+      class ConditionalFormat
+        BITMASK = {
+          firstRow:  0,
+          lastRow:   0,
+          firstCol:  0,
+          lastCol:   0,
+          band1Vert: 0,
+          band2Vert: 0,
+          band1Horz: 0,
+          band2Horz: 0,
+          neCell:    0,
+          nwCell:    0,
+          seCell:    0,
+          swCell:    0
+        }.freeze
+
+        def initialize(table_style, table_look, rows: nil, cols: nil, row: nil, col: nil)
+          @table_style, @table_look = table_style, table_look
+          @rows, @row, @cols, @col = rows, row, cols, col
+          set_bitmask
+        end
+
+        def bitmask
+          @bm.values.join ''
+        end
+
+        def style_hash
+          hsh = @table_style.table_cell_style_attributes
+          if @table_style.respond_to? :find_conditional_format
+            @bm.each do |key, use|
+              cf = @table_style.find_conditional_format key
+              if use == 1 and cf
+                hsh.merge! cf.table_cell_style_attributes
+              end
+            end
+          end
+          hsh
+        end
+
+        private
+
+        def set_bitmask
+          max_row = @rows - 1
+          max_col = @cols - 1
+          @bm = BITMASK.dup
+          if @table_look.table_look_first_row and @row == 0
+            @bm[:firstRow] = 1
+            if @table_look.table_look_first_col and @col == 0
+              @bm[:nwCell] = 1
+            end
+            if @table_look.table_look_last_col and @col == max_col
+              @bm[:neCell] = 1
+            end
+          end
+
+          if @table_look.table_look_last_row and @row == max_row
+            @bm[:lastRow] = 1
+            if @table_look.table_look_first_col and @col == 0
+              @bm[:swCell] = 1
+            end
+            if @table_look.table_look_last_col and @col == max_col
+              @bm[:seCell] = 1
+            end
+          end
+
+          if @table_look.table_look_first_col and @col == 0
+            @bm[:firstCol] = 1
+          end
+
+          if @table_look.table_look_last_col and @col == max_col
+            @bm[:lastCol] = 1
+          end
+
+          # TODO: hband, vband
+          @bm
+        end
+      end
     end
   end
 end

@@ -406,7 +406,7 @@ module Caracal
             render_borders    w, model, 'tblBorders', :table
             render_background w, model, :table
             w.tblLayout           'w:type' => model.table_layout unless model.table_layout.nil?
-            # render_margins w, model, 'tblCellMar', :table # TODO: table_margin_top is not yet implemented (should it?)
+            # w.tblCellMar 'w:w' => ..., type: 'dxa' # TODO
             w.tblLook             tbl_look unless tbl_look.nil?
             w.tblCaption          'w:val'  => model.table_caption unless model.table_caption.nil?
           end
@@ -443,7 +443,11 @@ module Caracal
               row.each_with_index do |tc, tc_index| # NOTE: tc_index is modified inline at end of method!
                 w.tc do
                   w.tcPr do
-                    # w.cnfStyle 'w:val' => tc.cell_style unless tc.cell_style.nil?
+                    cnf_style = tc.cnf_style(model, index, tc_index)
+                    unless cnf_style.nil?
+                      tc.apply_styles cnf_style.style_hash
+                      w.cnfStyle 'w:val' => cnf_style.bitmask
+                    end
 
                     # applying colspan
                     if tc.cell_colspan
@@ -467,9 +471,9 @@ module Caracal
                     w.vAlign 'w:val' => tc.cell_content_vertical_align unless tc.cell_content_vertical_align.nil?
                   end
 
-                  tc.contents.each do |m|
-                    method = render_method_for_model(m)
-                    send(method, xml, m)
+                  tc.contents.each do |table_cell_content|
+                    method = render_method_for_model table_cell_content
+                    send method, xml, table_cell_content
                   end
                 end
 

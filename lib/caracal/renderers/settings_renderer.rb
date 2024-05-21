@@ -22,8 +22,8 @@ module Caracal
             w.defaultTabStop 'w:val' => '720'
             w.compat do # see http://www.datypic.com/sc/ooxml/e-w_compat-1.html for options
               w.compatSetting 'w:val' => '14', 'w:name' => 'compatibilityMode', 'w:uri' => 'http://schemas.microsoft.com/office/word'
-              # w.autoHyphenation 'w:val' => '1' # Automatically Hyphenate Document Contents When Displayed
-              # w.consecutiveHyphenLimit 'w:val' => 2 #    Maximum Number of Consecutively Hyphenated Lines
+              w.autoHyphenation 'w:val' => '1' # Automatically Hyphenate Document Contents When Displayed
+              w.consecutiveHyphenLimit 'w:val' => 2 #    Maximum Number of Consecutively Hyphenated Lines
             end
             w.clrSchemeMapping 'w:bg1' => 'light1', 'w:t1' => 'dark1', 'w:bg2' => 'light2', 'w:t2' => 'dark2', 'w:accent1' => 'accent1', 'w:accent2' => 'accent2', 'w:accent3' => 'accent3', 'w:accent4' => 'accent4', 'w:accent5' => 'accent5', 'w:accent6' => 'accent6', 'w:hyperlink' => 'hyperlink', 'w:followedHyperlink' => 'followedHyperlink'
           end

@@ -141,7 +141,7 @@ module Caracal
 
         # .data
         def data(value)
-          begin
+          # begin
             @table_data = value.map do |data_row|
               data_row.map do |data_cell|
                 cell = case data_cell
@@ -160,13 +160,14 @@ module Caracal
                   Caracal::Core::Models::TableCellModel.new content: data_cell.to_s
                 end
 
-                cell.document = self.document
+                cell.document  = self.document
+                cell.table_ref = self
                 cell
               end
             end
           #rescue
             #raise Caracal::Errors::InvalidTableDataError, 'Table data must be a two-dimensional array.'
-          end
+          # end
         end
 
         #=============== VALIDATION ==============================

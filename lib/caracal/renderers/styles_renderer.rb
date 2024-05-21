@@ -145,9 +145,9 @@ module Caracal
             render_borders    w, model, 'pBdr', :style
             render_background w, model, :style
             # w.tabs # TODO List of tabs
-            # w.suppressAutoHyphens # TODO: Suppress Hyphenation for Paragraph
+            # w.suppressAutoHyphens 'w:val' => false # TODO: Suppress Hyphenation for Paragraph
             w.wordWrap     'w:val' => model.style_word_wrap unless model.style_word_wrap.nil?
-            w.autoSpaceDE  'w:val' => '1'
+            # w.autoSpaceDE  'w:val' => 'true'
             w.spacing spacing unless spacing.nil?
             w.ind indentation unless indentation.nil?
             # w.contextualSpacing # TODO: Ignore Spacing Above and Below When Using Identical Styles

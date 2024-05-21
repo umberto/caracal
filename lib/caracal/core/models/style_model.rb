@@ -105,7 +105,6 @@ module Caracal
           style_id.downcase == str.to_s.downcase
         end
 
-
         #========== VALIDATION ============================
 
         def valid?
@@ -125,6 +124,15 @@ module Caracal
 
         def to_h
           option_keys.inject({}) do |h, k|
+            v = self.send "#{self.class.attr_prefix}_#{k}"
+            h[k] = v unless v.nil?
+            h
+          end
+        end
+
+        # attributes that cannot be set via table styles and have to be set for each cell separately.
+        def table_cell_style_attributes
+          (%i(line line_rule align word_wrap keep_lines keep_next font size) + HasMargins::ATTRS).inject({}) do |h, k|
             v = self.send "#{self.class.attr_prefix}_#{k}"
             h[k] = v unless v.nil?
             h

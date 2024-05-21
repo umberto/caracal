@@ -47,6 +47,10 @@ module Caracal
           @conditional_formats&.values
         end
 
+        def find_conditional_format(name)
+          @conditional_formats[name.to_s]
+        end
+
         def run_attributes
           attrs = {
             font:            self.style_font,
@@ -64,6 +68,16 @@ module Caracal
           OpenStruct.new attrs
         end
 
+        # attributes that cannot be set via table styles and have to be set for each cell separately.
+        def table_cell_style_attributes
+          hsh = super
+          %i(content_vertical_align).inject({}) do |h, k|
+            v = self.send "#{self.class.attr_prefix}_#{k}"
+            hsh[k] = v unless v.nil?
+          end
+          hsh
+        end
+
         def valid_type?
           if @_conditional
             validate_inclusion :type, within: CONDITIONAL_FORMAT_TYPES
@@ -71,7 +85,6 @@ module Caracal
             super
           end
         end
-
 
         def valid?
           super #and validate_all :conditional_formats, allow_nil: true
