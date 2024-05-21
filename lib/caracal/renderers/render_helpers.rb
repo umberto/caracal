@@ -8,9 +8,11 @@ module Caracal
           not v.nil?
         end
 
-        w.send margin_type do
-          margins.each do |dir|
-            w.send dir, 'w:w' => model.send("#{type}_#{dir}"), 'w:type' => 'dxa'
+        if margins.any?
+          w.send margin_type do
+            margins.each do |dir|
+              w.send dir, 'w:w' => model.send("#{type}_#{dir}"), 'w:type' => 'dxa'
+            end
           end
         end
       end
