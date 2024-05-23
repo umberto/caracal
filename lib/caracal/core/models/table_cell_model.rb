@@ -106,7 +106,7 @@ module Caracal
           end
 
           # # prevent top-level attrs from trickling down
-          # options.delete_if { |(k,v)| option_keys.include?(k) }
+          options.delete_if { |(k,v)| %i(top bottom left right).include? k.to_sym }
 
           # then, try apply to contents
           contents.each do |model|
@@ -230,7 +230,7 @@ module Caracal
         def style_hash
           hsh = @table_style.table_cell_style_attributes
           if @table_style.respond_to? :find_conditional_format
-            @bm.each do |key, use|
+            {wholeTable: 1}.merge(@bm).each do |key, use|
               cf = @table_style.find_conditional_format key
               if use == 1 and cf
                 hsh.merge! cf.table_cell_style_attributes
