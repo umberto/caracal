@@ -21,7 +21,7 @@ module Caracal
         has_string_attribute :style
 
         has_symbol_attribute :align          # paragraph attr
-        has_symbol_attribute :content_vertical_align, default: :top
+        has_symbol_attribute :content_vertical_align
 
         has_integer_attribute :colspan, default: 1
         has_integer_attribute :rowspan, default: 1
