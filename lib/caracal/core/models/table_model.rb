@@ -188,20 +188,20 @@ module Caracal
         end
 
         private
-
-        # FIXME: needs to be replaced with proper handling of multiple table styles
-        def merge_named_styles(options)
-          named_style = options.delete :style
-          if named_style
-            raise "If you use cell styles, you must create the table using #table" unless @document
-            ns = find_style named_style
-            raise "style #{named_style} is not available in document" unless ns
-            raise "style #{named_style} is a #{ns.style_type} but should be a table, table_cell, or table_row style" unless %i(table table_row table_cell).include?ns.style_type
-            ns.to_h.merge options.compact
-          else
-            options.compact
-          end
-        end
+        #
+        # # FIXME: needs to be replaced with proper handling of multiple table styles
+        # def merge_named_styles(options)
+        #   named_style = options.delete :style
+        #   if named_style
+        #     raise "If you use cell styles, you must create the table using #table" unless @document
+        #     ns = find_style named_style
+        #     raise "style #{named_style} is not available in document" unless ns
+        #     raise "style #{named_style} is a #{ns.style_type} but should be a table, table_cell, or table_row style" unless %i(table table_row table_cell).include?ns.style_type
+        #     ns.to_h.merge options.compact
+        #   else
+        #     options.compact
+        #   end
+        # end
 
         # sums up all fixed cell widths, subtracts that from the total table with and divides it by the "flexible" cell count
         # this gives us the total space available per cell, *including* borders, spacings, paddings etc.
