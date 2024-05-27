@@ -39,10 +39,6 @@ module Caracal
           super options, &block
         end
 
-        def relationship_target
-          image_data || image_url
-        end
-
         #=============== GETTERS ==============================
 
         [:width, :height].each do |m|

@@ -25,7 +25,7 @@ describe Caracal::Core::Models::TableCellModel do
     describe 'constants' do
       it { expect(described_class::DEFAULT_CELL_BGCOLOR).to        eq nil }
       it { expect(described_class::DEFAULT_CELL_VERTICAL_ALIGN).to eq nil }
-      it { expect(described_class::DEFAULT_CELL_CONTENT_VERTICAL_ALIGN).to eq :top }
+      it { expect(described_class::DEFAULT_CELL_CONTENT_VERTICAL_ALIGN).to eq nil }
       # it { expect(described_class::DEFAULT_CELL_MARGINS).to               be_a(Caracal::Core::Models::MarginModel) }
       it { expect(described_class::DEFAULT_CELL_TOP).to            eq nil }
       it { expect(described_class::DEFAULT_CELL_BOTTOM).to         eq nil }
