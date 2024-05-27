@@ -445,7 +445,7 @@ module Caracal
                   w.tcPr do
                     cnf_style = tc.cnf_style(model, index, tc_index)
                     unless cnf_style.nil?
-                      tc.apply_styles cnf_style.style_hash
+                      tc.apply_styles cnf_style.style_hash, reverse: true
                       w.cnfStyle 'w:val' => cnf_style.bitmask
                     end
 

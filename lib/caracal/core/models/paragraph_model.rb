@@ -69,6 +69,16 @@ module Caracal
           }
         end
 
+        def paragraph_attributes
+          {
+            line:          self.paragraph_line,
+            align:         self.paragraph_align,
+            keep_next:     self.paragraph_keep_next,
+            keep_lines:    self.paragraph_keep_lines,
+            widow_control: self.paragraph_widow_control
+          }.compact
+        end
+
         #========== SETTERS ===============================
 
         # Getter/setter

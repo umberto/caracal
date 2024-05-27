@@ -92,26 +92,26 @@ module Caracal
         #
         # In all cases, invalid options will simply be ignored.
         #
-        def apply_styles(opts={})
+        def apply_styles(opts={}, reverse: false)
           # make dup of options so we don't
           # harm args sent to sibling cells
           options = opts.dup
 
           # first, try apply to self
           options.each do |k, v|
-            if respond_to? k
-              send k, v
-              # options.delete k unless HasRunAttributes::ATTRS.include? k
+            if self.respond_to? k
+              if not reverse or self.send("cell_#{k}").nil?
+                send k, v
+              end
+              options.delete k if %i(top bottom left right).include? k.to_sym or k.to_s.include? 'border'
             end
           end
 
-          # # prevent top-level attrs from trickling down
-          options.delete_if { |(k,v)| %i(top bottom left right).include? k.to_sym }
-
           # then, try apply to contents
           contents.each do |model|
-            options.each do |k,v|
-              if model.respond_to?(k)
+            options.each do |k, v|
+              pa = model.respond_to?(:paragraph_attributes) ? model.paragraph_attributes : {}
+              if model.respond_to? k and not pa[k]
                 model.send k, v
                 # options.delete k unless HasRunAttributes::ATTRS.include? k
               end
@@ -124,7 +124,9 @@ module Caracal
               model.runs.each do |run|
                 ra = run.respond_to?(:run_attributes) ? run.run_attributes : {}
                 options.each do |k, v|
-                  run.send(k, v) if run.respond_to?(k) and not ra[k]
+                  if run.respond_to? k and not ra[k]
+                    run.send k, v
+                  end
                 end
               end
             end
