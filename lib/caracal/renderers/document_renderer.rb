@@ -107,7 +107,7 @@ module Caracal
       end
 
       def render_image_proper(xml, model)
-        rel      = document.relationship type: :image, type: :image, target: model.image_url, data: model.image_data
+        rel      = document.relationship type: :image, target: model.image_url, data: model.image_data
         rel_id   = rel.relationship_id
         rel_name = rel.formatted_target
 
