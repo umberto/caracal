@@ -41,8 +41,6 @@ module Caracal
           content = o.delete(:content) { '' }
           super o, &block
 
-          # TBD: maybe the block passed to #text is actually needed, but for now it seems
-          # it only leads to double eval (one in wrong context)
           text content, self.run_attributes
         end
 

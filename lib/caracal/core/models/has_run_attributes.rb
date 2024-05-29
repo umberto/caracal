@@ -7,7 +7,8 @@ module Caracal
     module Models
       module HasRunAttributes
 
-        ATTRS = [:font, :size, :bold, :italic, :underline, :caps, :small_caps, :strike, :rtl, :highlight_color, :vertical_align, :whitespace] +
+        OWN_ATTRS = [:font, :size, :bold, :italic, :underline, :caps, :small_caps, :strike, :rtl, :highlight_color, :vertical_align, :whitespace]
+        ATTRS = OWN_ATTRS +
             HasBackground::ATTRS +
             HasColor::ATTRS +
             HasBorders::ATTRS

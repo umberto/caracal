@@ -219,6 +219,8 @@ module Caracal
           swCell:    0
         }.freeze
 
+        attr_reader :table_style
+
         def initialize(table_style, table_look, rows: nil, cols: nil, row: nil, col: nil)
           @table_style, @table_look = table_style, table_look
           @rows, @row, @cols, @col = rows, row, cols, col
