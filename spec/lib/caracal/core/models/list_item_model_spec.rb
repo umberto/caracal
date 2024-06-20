@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::ListItemModel do
@@ -20,11 +22,10 @@ describe Caracal::Core::Models::ListItemModel do
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # accessors
     describe 'accessors' do
-      it { expect(subject.respond_to? :nested_list).to eq true }
-      it { expect(subject.respond_to? :nested_list=).to eq true }
+      it { expect(subject.respond_to?(:nested_list)).to eq true }
+      it { expect(subject.respond_to?(:nested_list=)).to eq true }
       it { expect(subject.list_item_type).to eq :ordered }
       it { expect(subject.list_item_level).to eq 2 }
       it { expect(subject.list_item_style).to eq 'Fancy' }
@@ -35,23 +36,19 @@ describe Caracal::Core::Models::ListItemModel do
       it { expect(subject.list_item_underline).to eq true }
       it { expect(subject.list_item_bgcolor).to eq 'cccccc' }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== GETTERS ==========================
 
     # .runs
     describe '.runs' do
       it { expect(subject.runs).to be_a(Array) }
     end
-
 
     #=============== SETTERS ==========================
 
@@ -108,7 +105,6 @@ describe Caracal::Core::Models::ListItemModel do
       it { expect(subject.list_item_type).to eq :ordered }
     end
 
-
     #=============== SUB-METHODS ==========================
 
     # .link
@@ -154,7 +150,6 @@ describe Caracal::Core::Models::ListItemModel do
       end
     end
 
-
     #=============== VALIDATION ===========================
 
     describe '.valid?' do
@@ -174,24 +169,22 @@ describe Caracal::Core::Models::ListItemModel do
         it { expect(subject.valid?).to eq false }
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:align, :bgcolor, :bgstyle, :bold, :border, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :bottom, :bottom, :color, :content, :italic, :keep_lines, :keep_next, :left, :level, :line, :right, :size, :style, :tabs, :theme_bgcolor, :theme_color, :top, :top, :type, :underline, :widow_control, :border_bottom, :border_horizontal, :border_vertical, :border_top, :border_left, :border_right, :vertical_align, :whitespace, :small_caps, :strike, :rtl, :highlight_color, :font, :caps].sort }
+      let(:expected) do
+        %i[align bgcolor bgstyle bold border border_color border_line border_size border_spacing border_theme_color bottom
+           bottom color content italic keep_lines keep_next left level line right size style tabs theme_bgcolor theme_color top top type underline widow_control border_bottom border_horizontal border_vertical border_top border_left border_right vertical_align whitespace small_caps strike rtl highlight_color font caps].sort
+      end
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

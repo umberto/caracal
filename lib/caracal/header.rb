@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'caracal/abstract_header_and_footer'
 
 module Caracal

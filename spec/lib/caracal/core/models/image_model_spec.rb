@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::ImageModel do
   subject do
     described_class.new do
-      url    'https://www.google.com/images/srpr/logo11w.png'
+      url 'https://www.google.com/images/srpr/logo11w.png'
       ppi     96
       width   250
       height  200
@@ -15,14 +17,11 @@ describe Caracal::Core::Models::ImageModel do
     end
   end
 
-
-
   #-------------------------------------------------------------
   # Configuration
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # constants
     describe 'constants' do
       it { expect(described_class::DEFAULT_IMAGE_PPI).to eq 72 }
@@ -48,44 +47,39 @@ describe Caracal::Core::Models::ImageModel do
       it { expect(subject.image_left).to   eq 14 }
       it { expect(subject.image_right).to  eq 15 }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== GETTERS ==========================
 
     # emu conversions (dimensions)
-    [:width, :height].each do |m|
-      describe ".formatted_#{ m }" do
-        let(:actual) { subject.send("formatted_#{ m }") }
+    %i[width height].each do |m|
+      describe ".formatted_#{m}" do
+        let(:actual) { subject.send("formatted_#{m}") }
 
         before do
-          allow(subject).to receive("image_#{ m }").and_return(540)
-          allow(subject).to receive("image_ppi").and_return(96)
+          allow(subject).to receive("image_#{m}").and_return(540)
+          allow(subject).to receive('image_ppi').and_return(96)
         end
 
-        it { expect(actual).to eq 5143500 }
+        it { expect(actual).to eq 5_143_500 }
       end
     end
 
     # emu conversions (margins)
-    [:top, :bottom, :left, :right].each do |m|
-      describe ".formatted_#{ m }" do
-        let(:actual) { subject.send("formatted_#{ m }") }
+    %i[top bottom left right].each do |m|
+      describe ".formatted_#{m}" do
+        let(:actual) { subject.send("formatted_#{m}") }
 
-        before { allow(subject).to receive("image_#{ m }").and_return(9) }
+        before { allow(subject).to receive("image_#{m}").and_return(9) }
 
-        it { expect(actual).to eq 114300 }
+        it { expect(actual).to eq 114_300 }
       end
     end
-
-
 
     #=============== SETTERS ==========================
 
@@ -159,37 +153,33 @@ describe Caracal::Core::Models::ImageModel do
       it { expect(subject.image_right).to eq 12 }
     end
 
-
     #=============== VALIDATION ===========================
 
     describe '.valid?' do
       describe 'when all values okay' do
         it { expect(subject.valid?).to eq true }
       end
-      [:width, :height, :top, :bottom, :left, :right].each do |d|
-        describe "when #{ d } lte 0" do
+      %i[width height top bottom left right].each do |d|
+        describe "when #{d} lte 0" do
           before do
-            allow(subject).to receive("image_#{ d }").and_return(0)
+            allow(subject).to receive("image_#{d}").and_return(0)
           end
 
           it { expect(subject.valid?).to eq false }
         end
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:url, :data, :width, :height, :align, :top, :bottom, :left, :right, :anchor].sort }
+      let(:expected) { %i[url data width height align top bottom left right anchor].sort }
 
       it { expect(actual).to eq expected }
     end
@@ -211,15 +201,13 @@ describe Caracal::Core::Models::ImageModel do
       describe 'when argument is rational' do
         let(:value) { 396.1 }
 
-        it { expect(actual).to eq 5029200 }
+        it { expect(actual).to eq 5_029_200 }
       end
       describe 'when argument is integer' do
         let(:value) { 396 }
 
-        it { expect(actual).to eq 5029200 }
+        it { expect(actual).to eq 5_029_200 }
       end
     end
-
   end
-
 end

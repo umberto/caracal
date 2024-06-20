@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/base_model'
 require 'caracal/core/models/border_model'
 require 'caracal/core/models/table_cell_model'
@@ -8,7 +10,6 @@ require 'caracal/core/models/has_borders'
 module Caracal
   module Core
     module Models
-
       # This class handles block options passed to the table
       # method.
       class TableModel < BaseModel
@@ -17,8 +18,8 @@ module Caracal
         include HasBackground
         include HasBorders
 
-        TABLE_LAYOUTS = %i(fixed autofit)
-        TABLE_ALIGNS  = %i(left center right start end)
+        TABLE_LAYOUTS = %i[fixed autofit].freeze
+        TABLE_ALIGNS  = %i[left center right start end].freeze
 
         has_string_attribute :caption, default: 'TableNormal'
         has_string_attribute :style, default: 'TableNormal'
@@ -33,15 +34,15 @@ module Caracal
         has_integer_attribute :indent
 
         has_model_attribute :look,
-            model: Caracal::Core::Models::TableLookModel,
-            default: Caracal::Core::Models::TableLookModel.new
+                            model: Caracal::Core::Models::TableLookModel,
+                            default: Caracal::Core::Models::TableLookModel.new
 
         # accessors
         attr_reader :table_column_widths
         attr_accessor :document
 
         # initialization
-        def initialize(options={}, &block)
+        def initialize(options = {}, &block)
           @document             = options.delete :document
           @table_style          = DEFAULT_TABLE_STYLE
           @table_align          = DEFAULT_TABLE_ALIGN
@@ -54,7 +55,6 @@ module Caracal
 
           super options, &block
         end
-
 
         #-------------------------------------------------------------
         # Public Methods
@@ -78,12 +78,11 @@ module Caracal
         end
 
         def cols
-          @cols ||= rows.reduce([]) do |array, row|
+          @cols ||= rows.each_with_object([]) do |row, array|
             row.each_with_index do |cell, index|
-              array[index]  = []  if array[index].nil?
+              array[index]  = [] if array[index].nil?
               array[index] << cell
             end
-            array
           end
         end
 
@@ -91,17 +90,16 @@ module Caracal
           @table_data || [[]]
         end
 
-
         #=============== STYLES ===============================
 
         # This method sets explicit widths on all wrapped cells
         # that do not already have widths asided.
         #
-        def calculate_width(container_width, container)
-          self.width container_width if self.table_width.to_i.zero?
+        def calculate_width(container_width, _container)
+          width container_width if table_width.to_i.zero?
 
           # now that we know the whole table's width, automatically calculate the cell's widths.
-          self.cells.each { |c| c.calculate_width self.default_cell_width, self }
+          cells.each { |c| c.calculate_width default_cell_width, self }
         end
 
         # This method allows tables to be styled several cells
@@ -116,7 +114,7 @@ module Caracal
         #
         # where 'MyTableRowStyle' is a style with type 'table_row'
         #
-        def cell_style(models, options={})
+        def cell_style(models, options = {})
           # styles = merge_named_styles(options)
 
           [models].flatten.compact.each do |m|
@@ -124,50 +122,48 @@ module Caracal
           end
         end
 
-
         #=============== GETTERS ==============================
 
         def find_style(*args)
-          self.document.find_style *args
+          document.find_style(*args)
         end
-
 
         #=============== SETTERS ==============================
 
         # column widths
         def column_widths(value)
-          @table_column_widths = value.map &:to_i if value.is_a? Array
+          @table_column_widths = value.map(&:to_i) if value.is_a? Array
         end
 
         # .data
         def data(value)
           # begin
-            @table_data = value.map do |data_row|
-              data_row.map do |data_cell|
-                cell = case data_cell
-                when Caracal::Core::Models::TableCellModel
-                  if data_cell.cell_style
-                    # data_cell.apply_styles merge_named_styles(style: data_cell.cell_style)
-                    raise "hould not happen (yet)"
-                    data_cell.apply_styles style: data_cell.cell_style
-                  end
-                  data_cell
-                when Hash
-                  # Caracal::Core::Models::TableCellModel.new merge_named_styles(data_cell)
-                  Caracal::Core::Models::TableCellModel.new data_cell
-                when Proc
-                  Caracal::Core::Models::TableCellModel.new &data_cell
-                else
-                  Caracal::Core::Models::TableCellModel.new content: data_cell.to_s
-                end
+          @table_data = value.map do |data_row|
+            data_row.map do |data_cell|
+              cell = case data_cell
+                     when Caracal::Core::Models::TableCellModel
+                       if data_cell.cell_style
+                         # data_cell.apply_styles merge_named_styles(style: data_cell.cell_style)
+                         raise 'hould not happen (yet)'
+                         data_cell.apply_styles style: data_cell.cell_style
+                       end
+                       data_cell
+                     when Hash
+                       # Caracal::Core::Models::TableCellModel.new merge_named_styles(data_cell)
+                       Caracal::Core::Models::TableCellModel.new data_cell
+                     when Proc
+                       Caracal::Core::Models::TableCellModel.new(&data_cell)
+                     else
+                       Caracal::Core::Models::TableCellModel.new content: data_cell.to_s
+                     end
 
-                cell.document  = self.document
-                cell.table_ref = self
-                cell
-              end
+              cell.document  = document
+              cell.table_ref = self
+              cell
             end
-          #rescue
-            #raise Caracal::Errors::InvalidTableDataError, 'Table data must be a two-dimensional array.'
+          end
+          # rescue
+          # raise Caracal::Errors::InvalidTableDataError, 'Table data must be a two-dimensional array.'
           # end
         end
 
@@ -182,13 +178,14 @@ module Caracal
         end
 
         def valid?
-          cells.all?{|c| c.nil? or c.is_a? Caracal::Core::Models::TableCellModel } and
-              self.valid_bgstyle? and
-              self.valid_align? and
-              self.valid_layout?
+          cells.all? { |c| c.nil? or c.is_a? Caracal::Core::Models::TableCellModel } and
+            valid_bgstyle? and
+            valid_align? and
+            valid_layout?
         end
 
         private
+
         #
         # # FIXME: needs to be replaced with proper handling of multiple table styles
         # def merge_named_styles(options)
@@ -207,24 +204,22 @@ module Caracal
         # sums up all fixed cell widths, subtracts that from the total table with and divides it by the "flexible" cell count
         # this gives us the total space available per cell, *including* borders, spacings, paddings etc.
         def default_cell_width
-          cell_widths     = self.rows.first.map { |c| c.cell_width.to_i }
-          remaining_width = self.table_width - cell_widths.reduce(&:+).to_i
+          cell_widths     = rows.first.map { |c| c.cell_width.to_i }
+          remaining_width = table_width - cell_widths.reduce(&:+).to_i
           remaining_cols  = cols.size - cell_widths.reject(&:zero?).size
-          default_width   = remaining_cols.zero? ? 0 : (remaining_width / remaining_cols)
+          remaining_cols.zero? ? 0 : (remaining_width / remaining_cols)
         end
 
         def option_keys
           k = []
-          k << [:data, :align, :width, :style, :layout, :caption, :indent]
+          k << %i[data align width style layout caption indent]
           k << HasBackground::ATTRS
           k << HasBorders::ATTRS
           k << [:column_widths]
-          k << [:repeat_header, :row_band_size, :col_band_size]
+          k << %i[repeat_header row_band_size col_band_size]
           k.flatten
         end
-
       end
-
     end
   end
 end

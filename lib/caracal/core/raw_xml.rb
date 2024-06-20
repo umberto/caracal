@@ -1,14 +1,13 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/raw_xml_model'
 require 'caracal/errors'
 
-
 module Caracal
   module Core
-
     module RawXml
       def self.included(base)
         base.class_eval do
-
           #-------------------------------------------------------------
           # Public Methods
           #-------------------------------------------------------------
@@ -20,10 +19,8 @@ module Caracal
             contents << model
             model
           end
-
         end
       end
     end
-
   end
 end

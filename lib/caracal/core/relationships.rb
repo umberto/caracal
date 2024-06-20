@@ -1,23 +1,21 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/relationship_model'
 require 'caracal/errors'
 
-
 module Caracal
   module Core
-
     # This module encapsulates all the functionality related to registering and
     # retrieving relationships.
     #
     module Relationships
       def self.included(base)
         base.class_eval do
-
           #-------------------------------------------------------------
           # Configuration
           #-------------------------------------------------------------
 
           attr_reader :relationship_counter
-
 
           #-------------------------------------------------------------
           # Class Methods
@@ -33,29 +31,24 @@ module Caracal
             ]
           end
 
-
           #-------------------------------------------------------------
           # Public Methods
           #-------------------------------------------------------------
 
           #============== ATTRIBUTES ==========================
 
-          def relationship(options={}, &block)
+          def relationship(options = {}, &block)
             return if find_relationship options[:key] # FIXME: this only takes the key into account, not the type
 
             id = relationship_counter.to_i + 1
             options = options.merge id: id
 
             model = Caracal::Core::Models::RelationshipModel.new options, &block
-            if model.valid?
-              @relationship_counter = id
-              rel = register_relationship model
-            else
-              raise Caracal::Errors::InvalidModelError, model.errors.inspect
-            end
-            rel
-          end
+            raise Caracal::Errors::InvalidModelError, model.errors.inspect unless model.valid?
 
+            @relationship_counter = id
+            register_relationship model
+          end
 
           #============== GETTERS =============================
 
@@ -71,7 +64,6 @@ module Caracal
             relationships.select { |r| r.relationship_type == type.to_sym }
           end
 
-
           #============== REGISTRATION ========================
 
           def register_relationship(model)
@@ -85,14 +77,12 @@ module Caracal
           end
 
           def unregister_relationship(target)
-            if (r = find_relationship(target))
-              relationships.delete(r)
-            end
-          end
+            return unless (r = find_relationship(target))
 
+            relationships.delete(r)
+          end
         end
       end
     end
-
   end
 end

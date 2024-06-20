@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/base_model'
 
 module Caracal
   module Core
     module Models
-
       # This class encapsulates the logic needed to store and manipulate
       # bookmarks.
       class BookmarkModel < BaseModel
@@ -18,8 +19,8 @@ module Caracal
         def run_attributes
           {
             start: bookmark_start,
-            id:    bookmark_id,
-            name:  bookmark_name
+            id: bookmark_id,
+            name: bookmark_name
           }
         end
         #========== STATE HELPERS =========================
@@ -27,7 +28,6 @@ module Caracal
         def start?
           !!bookmark_start
         end
-
 
         #========== VALIDATION ============================
 
@@ -38,9 +38,8 @@ module Caracal
         private
 
         def option_keys
-          [:name, :start]
+          %i[name start]
         end
-
       end
     end
   end

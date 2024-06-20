@@ -1,10 +1,10 @@
-require 'caracal/core/models/base_model'
+# frozen_string_literal: true
 
+require 'caracal/core/models/base_model'
 
 module Caracal
   module Core
     module Models
-
       # This class encapsulates the logic needed to store and manipulate
       # relationship data.
       #
@@ -17,16 +17,16 @@ module Caracal
 
         # constants
         TYPE_MAP = {
-          font:       'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable',
-          header:     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/header',
-          footer:     'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer',
-          image:      'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
-          link:       'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
-          numbering:  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
-          setting:    'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings',
-          style:      'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
-          theme:      'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme'
-        }
+          font: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable',
+          header: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/header',
+          footer: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer',
+          image: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+          link: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+          numbering: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
+          setting: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings',
+          style: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
+          theme: 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme'
+        }.freeze
 
         has_integer_attribute :id
 
@@ -55,7 +55,7 @@ module Caracal
             ext = ext.split('?').first
             "media/image#{relationship_id}.#{ext}"
           when :theme
-            "theme/theme1.xml"
+            'theme/theme1.xml'
           else
             relationship_target
           end
@@ -72,7 +72,6 @@ module Caracal
           @relationship_key    = value.to_s.downcase
         end
 
-
         #=================== STATE ===============================
 
         # FIXME: this only takes the key into account, not the type
@@ -84,7 +83,7 @@ module Caracal
           relationship_type == :link
         end
 
-        def owner(owner=nil)
+        def owner(owner = nil)
           if owner.nil?
             @relationship_owner
           else
@@ -95,10 +94,9 @@ module Caracal
         #=============== VALIDATION ===========================
 
         def valid?
-          [:id, :target, :type].all? {|a| validate_presence a } and
-              validate_inclusion :type, within: TYPE_MAP.keys
+          %i[id target type].all? { |a| validate_presence a } and
+            validate_inclusion :type, within: TYPE_MAP.keys
         end
-
 
         #-------------------------------------------------------------
         # Private Instance Methods
@@ -106,11 +104,9 @@ module Caracal
         private
 
         def option_keys
-          [:id, :type, :target, :data, :owner]
+          %i[id type target data owner]
         end
-
       end
-
     end
   end
 end

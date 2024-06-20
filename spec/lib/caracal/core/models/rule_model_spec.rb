@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::RuleModel do
@@ -15,7 +17,6 @@ describe Caracal::Core::Models::RuleModel do
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # constants
     describe 'inheritance' do
       it { expect(subject).to be_a(Caracal::Core::Models::BorderModel) }
@@ -28,16 +29,13 @@ describe Caracal::Core::Models::RuleModel do
       it { expect(subject.rule_spacing).to eq 2 }
       it { expect(subject.rule_line).to    eq :double }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== SETTERS ==========================
 
     # .color
@@ -68,41 +66,35 @@ describe Caracal::Core::Models::RuleModel do
       it { expect(subject.rule_spacing).to eq 8 }
     end
 
-
     #=============== VALIDATION ===========================
 
     describe '.valid?' do
       describe 'when all integers gt 0' do
         it { expect(subject.valid?).to eq true }
       end
-      [:size, :spacing].each do |d|
-        describe "when #{ d } lte 0" do
+      %i[size spacing].each do |d|
+        describe "when #{d} lte 0" do
           before do
-            allow(subject).to receive("border_#{ d }").and_return(0)
+            allow(subject).to receive("border_#{d}").and_return(0)
           end
 
           it { expect(subject.valid?).to eq false }
         end
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:color, :theme_color, :size, :spacing, :line, :type].sort }
+      let(:expected) { %i[color theme_color size spacing line type].sort }
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

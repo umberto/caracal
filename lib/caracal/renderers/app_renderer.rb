@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 require 'nokogiri'
 require 'caracal/renderers/xml_renderer'
 
 module Caracal
   module Renderers
     class AppRenderer < XmlRenderer
-
       # This method produces the xml required for the `docProps/app.xml`
       # sub-document.
       #
@@ -17,16 +18,14 @@ module Caracal
         builder.to_xml save_options
       end
 
-
       private
 
       def root_options
         {
-          'xmlns'    => 'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
+          'xmlns' => 'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
           'xmlns:vt' => 'http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes'
         }
       end
-
     end
   end
 end

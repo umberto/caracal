@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Namespaces do
@@ -6,27 +8,22 @@ describe Caracal::Core::Namespaces do
 
   subject  { Caracal::Document.new }
 
-
   #-------------------------------------------------------------
   # Class Methods
   #-------------------------------------------------------------
 
   describe 'public class tests' do
-
     # .default_namespaces
     describe '.default_namespaces' do
       it { expect(subject.class.default_namespaces).to be_a(Array) }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #============== ATTRIBUTES =====================
 
     # .namespace
@@ -37,7 +34,6 @@ describe Caracal::Core::Namespaces do
       end
     end
 
-
     #============== GETTERS ========================
 
     # .namespaces
@@ -47,7 +43,7 @@ describe Caracal::Core::Namespaces do
 
     # .find_namespace
     describe '.find_namespace' do
-      let(:actual)  { subject.find_namespace(key) }
+      let(:actual) { subject.find_namespace(key) }
 
       before do
         allow(subject).to receive(:namespaces).and_return([m1])
@@ -64,7 +60,6 @@ describe Caracal::Core::Namespaces do
         it { expect(actual).to eq nil }
       end
     end
-
 
     #============== REGISTRATION ========================
 
@@ -110,7 +105,5 @@ describe Caracal::Core::Namespaces do
         it { expect(subject.namespaces.size).to eq default_length + 1 }
       end
     end
-
   end
-
 end

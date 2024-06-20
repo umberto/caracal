@@ -1,13 +1,12 @@
+# frozen_string_literal: true
 
 module Caracal
   module Core
     module Models
-
       # This class handles block options passed to the page margins
       # method.
       #
       class RawXmlModel < BorderModel
-
         #-------------------------------------------------------------
         # Configuration
         #-------------------------------------------------------------
@@ -21,9 +20,7 @@ module Caracal
         def to_s
           @raw_xml.to_s
         end
-
       end
-
     end
   end
 end

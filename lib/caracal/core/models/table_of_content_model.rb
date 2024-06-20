@@ -1,10 +1,10 @@
-require 'caracal/core/models/base_model'
+# frozen_string_literal: true
 
+require 'caracal/core/models/base_model'
 
 module Caracal
   module Core
     module Models
-
       # This class encapsulates the logic needed to store and manipulate
       # table of contents data.
       #
@@ -14,7 +14,7 @@ module Caracal
         has_integer_attribute :start_level, default: 1
         has_integer_attribute :end_level, default: 3
 
-        def initialize(options={}, &block)
+        def initialize(options = {}, &block)
           @toc_start_level = DEFAULT_TOC_START_LEVEL
           @toc_end_level   = DEFAULT_TOC_END_LEVEL
 
@@ -30,7 +30,7 @@ module Caracal
         #========== VALIDATION ============================
 
         def valid?
-          [:start_level, :end_level].each do |method|
+          %i[start_level end_level].each do |method|
             value = send("toc_#{method}")
             return false if value <= 0 || value > 6
           end
@@ -40,9 +40,8 @@ module Caracal
         private
 
         def option_keys
-          [:start_level, :end_level]
+          %i[start_level end_level]
         end
-
       end
     end
   end

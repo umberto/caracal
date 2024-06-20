@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 module Caracal
   module Core
     module Models
-
       # This class encapsulates the logic needed to store and manipulate
       # list style data.
 
@@ -25,9 +26,9 @@ module Caracal
         #-------------------------------------------------------------
 
         # constants
-        const_set :TYPE_MAP, {ordered: 1, unordered: 2}
+        const_set :TYPE_MAP, { ordered: 1, unordered: 2 }
 
-        def initialize(options={}, &block)
+        def initialize(options = {}, &block)
           @style_align   = DEFAULT_STYLE_ALIGN
           @style_left    = DEFAULT_STYLE_LEFT
           @style_indent  = DEFAULT_STYLE_INDENT
@@ -56,15 +57,14 @@ module Caracal
         #=============== VALIDATION ===========================
 
         def valid?
-          [:type, :level, :format, :value].all? {|a| validate_presence a }
+          %i[type level format value].all? { |a| validate_presence a }
         end
 
         private
 
         def option_keys
-          [:type, :level, :format, :value, :align, :left, :indent, :start]
+          %i[type level format value align left indent start]
         end
-
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Styles do
@@ -6,30 +8,29 @@ describe Caracal::Core::Styles do
 
   subject  { Caracal::Document.new }
 
-
   #-------------------------------------------------------------
   # Class Methods
   #-------------------------------------------------------------
 
   describe 'public class tests' do
-
     # .default_styles
     describe '.default_styles' do
-      let(:expected) { (['Header', 'Footer', 'Normal', 'Title', 'Subtitle', 'Hyperlink'] + (1..6).map { |i| ["Heading#{i}", "TOC#{i}"] }).flatten.sort }
-      let(:actual)   { subject.class.default_styles.map { |s| s[:id] }.sort }
+      let(:expected) do
+        (%w[Header Footer Normal Title Subtitle Hyperlink] + (1..6).map do |i|
+                                                               ["Heading#{i}", "TOC#{i}"]
+                                                             end).flatten.sort
+      end
+      let(:actual) { subject.class.default_styles.map { |s| s[:id] }.sort }
 
-      it {expect(actual).to eq expected }
+      it { expect(actual).to eq expected }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #============== ATTRIBUTES =====================
 
     # .style
@@ -39,7 +40,6 @@ describe Caracal::Core::Styles do
         subject.style({ id: 'heading2', name: 'Heading 2' })
       end
     end
-
 
     #============== GETTERS ========================
 
@@ -52,7 +52,7 @@ describe Caracal::Core::Styles do
     describe '.default_style' do
       before do
         allow(s1).to receive(:style_default).and_return(true)
-        allow(subject).to receive(:styles).and_return([s1,s2])
+        allow(subject).to receive(:styles).and_return([s1, s2])
       end
 
       it { expect(subject.default_style).to eq s1 }
@@ -60,7 +60,7 @@ describe Caracal::Core::Styles do
 
     # .find_style
     describe '.find_style' do
-      let(:actual)  { subject.find_style(key) }
+      let(:actual) { subject.find_style(key) }
 
       before do
         allow(subject).to receive(:styles).and_return([s1])
@@ -77,7 +77,6 @@ describe Caracal::Core::Styles do
         it { expect(actual).to eq nil }
       end
     end
-
 
     #============== REGISTRATION ========================
 
@@ -123,7 +122,5 @@ describe Caracal::Core::Styles do
         it { expect(subject.styles.size).to eq default_length + 1 }
       end
     end
-
   end
-
 end

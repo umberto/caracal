@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'nokogiri'
 require 'caracal/renderers/xml_renderer'
 require 'caracal/errors'
@@ -16,7 +18,7 @@ module Caracal
           w.styles root_options do
             #========== DEFAULT STYLES ====================
 
-            unless s = document.default_style
+            unless (s = document.default_style)
               raise Caracal::Errors::NoDefaultStyleError 'Document must declare a default paragraph style.'
             end
 
@@ -32,7 +34,7 @@ module Caracal
                   w.widowControl 'w:val' => s.style_widow_control unless s.style_widow_control.nil?
                   w.spacing spacing_options(s, true)
                   w.ind indentation_options(s, true)
-                  w.jc           'w:val' => s.style_align         unless s.style_align.nil?
+                  w.jc 'w:val' => s.style_align unless s.style_align.nil?
                 end
               end
             end
@@ -45,8 +47,8 @@ module Caracal
 
             # first, render the default paragraph and table styles. If no custom style is marked
             # as default, we render a fallback "Normal"/"TableNormal" style with no real style info.
-            default_paragraph_style = document.styles.find{|s| s.style_type == :paragraph and s.style_default }
-            default_table_style     = document.styles.find{|s| s.style_type == :table     and s.style_default }
+            default_paragraph_style = document.styles.find { |s| s.style_type == :paragraph and s.style_default }
+            default_table_style     = document.styles.find { |s| s.style_type == :table     and s.style_default }
 
             if default_paragraph_style
               render_paragraph_style w, default_paragraph_style
@@ -62,7 +64,8 @@ module Caracal
               w.style 'w:styleId' => 'TableNormal', 'w:type' => 'table', 'w:default' => true do
                 w.name 'w:val' => 'Table Normal'
                 w.pPr do
-                  w.spacing 'w:lineRule' => 'exact', 'w:line' => (s.style_size * 20 * 1.15).to_i, 'w:before' => '0', 'w:after' => '0'
+                  w.spacing 'w:lineRule' => 'exact', 'w:line' => (s.style_size * 20 * 1.15).to_i, 'w:before' => '0',
+                            'w:after' => '0'
                 end
               end
             end
@@ -70,6 +73,7 @@ module Caracal
             # render all user defined styles
             document.styles.each do |style|
               next if style.style_default
+
               case style.style_type
               when :paragraph, :character
                 render_paragraph_style w, style
@@ -95,8 +99,11 @@ module Caracal
           render_run_attributes w, model, skip_empty: true
 
           w.tblPr do
-            w.jc             'w:val'  => model.style_align.to_s                      unless model.style_align.nil?
-            w.tblCellSpacing 'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
+            w.jc 'w:val' => model.style_align.to_s unless model.style_align.nil?
+            unless model.style_cell_spacing.nil?
+              w.tblCellSpacing 'w:w' => model.style_cell_spacing,
+                               'w:type' => 'dxa'
+            end
 
             render_borders    w, model, 'tcBorders', :style
             render_background w, model, :style
@@ -113,10 +120,10 @@ module Caracal
       end
 
       def render_style(w, model, type)
-        style_opts = {'w:type' => type, 'w:styleId' => model.style_id}
+        style_opts = { 'w:type' => type, 'w:styleId' => model.style_id }
         if model.style_default
           style_opts['w:default'] = '1'
-        elsif not Document.default_styles.find{|s| s[:id] == model.style_id }
+        elsif !Document.default_styles.find { |s| s[:id] == model.style_id }
           style_opts['w:customStyle'] = '1'
         end
 
@@ -146,7 +153,7 @@ module Caracal
             render_background w, model, :style
             # w.tabs # TODO List of tabs
             # w.suppressAutoHyphens 'w:val' => false # TODO: Suppress Hyphenation for Paragraph
-            w.wordWrap     'w:val' => model.style_word_wrap unless model.style_word_wrap.nil?
+            w.wordWrap 'w:val' => model.style_word_wrap unless model.style_word_wrap.nil?
             # w.autoSpaceDE  'w:val' => 'true'
             w.spacing spacing unless spacing.nil?
             w.ind indentation unless indentation.nil?
@@ -172,12 +179,15 @@ module Caracal
 
           # table properties
           w.tblPr do
-            w.tblStyleRowBandSize 'w:val'  => model.style_row_band_size.to_i              unless model.style_row_band_size.nil?
-            w.tblStyleColBandSize 'w:val'  => model.style_row_band_size.to_i              unless model.style_col_band_size.nil?
+            w.tblStyleRowBandSize 'w:val'  => model.style_row_band_size.to_i unless model.style_row_band_size.nil?
+            w.tblStyleColBandSize 'w:val'  => model.style_row_band_size.to_i unless model.style_col_band_size.nil?
             # w.tblW                'w:w'    => 0, 'w:type' => 'auto' # Preferred Table Width
-            w.jc                  'w:val'  => model.style_align.to_s                      unless model.style_align.nil?
-            w.tblCellSpacing      'w:w'    => model.style_cell_spacing, 'w:type' => 'dxa' unless model.style_cell_spacing.nil?
-            w.tblInd              'w:w'    => model.style_indent_left.to_i                unless model.style_indent_left.nil?
+            w.jc                  'w:val' => model.style_align.to_s unless model.style_align.nil?
+            unless model.style_cell_spacing.nil?
+              w.tblCellSpacing 'w:w' => model.style_cell_spacing,
+                               'w:type' => 'dxa'
+            end
+            w.tblInd 'w:w' => model.style_indent_left.to_i unless model.style_indent_left.nil?
             render_borders    w, model, 'tblBorders', :style
             render_background w, model, :style
             render_margins    w, model, 'tblCellMar', :style
@@ -190,47 +200,44 @@ module Caracal
 
           # only applies to table row styles
           # w.trPr do
-            # w.cantSplit 'w:val' => '1'
-            # w.tblHeader
-            ##w:cnfStyle [0..1]     Table Row Conditional Formatting
-            ##w:divId [0..1]        Associated HTML div ID
-            ##w:gridBefore [0..1]   Grid Columns Before First Cell
-            ##w:gridAfter [0..1]    Grid Columns After Last Cell
-            ##w:wBefore [0..1]      Preferred Width Before Table Row
-            ##w:wAfter [0..1]       Preferred Width After Table Row
-            ##w:cantSplit [0..1]    Table Row Cannot Break Across Pages
-            ##w:trHeight [0..1]     Table Row Height
-            ##w:tblHeader [0..1]    Repeat Table Row on Every New Page
-            #w.tblCellSpacing(spacing_options(s)) unless spacing_options(s).nil?
-            #w.jc('w:val' => model.style_align.to_s) unless model.style_align.nil?
-            ##w:hidden [0..1]       Hidden Table Row Marker
+          # w.cantSplit 'w:val' => '1'
+          # w.tblHeader
+          # #w:cnfStyle [0..1]     Table Row Conditional Formatting
+          # #w:divId [0..1]        Associated HTML div ID
+          # #w:gridBefore [0..1]   Grid Columns Before First Cell
+          # #w:gridAfter [0..1]    Grid Columns After Last Cell
+          # #w:wBefore [0..1]      Preferred Width Before Table Row
+          # #w:wAfter [0..1]       Preferred Width After Table Row
+          # #w:cantSplit [0..1]    Table Row Cannot Break Across Pages
+          # #w:trHeight [0..1]     Table Row Height
+          # #w:tblHeader [0..1]    Repeat Table Row on Every New Page
+          # w.tblCellSpacing(spacing_options(s)) unless spacing_options(s).nil?
+          # w.jc('w:val' => model.style_align.to_s) unless model.style_align.nil?
+          # #w:hidden [0..1]       Hidden Table Row Marker
           # end
 
-          if model.conditional_formats
-            # conditional formatting
-            model.conditional_formats.each do |cf|
-              w.tblStylePr 'w:type' => cf.style_type do
-                unless model.style_align.nil?
-                  # NOTE: setting any other pPr here would have no effect.
-                  w.pPr do
-                    w.jc 'w:val' => model.style_align.to_s
-                  end
+          # conditional formatting
+          model.conditional_formats&.each do |cf|
+            w.tblStylePr 'w:type' => cf.style_type do
+              unless model.style_align.nil?
+                # NOTE: setting any other pPr here would have no effect.
+                w.pPr do
+                  w.jc 'w:val' => model.style_align.to_s
                 end
+              end
 
-                # run properties
-                render_run_attributes w, cf, skip_empty: true
+              # run properties
+              render_run_attributes w, cf, skip_empty: true
 
-                # table cell properties
-                w.tcPr do
-                  render_borders    w, cf, 'tcBorders', :style
-                  render_background w, cf, :style
-                  render_margins    w, cf, 'tcMar', :style
-                  w.vAlign 'w:val' => cf.style_content_vertical_align unless model.style_content_vertical_align.nil?
-                end
+              # table cell properties
+              w.tcPr do
+                render_borders    w, cf, 'tcBorders', :style
+                render_background w, cf, :style
+                render_margins    w, cf, 'tcMar', :style
+                w.vAlign 'w:val' => cf.style_content_vertical_align unless model.style_content_vertical_align.nil?
               end
             end
           end
-
         end
       end
 
@@ -239,7 +246,7 @@ module Caracal
         right   = default ? model.style_indent_right.to_i : model.style_indent_right
         first   = default ? model.style_indent_first.to_i : model.style_indent_first
         options = nil
-        if [left, right, first].compact.size > 0
+        if [left, right, first].compact.size.positive?
           options                = {}
           options['w:start']     = left  unless left.nil?
           options['w:end']       = right unless right.nil?
@@ -248,13 +255,13 @@ module Caracal
         options
       end
 
-      def spacing_options(model, default=false)
+      def spacing_options(model, default = false)
         top     = default ? model.style_top.to_i    : model.style_top
         bottom  = default ? model.style_bottom.to_i : model.style_bottom
         line    = model.style_line
         options = nil
 
-        if [top, bottom, line].compact.size > 0
+        if [top, bottom, line].compact.size.positive?
           options               = {}
           options['w:lineRule'] = model.style_line_rule unless model.style_line_rule.nil?
           options['w:before']   = top                   unless top.nil?
@@ -269,24 +276,23 @@ module Caracal
 
       def root_options
         {
-          'xmlns:mc'  => 'http://schemas.openxmlformats.org/markup-compatibility/2006',
-          'xmlns:o'   => 'urn:schemas-microsoft-com:office:office',
-          'xmlns:r'   => 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
-          'xmlns:m'   => 'http://schemas.openxmlformats.org/officeDocument/2006/math',
-          'xmlns:v'   => 'urn:schemas-microsoft-com:vml',
-          'xmlns:wp'  => 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
+          'xmlns:mc' => 'http://schemas.openxmlformats.org/markup-compatibility/2006',
+          'xmlns:o' => 'urn:schemas-microsoft-com:office:office',
+          'xmlns:r' => 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+          'xmlns:m' => 'http://schemas.openxmlformats.org/officeDocument/2006/math',
+          'xmlns:v' => 'urn:schemas-microsoft-com:vml',
+          'xmlns:wp' => 'http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing',
           'xmlns:w10' => 'urn:schemas-microsoft-com:office:word',
-          'xmlns:w'   => 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
+          'xmlns:w' => 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
           'xmlns:wne' => 'http://schemas.microsoft.com/office/word/2006/wordml',
-          'xmlns:sl'  => 'http://schemas.openxmlformats.org/schemaLibrary/2006/main',
-          'xmlns:a'   => 'http://schemas.openxmlformats.org/drawingml/2006/main',
+          'xmlns:sl' => 'http://schemas.openxmlformats.org/schemaLibrary/2006/main',
+          'xmlns:a' => 'http://schemas.openxmlformats.org/drawingml/2006/main',
           'xmlns:pic' => 'http://schemas.openxmlformats.org/drawingml/2006/picture',
-          'xmlns:c'   => 'http://schemas.openxmlformats.org/drawingml/2006/chart',
-          'xmlns:lc'  => 'http://schemas.openxmlformats.org/drawingml/2006/lockedCanvas',
+          'xmlns:c' => 'http://schemas.openxmlformats.org/drawingml/2006/chart',
+          'xmlns:lc' => 'http://schemas.openxmlformats.org/drawingml/2006/lockedCanvas',
           'xmlns:dgm' => 'http://schemas.openxmlformats.org/drawingml/2006/diagram'
         }
       end
-
     end
   end
 end

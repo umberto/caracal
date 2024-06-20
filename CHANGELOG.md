@@ -1,3 +1,11 @@
+#### v1.7.3
+
+* Enhancements
+  * Add rubocop
+
+* Bug Fixes
+  * Set default margins for table cells
+
 #### v1.7.2
 
 * Enhancements

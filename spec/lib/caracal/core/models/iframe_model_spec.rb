@@ -1,34 +1,30 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::IFrameModel do
   subject do
     described_class.new do
-      url    'https://www.example.com/snippet.docx'
+      url 'https://www.example.com/snippet.docx'
     end
   end
-
-
 
   #-------------------------------------------------------------
   # Configuration
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # accessors
     describe 'accessors' do
-      it { expect(subject.iframe_url).to    eq 'https://www.example.com/snippet.docx' }
+      it { expect(subject.iframe_url).to eq 'https://www.example.com/snippet.docx' }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== SETTERS ==========================
 
     # .url
@@ -45,7 +41,6 @@ describe Caracal::Core::Models::IFrameModel do
       it { expect(subject.iframe_data).to eq 'DOCX data follows here' }
     end
 
-
     #=============== VALIDATION ===========================
 
     describe '.valid?' do
@@ -60,24 +55,19 @@ describe Caracal::Core::Models::IFrameModel do
         it { expect(subject.valid?).to eq false }
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:url, :data].sort }
+      let(:expected) { %i[url data].sort }
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

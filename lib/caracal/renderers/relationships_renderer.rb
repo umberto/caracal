@@ -1,12 +1,12 @@
+# frozen_string_literal: true
+
 require 'nokogiri'
 
 require 'caracal/renderers/xml_renderer'
 
-
 module Caracal
   module Renderers
     class RelationshipsRenderer < XmlRenderer
-
       #-------------------------------------------------------------
       # Public Methods
       #-------------------------------------------------------------
@@ -25,14 +25,13 @@ module Caracal
         builder.to_xml(save_options)
       end
 
-
       #-------------------------------------------------------------
       # Private Methods
       #-------------------------------------------------------------
       private
 
       def rel_options(rel)
-        opts = { 'Target' => rel.formatted_target, 'Type' => rel.formatted_type, 'Id' => rel.formatted_id}
+        opts = { 'Target' => rel.formatted_target, 'Type' => rel.formatted_type, 'Id' => rel.formatted_id }
         opts['TargetMode'] = 'External' if rel.target_mode?
         opts
       end
@@ -42,7 +41,6 @@ module Caracal
           'xmlns' => 'http://schemas.openxmlformats.org/package/2006/relationships'
         }
       end
-
     end
   end
 end

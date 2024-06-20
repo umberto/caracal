@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::TableModel do
   subject do
     described_class.new do
-      data            [ ['top left', 'top right'], ['bottom left', 'bottom right'] ]
+      data            [['top left', 'top right'], ['bottom left', 'bottom right']]
       align           :end
       border_color    '666666'
       border_line     :double
@@ -18,7 +20,6 @@ describe Caracal::Core::Models::TableModel do
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # constants
     describe 'constants' do
       it { expect(described_class::DEFAULT_TABLE_ALIGN).to          eq :center }
@@ -39,16 +40,13 @@ describe Caracal::Core::Models::TableModel do
       it { expect(subject.table_border_spacing).to eq 4 }
       it { expect(subject.table_repeat_header).to  eq 0 }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== DATA ACCESSORS ====================
 
     describe 'data tests' do
@@ -76,11 +74,9 @@ describe Caracal::Core::Models::TableModel do
       end
     end
 
-
     #=============== GETTERS ==========================
 
     describe 'getter tests' do
-
       # border attrs
       describe 'border attr tests' do
         let(:model) { Caracal::Core::Models::BorderModel.new color: '000000', line: :double, size: 10, spacing: 2 }
@@ -92,50 +88,48 @@ describe Caracal::Core::Models::TableModel do
           allow(subject.border).to receive(:table_border_spacing).and_return(1)
         end
 
-        [:top, :bottom, :left, :right, :horizontal, :vertical].each do |m|
-          [:color, :line, :size, :spacing].each do |attr|
-            describe "table_border_#{ m }_#{ attr }" do
-              let(:actual) { subject.send("table_border_#{ m }_#{ attr }") }
+        %i[top bottom left right horizontal vertical].each do |m|
+          %i[color line size spacing].each do |attr|
+            describe "table_border_#{m}_#{attr}" do
+              let(:actual) { subject.send("table_border_#{m}_#{attr}") }
 
               describe 'when detailed setting present' do
                 before do
-                  allow(subject).to receive("table_border_#{ m }").and_return(model)
+                  allow(subject).to receive("table_border_#{m}").and_return(model)
                 end
 
-                it { expect(actual).to eq model.send("border_#{ attr }") }
+                it { expect(actual).to eq model.send("border_#{attr}") }
               end
               describe 'when detailed setting not present' do
                 before do
-                  allow(subject).to receive("table_border_#{ m }").and_return(nil)
+                  allow(subject).to receive("table_border_#{m}").and_return(nil)
                 end
 
-                it { expect(actual).to eq subject.send("table_border_#{ attr }") }
+                it { expect(actual).to eq subject.send("table_border_#{attr}") }
               end
             end
           end
-          describe "table_border_#{ m }_total_size" do
-            let(:actual) { subject.send("table_border_#{ m }_total_size") }
+          describe "table_border_#{m}_total_size" do
+            let(:actual) { subject.send("table_border_#{m}_total_size") }
 
             describe 'when detailed setting present' do
               before do
-                allow(subject).to receive("table_border_#{ m }").and_return(model)
+                allow(subject).to receive("table_border_#{m}").and_return(model)
               end
 
               it { expect(actual).to eq model.total_size }
             end
             describe 'when detailed setting not present' do
               before do
-                allow(subject).to receive("table_border_#{ m }").and_return(nil)
+                allow(subject).to receive("table_border_#{m}").and_return(nil)
               end
 
-              it { expect(actual).to eq subject.send("table_border_#{ m }_total_size") }
+              it { expect(actual).to eq subject.send("table_border_#{m}_total_size") }
             end
           end
         end
       end
-
     end
-
 
     #=============== SETTERS ==========================
 
@@ -188,9 +182,6 @@ describe Caracal::Core::Models::TableModel do
       it { expect(subject.table_repeat_header).to eq 2 }
     end
 
-
-
-
     #=============== VALIDATION ===========================
 
     describe '.valid?' do
@@ -205,24 +196,22 @@ describe Caracal::Core::Models::TableModel do
         it { expect(subject.valid?).to eq false }
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
-      let(:actual)     { subject.send(:option_keys).sort }
-      let(:expected)  { [:data, :align, :width, :column_widths, :border_color, :border_line, :border_size, :border_spacing, :border_top, :border_bottom, :border_left, :border_right, :border_horizontal, :border_vertical, :repeat_header, :bgcolor, :bgstyle, :border, :border_theme_color, :caption, :col_band_size, :indent, :layout, :row_band_size, :style, :theme_bgcolor].sort }
+      let(:actual) { subject.send(:option_keys).sort }
+      let(:expected) do
+        %i[data align width column_widths border_color border_line border_size border_spacing border_top border_bottom
+           border_left border_right border_horizontal border_vertical repeat_header bgcolor bgstyle border border_theme_color caption col_band_size indent layout row_band_size style theme_bgcolor].sort
+      end
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

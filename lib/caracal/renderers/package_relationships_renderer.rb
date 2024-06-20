@@ -1,12 +1,12 @@
+# frozen_string_literal: true
+
 require 'nokogiri'
 
 require 'caracal/renderers/xml_renderer'
 
-
 module Caracal
   module Renderers
     class PackageRelationshipsRenderer < XmlRenderer
-
       #-------------------------------------------------------------
       # Public Methods
       #-------------------------------------------------------------
@@ -18,13 +18,12 @@ module Caracal
         builder = ::Nokogiri::XML::Builder.with(declaration_xml) do |xml|
           xml.send 'Relationships', root_options do
             relationship_data.each_with_index do |rel, index|
-              xml.send 'Relationship', { 'Target' => rel.first, 'Type' => rel.last, 'Id' => "rId#{ index + 1 }" }
+              xml.send 'Relationship', { 'Target' => rel.first, 'Type' => rel.last, 'Id' => "rId#{index + 1}" }
             end
           end
         end
         builder.to_xml(save_options)
       end
-
 
       #-------------------------------------------------------------
       # Private Methods
@@ -45,7 +44,6 @@ module Caracal
           'xmlns' => 'http://schemas.openxmlformats.org/package/2006/relationships'
         }
       end
-
     end
   end
 end

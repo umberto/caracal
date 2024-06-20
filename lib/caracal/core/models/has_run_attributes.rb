@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/has_background'
 require 'caracal/core/models/has_color'
 require 'caracal/core/models/has_borders'
@@ -6,14 +8,14 @@ module Caracal
   module Core
     module Models
       module HasRunAttributes
-
-        OWN_ATTRS = [:font, :size, :bold, :italic, :underline, :caps, :small_caps, :strike, :rtl, :highlight_color, :vertical_align, :whitespace]
+        OWN_ATTRS = %i[font size bold italic underline caps small_caps strike rtl highlight_color
+                       vertical_align whitespace].freeze
         ATTRS = OWN_ATTRS +
-            HasBackground::ATTRS +
-            HasColor::ATTRS +
-            HasBorders::ATTRS
+                HasBackground::ATTRS +
+                HasColor::ATTRS +
+                HasBorders::ATTRS
 
-        VERTICAL_ALIGNS   = %i(subscript superscript baseline)
+        VERTICAL_ALIGNS   = %i[subscript superscript baseline].freeze
 
         def self.included(base)
           base.include HasBackground
@@ -39,22 +41,22 @@ module Caracal
 
         def run_attributes
           attrs = {
-            font:            self.send("#{self.class.attr_prefix}_font"),
-            color:           self.send("#{self.class.attr_prefix}_color"),
-            highlight_color: self.send("#{self.class.attr_prefix}_highlight_color"),
-            theme_color:     self.send("#{self.class.attr_prefix}_theme_color"),
-            size:            self.send("#{self.class.attr_prefix}_size"),
-            bold:            self.send("#{self.class.attr_prefix}_bold"),
-            italic:          self.send("#{self.class.attr_prefix}_italic"),
-            underline:       self.send("#{self.class.attr_prefix}_underline"),
-            caps:            self.send("#{self.class.attr_prefix}_caps"),
-            small_caps:      self.send("#{self.class.attr_prefix}_small_caps"),
-            strike:          self.send("#{self.class.attr_prefix}_strike"),
-            bgcolor:         self.send("#{self.class.attr_prefix}_bgcolor"),
-            theme_bgcolor:   self.send("#{self.class.attr_prefix}_theme_bgcolor"),
-            bgstyle:         self.send("#{self.class.attr_prefix}_bgstyle"),
-            vertical_align:  self.send("#{self.class.attr_prefix}_vertical_align"),
-            rtl:             self.send("#{self.class.attr_prefix}_rtl")
+            font: send("#{self.class.attr_prefix}_font"),
+            color: send("#{self.class.attr_prefix}_color"),
+            highlight_color: send("#{self.class.attr_prefix}_highlight_color"),
+            theme_color: send("#{self.class.attr_prefix}_theme_color"),
+            size: send("#{self.class.attr_prefix}_size"),
+            bold: send("#{self.class.attr_prefix}_bold"),
+            italic: send("#{self.class.attr_prefix}_italic"),
+            underline: send("#{self.class.attr_prefix}_underline"),
+            caps: send("#{self.class.attr_prefix}_caps"),
+            small_caps: send("#{self.class.attr_prefix}_small_caps"),
+            strike: send("#{self.class.attr_prefix}_strike"),
+            bgcolor: send("#{self.class.attr_prefix}_bgcolor"),
+            theme_bgcolor: send("#{self.class.attr_prefix}_theme_bgcolor"),
+            bgstyle: send("#{self.class.attr_prefix}_bgstyle"),
+            vertical_align: send("#{self.class.attr_prefix}_vertical_align"),
+            rtl: send("#{self.class.attr_prefix}_rtl")
           }.compact
           OpenStruct.new attrs
         end
@@ -62,12 +64,12 @@ module Caracal
         private
 
         def valid_run_attributes?
-          self.valid_whitespace? and self.valid_vertical_align? and self.valid_caps?
+          valid_whitespace? and valid_vertical_align? and valid_caps?
         end
 
         def valid_caps?
-          if self.send("#{self.class.attr_prefix}_caps") and self.send("#{self.class.attr_prefix}_small_caps")
-            self.errors << 'May have either caps or small caps but not both'
+          if send("#{self.class.attr_prefix}_caps") && send("#{self.class.attr_prefix}_small_caps")
+            errors << 'May have either caps or small caps but not both'
             false
           else
             true
@@ -75,7 +77,7 @@ module Caracal
         end
 
         def valid_whitespace?
-          validate_inclusion :whitespace, within: %i(preserve replace collapse), allow_nil: true
+          validate_inclusion :whitespace, within: %i[preserve replace collapse], allow_nil: true
         end
 
         def valid_vertical_align?
@@ -85,7 +87,6 @@ module Caracal
         def initialize_run_attributes
           # so far, no defaults to be set here.
         end
-
       end
     end
   end

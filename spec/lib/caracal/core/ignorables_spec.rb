@@ -1,15 +1,15 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Ignorables do
   subject  { Caracal::Document.new }
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #============== ATTRIBUTES =====================
 
     # .ignorable
@@ -20,14 +20,12 @@ describe Caracal::Core::Ignorables do
       end
     end
 
-
     #============== GETTERS ========================
 
     # .ignorables
     describe '.ignorables' do
       it { expect(subject.ignorables).to be_a(Array) }
     end
-
 
     #============== REGISTRATION ========================
 
@@ -73,7 +71,5 @@ describe Caracal::Core::Ignorables do
         it { expect(subject.ignorables.size).to eq default_length + 1 }
       end
     end
-
   end
-
 end

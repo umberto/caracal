@@ -1,0 +1,134 @@
+inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-rails
+  - rubocop-performance
+  - rubocop-capybara
+  - rubocop-factory_bot
+  - rubocop-rake
+  - rubocop-rspec
+  - rubocop-rspec_rails
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.1.4
+  SuggestExtensions: false
+  Exclude:
+    - .git/**/*'
+    - node_modules/**/*
+    - vendor/**/*
+    - coverage/**/*
+    - db/schema.rb
+    - db/migrate/**/*
+    - app/views/**/*
+    - spec/support/capybara_helper.rb
+    - lib/tasks/**/*
+    - bin/**/*
+    - tmp/**/*
+    - data/**/*
+
+
+Capybara:
+  Enabled: true
+
+FactoryBot:
+  Enabled: true
+FactoryBot/ConsistentParenthesesStyle:
+  EnforcedStyle: omit_parentheses
+FactoryBot/CreateList:
+  EnforcedStyle: create_list
+
+Layout/ArgumentAlignment:
+  Enabled: false
+Layout/HashAlignment:
+  Enabled: false
+# Layout/LineLength:
+#   Max: 120
+
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - "spec/**/*"
+Lint/AmbiguousOperatorPrecedence:
+  Enabled: false
+
+Metrics/ClassLength:
+  Max: 1500
+Metrics/BlockLength:
+  Exclude:
+    - config/routes.rb
+    - spec/**/*
+    - lib/tasks/**/*
+# Metrics/MethodLength:
+#   CountComments: false  # count full line comments?
+#   Max: 25
+# Metrics/AbcSize:
+#   # The ABC size is a calculated magnitude, so this number can be an Integer or a Float.
+#   Max: 50
+
+Naming/BlockForwarding:
+ EnforcedStyle: explicit
+Naming/VariableNumber:
+  EnforcedStyle: snake_case
+  SupportedStyles:
+    - snake_case
+    - normalcase
+    - non_integer
+Naming/MethodParameterName:
+  MinNameLength: 1
+
+Rails:
+  Enabled: true
+Rails/Output:
+  Enabled: false
+Rails/ReadWriteAttribute:
+  Enabled: false
+Rails/UnknownEnv:
+  Environments:
+    - production
+    - development
+    - test
+    - staging
+
+RSpec:
+  Enabled: true
+RSpec/ContextWording:
+  Enabled: false
+RSpec/IndexedLet:
+  Enabled: false
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+# RSpec/MultipleExpectations:
+#   Max: 5
+RSpec/NestedGroups:
+  Max: 5
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+  EnforcedStyle: compact
+  SupportedStyles:
+    - nested
+    - compact
+Style/Documentation:
+  Enabled: false
+Style/HashSyntax:
+  EnforcedShorthandSyntax: never
+Style/WordArray:
+  EnforcedStyle: percent
+Style/SymbolArray:
+  EnforcedStyle: percent
+Style/RegexpLiteral:
+  EnforcedStyle: mixed
+Style/IfUnlessModifier:
+  Enabled: false
+Style/FloatDivision:
+  Enabled: false
+Style/HashEachMethods:
+  Enabled: false
+Style/HashTransformKeys:
+  Enabled: false
+Style/HashTransformValues:
+  Enabled: false
+Style/StringConcatenation:
+  Enabled: false
+Style/HashAsLastArrayItem:
+  Enabled: false

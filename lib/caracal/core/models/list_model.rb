@@ -1,12 +1,12 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/base_model'
 require 'caracal/core/models/list_item_model'
 require 'caracal/errors'
 
-
 module Caracal
   module Core
     module Models
-
       # This class encapsulates the logic needed to store and manipulate
       # list data.
       #
@@ -17,7 +17,7 @@ module Caracal
         has_integer_attribute :level, default: 0
 
         # initialization
-        def initialize(options={}, &block)
+        def initialize(options = {}, &block)
           @list_type  = DEFAULT_LIST_TYPE
           @list_level = DEFAULT_LIST_LEVEL
 
@@ -35,9 +35,8 @@ module Caracal
         # This method returns a hash, where the keys are levels
         # and the values are the list type at that level.
         def level_map
-          recursive_items.reduce({}) do |hash, item|
+          recursive_items.each_with_object({}) do |item, hash|
             hash[item.list_item_level] = item.list_item_type
-            hash
           end
         end
 
@@ -63,27 +62,24 @@ module Caracal
           options.merge!({ level:   list_level })
 
           model = Caracal::Core::Models::ListItemModel.new(options, &block)
-          if model.valid?
-            items << model
-          else
-            raise Caracal::Errors::InvalidModelError, 'List item must have at least one run.'
-          end
+          raise Caracal::Errors::InvalidModelError, 'List item must have at least one run.' unless model.valid?
+
+          items << model
+
           model
         end
-
 
         #=============== VALIDATION ===========================
 
         def valid?
-          [:type, :level].all? {|a| validate_presence a } and not items.empty?
+          %i[type level].all? { |a| validate_presence a } and !items.empty?
         end
 
         private
 
         def option_keys
-          [:type, :level]
+          %i[type level]
         end
-
       end
     end
   end

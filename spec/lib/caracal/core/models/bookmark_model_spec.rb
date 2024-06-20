@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::BookmarkModel do
@@ -13,31 +15,26 @@ describe Caracal::Core::Models::BookmarkModel do
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # accessors
     describe 'accessors' do
       it { expect(subject.bookmark_name).to eq  'myAnchor' }
       it { expect(subject.bookmark_start).to eq false }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== GETTERS ==========================
 
     # .run_attributes
     describe '.run_attributes' do
-      let(:expected) { { id: nil, name: 'myAnchor', start: false} }
+      let(:expected) { { id: nil, name: 'myAnchor', start: false } }
 
       it { expect(subject.run_attributes).to eq expected }
     end
-
 
     #=============== SETTERS ==========================
 
@@ -55,7 +52,6 @@ describe Caracal::Core::Models::BookmarkModel do
       it { expect(subject.bookmark_name).to eq '999999' }
     end
 
-
     #=============== STATE HELPERS ========================
 
     describe '.start?' do
@@ -71,7 +67,6 @@ describe Caracal::Core::Models::BookmarkModel do
       end
     end
 
-
     #=============== VALIDATION ===========================
 
     describe '.valid?' do
@@ -82,9 +77,9 @@ describe Caracal::Core::Models::BookmarkModel do
         before { subject.start(true) }
 
         [:name].each do |prop|
-          describe "when #{ prop } is empty" do
+          describe "when #{prop} is empty" do
             before do
-              allow(subject).to receive("bookmark_#{ prop }").and_return(nil)
+              allow(subject).to receive("bookmark_#{prop}").and_return(nil)
             end
 
             it { expect(subject.valid?).to eq false }
@@ -92,24 +87,19 @@ describe Caracal::Core::Models::BookmarkModel do
         end
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:name, :start].sort }
+      let(:expected) { %i[name start].sort }
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

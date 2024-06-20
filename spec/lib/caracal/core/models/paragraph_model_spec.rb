@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::ParagraphModel do
@@ -15,13 +17,11 @@ describe Caracal::Core::Models::ParagraphModel do
     end
   end
 
-
   #-------------------------------------------------------------
   # Configuration
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # accessors
     describe 'accessors' do
       it { expect(subject.paragraph_style).to eq 'Fancy' }
@@ -34,16 +34,13 @@ describe Caracal::Core::Models::ParagraphModel do
       it { expect(subject.paragraph_bgcolor).to eq 'cccccc' }
       it { expect(subject.paragraph_keep_next).to eq true }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== GETTERS ==========================
 
     # .runs
@@ -57,7 +54,6 @@ describe Caracal::Core::Models::ParagraphModel do
 
       it { expect(subject.run_attributes.to_h).to eq expected }
     end
-
 
     #=============== SETTERS ==========================
 
@@ -114,7 +110,6 @@ describe Caracal::Core::Models::ParagraphModel do
       it { expect(subject.paragraph_align).to eq :center }
     end
 
-
     #=============== SUB-METHODS ==========================
 
     # .link
@@ -148,7 +143,7 @@ describe Caracal::Core::Models::ParagraphModel do
     describe '.bookmark_start' do
       let!(:length) { subject.runs.length }
 
-      before { subject.bookmark_start(name:'abc')}
+      before { subject.bookmark_start(name: 'abc') }
 
       it { expect(subject.runs.size).to eq length + 1 }
     end
@@ -160,7 +155,6 @@ describe Caracal::Core::Models::ParagraphModel do
 
       it { expect(subject.runs.size).to eq length + 1 }
     end
-
 
     #=============== VALIDATION ===========================
 
@@ -180,24 +174,22 @@ describe Caracal::Core::Models::ParagraphModel do
         it { expect(subject.valid?).to eq false }
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:align, :bgcolor, :bgstyle, :bold, :border, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :bottom, :bottom, :color, :content, :italic, :keep_lines, :keep_next, :left, :line, :right, :size, :style, :tabs, :theme_bgcolor, :theme_color, :top, :top, :underline, :widow_control, :border_bottom, :border_horizontal, :border_vertical, :border_top, :border_left, :border_right, :whitespace, :vertical_align, :strike, :small_caps, :caps, :rtl, :highlight_color, :font].sort }
+      let(:expected) do
+        %i[align bgcolor bgstyle bold border border_color border_line border_size border_spacing border_theme_color bottom
+           bottom color content italic keep_lines keep_next left line right size style tabs theme_bgcolor theme_color top top underline widow_control border_bottom border_horizontal border_vertical border_top border_left border_right whitespace vertical_align strike small_caps caps rtl highlight_color font].sort
+      end
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

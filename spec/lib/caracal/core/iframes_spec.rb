@@ -1,15 +1,15 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::IFrames do
   subject { Caracal::Document.new }
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     # .img
     describe '.iframes' do
       let!(:size) { subject.contents.size }
@@ -23,7 +23,5 @@ describe Caracal::Core::IFrames do
       it { expect(subject.contents.size).to eq size + 1 }
       it { expect(subject.contents.last).to be_a(Caracal::Core::Models::IFrameModel) }
     end
-
   end
-
 end

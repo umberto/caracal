@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #------------------------------------------------
 # Requirements
 #------------------------------------------------
@@ -16,7 +18,6 @@ require 'caracal/document'
 # view
 require 'caracal/view'
 
-
 #------------------------------------------------
 # Extra Setup
 #------------------------------------------------
@@ -28,7 +29,6 @@ module Caracal
     File.dirname __dir__
   end
 end
-
 
 # Add functions to table cell model. we do this here to
 # avoid a circular require between Caracal::Core::Tables

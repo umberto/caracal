@@ -1,10 +1,10 @@
-require 'caracal/core/models/base_model'
+# frozen_string_literal: true
 
+require 'caracal/core/models/base_model'
 
 module Caracal
   module Core
     module Models
-
       # This class encapsulates the logic needed to store and manipulate
       # page break data.
       #
@@ -15,7 +15,6 @@ module Caracal
       # trouble end users with this issue.
       #
       class PageBreakModel < BaseModel
-
         #-------------------------------------------------------------
         # Configuration
         #-------------------------------------------------------------
@@ -27,12 +26,11 @@ module Caracal
         attr_reader :page_break_wrap
 
         # initialization
-        def initialize(options={}, &block)
+        def initialize(options = {}, &block)
           @page_break_wrap = DEFAULT_PAGE_BREAK_WRAP
 
           super options, &block
         end
-
 
         #-------------------------------------------------------------
         # Public Methods
@@ -44,7 +42,6 @@ module Caracal
           @page_break_wrap = !!value
         end
 
-
         #-------------------------------------------------------------
         # Private Instance Methods
         #-------------------------------------------------------------
@@ -53,9 +50,7 @@ module Caracal
         def option_keys
           [:wrap]
         end
-
       end
-
     end
   end
 end

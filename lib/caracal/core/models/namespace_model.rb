@@ -1,10 +1,10 @@
-require 'caracal/core/models/base_model'
+# frozen_string_literal: true
 
+require 'caracal/core/models/base_model'
 
 module Caracal
   module Core
     module Models
-
       # This class encapsulates the logic needed to store and manipulate
       # namespace data.
       #
@@ -15,7 +15,7 @@ module Caracal
         has_string_attribute :href
 
         def ns_hash
-          {namespace_prefix => namespace_href}
+          { namespace_prefix => namespace_href }
         end
 
         def matches?(str)
@@ -23,17 +23,15 @@ module Caracal
         end
 
         def valid?
-          [:href, :prefix].all? {|a| validate_presence a }
+          %i[href prefix].all? { |a| validate_presence a }
         end
 
         private
 
         def option_keys
-          [:prefix, :href]
+          %i[prefix href]
         end
-
       end
-
     end
   end
 end

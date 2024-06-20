@@ -1,29 +1,28 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/namespace_model'
 require 'caracal/errors'
 
-
 module Caracal
   module Core
-
     # This module encapsulates all the functionality related to registering and
     # retrieving namespaces.
     #
     module Namespaces
       class NSCollection < Array
         def get(prefix)
-          self.find do |ns|
+          find do |ns|
             ns.matches? prefix
           end
         end
 
         def t(prefix)
-          self.get(prefix).namespace_href
+          get(prefix).namespace_href
         end
       end
 
       def self.included(base)
         base.class_eval do
-
           #-------------------------------------------------------------
           # Class Methods
           #-------------------------------------------------------------
@@ -48,23 +47,20 @@ module Caracal
             ]
           end
 
-
           #-------------------------------------------------------------
           # Public Methods
           #-------------------------------------------------------------
 
           #============== ATTRIBUTES ==========================
 
-          def namespace(options={}, &block)
+          def namespace(options = {}, &block)
             model = Caracal::Core::Models::NamespaceModel.new(options, &block)
-            if model.valid?
-              ns = register_namespace(model)
-            else
+            unless model.valid?
               raise Caracal::Errors::InvalidModelError, 'namespace must specify the :prefix and :href attributes.'
             end
-            ns
-          end
 
+            register_namespace(model)
+          end
 
           #============== GETTERS =============================
 
@@ -75,7 +71,6 @@ module Caracal
           def find_namespace(prefix)
             namespaces.find { |ns| ns.matches?(prefix) }
           end
-
 
           #============== REGISTRATION ========================
 
@@ -88,14 +83,12 @@ module Caracal
           end
 
           def unregister_namespace(prefix)
-            if (ns = find_namespace(prefix))
-              namespaces.delete(ns)
-            end
-          end
+            return unless (ns = find_namespace(prefix))
 
+            namespaces.delete(ns)
+          end
         end
       end
     end
-
   end
 end

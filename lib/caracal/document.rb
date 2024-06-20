@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'open-uri'
 require 'zip'
 
@@ -41,10 +43,8 @@ require 'caracal/renderers/settings_renderer'
 require 'caracal/renderers/styles_renderer'
 require 'caracal/renderers/theme_renderer'
 
-
 module Caracal
   class Document
-
     #------------------------------------------------------
     # Configuration
     #------------------------------------------------------
@@ -74,7 +74,6 @@ module Caracal
     include Caracal::Core::Text
 
     include Caracal::Core::RawXml
-
 
     #------------------------------------------------------
     # Public Class Methods
@@ -130,20 +129,17 @@ module Caracal
       page_margins top: 1440, bottom: 1440, left: 1440, right: 1440
       page_numbers
 
-      [:font, :list_style, :namespace, :relationship, :style].each do |method|
+      %i[font list_style namespace relationship style].each do |method|
         collection = self.class.send("default_#{method}s")
         collection.each do |item|
-          if (item[:if] and send(item[:if])) or not item[:if]
-            send(method, item)
-          end
+          send(method, item) if (item[:if] && send(item[:if])) || !(item[:if])
         end
       end
 
-      if block_given?
-        (block.arity < 1) ? instance_eval(&block) : block[self]
-      end
-    end
+      return unless block_given?
 
+      block.arity < 1 ? instance_eval(&block) : block[self]
+    end
 
     #============ GETTERS =================================
 
@@ -160,13 +156,13 @@ module Caracal
     # a string buffer. Order is important!
     #
     def render
-      buffer = ::Zip::OutputStream.write_buffer do |zip|
-        %w(package_relationships content_types app core custom fonts header footer settings styles document relationships header_relationships media numbering theme).each do |what|
+      ::Zip::OutputStream.write_buffer do |zip|
+        %w[package_relationships content_types app core custom fonts header footer settings styles document
+           relationships header_relationships media numbering theme].each do |what|
           send "render_#{what}", zip
         end
       end
     end
-
 
     #============ SAVING ==================================
 
@@ -175,7 +171,6 @@ module Caracal
 
       File.open(path, 'wb') { |f| f.write(buffer.string) }
     end
-
 
     #------------------------------------------------------
     # Private Instance Methods
@@ -254,12 +249,12 @@ module Caracal
       end
 
       images.each do |rel|
-        if rel.relationship_data.to_s.size > 0
-          content = rel.relationship_data
-        else
-          # NOTICE: this potentially opens a web resource!
-          content = URI.open(rel.relationship_target).read
-        end
+        content = if rel.relationship_data.to_s.size.positive?
+                    rel.relationship_data
+                  else
+                    # NOTICE: this potentially opens a web resource!
+                    URI.open(rel.relationship_target).read
+                  end
 
         zip.put_next_entry "word/#{rel.formatted_target}"
         zip.write content
@@ -291,12 +286,12 @@ module Caracal
       relationships_by_type(:header).each do |rel|
         header = rel.owner
 
-        if header.relationships.any?
-          content = ::Caracal::Renderers::RelationshipsRenderer.render header
+        next unless header.relationships.any?
 
-          zip.put_next_entry "word/_rels/#{rel.formatted_target}.rels"
-          zip.write content
-        end
+        content = ::Caracal::Renderers::RelationshipsRenderer.render header
+
+        zip.put_next_entry "word/_rels/#{rel.formatted_target}.rels"
+        zip.write content
       end
     end
 
@@ -321,8 +316,6 @@ module Caracal
         zip.put_next_entry "word/#{rel.formatted_target}"
         zip.write content
       end
-
     end
-
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::RelationshipModel do
@@ -9,13 +11,11 @@ describe Caracal::Core::Models::RelationshipModel do
     end
   end
 
-
   #-------------------------------------------------------------
   # Configuration
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # constants
     describe 'constants' do
       describe 'TYPE_MAP' do
@@ -33,16 +33,13 @@ describe Caracal::Core::Models::RelationshipModel do
       it { expect(subject.relationship_target).to eq 'footer.xml' }
       it { expect(subject.relationship_data).to   eq nil }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=================== ATTRIBUTES ==========================
 
     # .id
@@ -79,7 +76,6 @@ describe Caracal::Core::Models::RelationshipModel do
 
       it { expect(subject.relationship_data).to eq 'Dummy data' }
     end
-
 
     #=================== GETTERS =============================
 
@@ -118,7 +114,6 @@ describe Caracal::Core::Models::RelationshipModel do
       it { expect(subject.formatted_type).to eq 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer' }
     end
 
-
     #=================== STATE ===============================
 
     # .matches?
@@ -153,7 +148,6 @@ describe Caracal::Core::Models::RelationshipModel do
       end
     end
 
-
     #=============== VALIDATION ===========================
 
     describe '.valid?' do
@@ -161,34 +155,29 @@ describe Caracal::Core::Models::RelationshipModel do
         it { expect(subject.valid?).to eq true }
       end
 
-      [:id, :target, :type].each do |prop|
-        describe "when #{ prop } nil" do
+      %i[id target type].each do |prop|
+        describe "when #{prop} nil" do
           before do
-            allow(subject).to receive("relationship_#{ prop }").and_return(nil)
+            allow(subject).to receive("relationship_#{prop}").and_return(nil)
           end
 
           it { expect(subject.valid?).to eq false }
         end
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:id, :type, :owner, :target, :data].sort }
+      let(:expected) { %i[id type owner target data].sort }
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

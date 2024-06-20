@@ -1,16 +1,20 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/border_model'
 
 module Caracal
   module Core
     module Models
       module HasBorders
-        ATTRS = %i(border) + BorderModel::TYPES.map{|dir| :"border_#{dir}" } + BorderModel::ATTRS.map{|attr| :"border_#{attr}" }
+        ATTRS = %i[border] + BorderModel::TYPES.map { |dir| :"border_#{dir}" } + BorderModel::ATTRS.map do |attr|
+                                                                                   :"border_#{attr}"
+                                                                                 end
 
         def self.included(base)
           # default border for all edges
           base.has_model_attribute :border,
-              model: Caracal::Core::Models::BorderModel
-              # default: Caracal::Core::Models::BorderModel.new # really have a default here?
+                                   model: Caracal::Core::Models::BorderModel
+          # default: Caracal::Core::Models::BorderModel.new # really have a default here?
 
           border_writer_name = 'border'
           border_reader_name = "#{base.attr_prefix}_border" # e.g. table_border
@@ -26,19 +30,19 @@ module Caracal
             attr_reader_name = :"#{border_reader_name}_#{attr}" # e.g. self.table_border_color
             # ATTRS << bdr_attr
 
-            define_method attr_writer_name do |value, &block|
-              model = self.send(border_reader_name) || self.send(border_writer_name)
+            define_method attr_writer_name do |value|
+              model = send(border_reader_name) || send(border_writer_name)
               model.send attr, value
             end
 
             # reader for attribute of 'default' border
             define_method attr_reader_name do # e.g. table_border_color
-              self.send(border_reader_name)&.send bdr_attr
+              send(border_reader_name)&.send bdr_attr
             end
           end
 
           base.define_method "#{border_reader_name}_total_size" do # e.g. table_border_total_size
-            self.send(border_reader_name)&.total_size
+            send(border_reader_name)&.total_size
           end
 
           BorderModel::TYPES.each do |dir|
@@ -47,8 +51,8 @@ module Caracal
             # ATTRS << model_writer_name
 
             base.has_model_attribute model_writer_name,
-                model: Caracal::Core::Models::BorderModel,
-                default: nil
+                                     model: Caracal::Core::Models::BorderModel,
+                                     default: nil
 
             # writer for optional border model, e.g. border_top
             base.define_method model_writer_name do |options = {}, &block|
@@ -57,10 +61,11 @@ module Caracal
                 options.merge! type: dir
                 instance_variable_set "@#{model_reader_name}", Caracal::Core::Models::BorderModel.new(options, &block)
               when Caracal::Core::Models::BorderModel
-                options.instance_eval &block if block_given?
+                options.instance_eval(&block) if block_given?
                 instance_variable_set "@#{model_reader_name}", options
               else
-                raise ArgumentError, "don't know how to handle #{options.inspect}, expecting hash or Caracal::Core::Models::BorderModel"
+                raise ArgumentError,
+                      "don't know how to handle #{options.inspect}, expecting hash or Caracal::Core::Models::BorderModel"
               end
             end
 
@@ -72,24 +77,23 @@ module Caracal
 
               # writer for attribute of optional border, e.g. border_top_color
               base.define_method attr_writer_name do |v|
-                model = self.send(model_reader_name) || self.send(model_writer_name)
+                model = send(model_reader_name) || send(model_writer_name)
                 model&.send attr, v
               end
 
               # reader for attribute of optional border, e.g. table_border_top_color
               base.define_method attr_reader_name do
-                model = self.send(model_reader_name) || self.send(border_reader_name)
+                model = send(model_reader_name) || send(border_reader_name)
                 model&.send bdr_attr
               end
             end
 
             base.define_method "#{model_reader_name}_total_size" do # e.g. table_border_top_total_size
-              model = self.send(model_reader_name) || self.send(border_reader_name)
+              model = send(model_reader_name) || send(border_reader_name)
               model&.total_size || 0
             end
           end
         end
-
       end
     end
   end

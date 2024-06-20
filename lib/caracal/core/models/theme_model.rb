@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/base_model'
 
 module Caracal
@@ -6,17 +8,17 @@ module Caracal
       class ThemeModel < BaseModel
         use_prefix :theme
 
-        COLORS = [
-          :dark1, :light1, :dark2, :light2,
-          :text1, :background, :text2, :background2,
-          :accent1, :accent2, :accent3,  :accent4, :accent5, :accent6,
-          :hyperlink, :visited_hyperlink
-        ]
+        COLORS = %i[
+          dark1 light1 dark2 light2
+          text1 background text2 background2
+          accent1 accent2 accent3 accent4 accent5 accent6
+          hyperlink visited_hyperlink
+        ].freeze
 
         has_string_attribute :name,          default: 'Caracal'
         has_string_attribute :color_text1,   default: '000000'
         has_string_attribute :color_background1, default: 'FFFFFF'
-        has_string_attribute :color_text2,   default: '707173'
+        has_string_attribute :color_text2, default: '707173'
         has_string_attribute :color_background2, default: 'FFFFFF'
         has_string_attribute :color_accent1, default: '00539B'
         has_string_attribute :color_accent2, default: '0096D6'
@@ -36,7 +38,6 @@ module Caracal
         alias theme_color_dark2  theme_color_text2
         alias theme_color_light1 theme_color_background1
         alias theme_color_light2 theme_color_background2
-
 
         def initialize(options = {}, &block)
           @theme_name              = DEFAULT_THEME_NAME
@@ -61,7 +62,6 @@ module Caracal
         def option_keys
           COLORS + [:name]
         end
-
       end
     end
   end

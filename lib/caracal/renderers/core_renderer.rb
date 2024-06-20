@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 require 'nokogiri'
 require 'caracal/renderers/xml_renderer'
 
 module Caracal
   module Renderers
     class CoreRenderer < XmlRenderer
-
       # This method produces the xml required for the `docProps/core.xml`
       # sub-document.
       #
@@ -17,19 +18,17 @@ module Caracal
         builder.to_xml save_options
       end
 
-
       private
 
       def root_options
         {
-          'xmlns:cp'        => 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
-          'xmlns:dc'        => 'http://purl.org/dc/elements/1.1/',
-          'xmlns:dcterms'   => 'http://purl.org/dc/terms/',
-          'xmlns:dcmitype'  => 'http://purl.org/dc/dcmitype/',
-          'xmlns:xsi'       => 'http://www.w3.org/2001/XMLSchema-instance'
+          'xmlns:cp' => 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
+          'xmlns:dc' => 'http://purl.org/dc/elements/1.1/',
+          'xmlns:dcterms' => 'http://purl.org/dc/terms/',
+          'xmlns:dcmitype' => 'http://purl.org/dc/dcmitype/',
+          'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
         }
       end
-
     end
   end
 end

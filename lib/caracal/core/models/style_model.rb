@@ -1,13 +1,13 @@
+# frozen_string_literal: true
+
 require 'ostruct'
 require 'caracal/core/models/base_model'
 require 'caracal/core/models/has_margins'
 require 'caracal/core/models/has_run_attributes'
 
-
 module Caracal
   module Core
     module Models
-
       # This class encapsulates the logic needed to store and manipulate
       # paragraph style data.
       class StyleModel < BaseModel
@@ -42,15 +42,15 @@ module Caracal
         has_symbol_attribute :type, default: :paragraph
         has_symbol_attribute :align, default: :left
 
-        TYPES             = %i(character paragraph table table_row table_cell)
-        HORIZONTAL_ALIGNS = %i(left center right both)
-        LINE_RULES        = %i(exact auto atLeast)
+        TYPES             = %i[character paragraph table table_row table_cell].freeze
+        HORIZONTAL_ALIGNS = %i[left center right both].freeze
+        LINE_RULES        = %i[exact auto atLeast].freeze
 
         # initialization
-        def initialize(options={}, &block)
+        def initialize(options = {}, &block)
           super options, &block
 
-          if self.style_id == self.class::DEFAULT_STYLE_BASE
+          if style_id == self.class::DEFAULT_STYLE_BASE
             @style_default = true
             @style_base    = nil
           else
@@ -58,8 +58,8 @@ module Caracal
             @style_base    ||= DEFAULT_STYLE_BASE
           end
 
-          @style_type      ||= DEFAULT_STYLE_TYPE
-          @style_next      = DEFAULT_STYLE_NEXT
+          @style_type ||= DEFAULT_STYLE_TYPE
+          @style_next = DEFAULT_STYLE_NEXT
           @style_top       ||= DEFAULT_STYLE_TOP
           @style_bottom    ||= DEFAULT_STYLE_BOTTOM
           @style_left      ||= DEFAULT_STYLE_LEFT
@@ -71,33 +71,31 @@ module Caracal
           # raise options.inspect if self.style_type.to_s == 'table'
         end
 
-
         #========== GETTERS ===============================
 
         def style_outline_lvl
-          style_id.match(/Heading(\d)\Z/) {|match| match[1].to_i }
+          style_id.match(/Heading(\d)\Z/) { |match| match[1].to_i }
         end
 
         def run_attributes
           attrs = {
-            font:            self.style_font,
-            color:           self.style_color,
-            theme_color:     self.style_theme_color,
-            size:            self.style_size,
-            bold:            self.style_bold,
-            italic:          self.style_italic,
-            underline:       self.style_underline,
-            caps:            self.style_caps,
-            small_caps:      self.style_small_caps,
-            bgcolor:         self.style_bgcolor,
-            theme_bgcolor:   self.style_theme_bgcolor,
-            bgstyle:         self.style_bgstyle,
-            vertical_align:  self.style_vertical_align,
+            font: style_font,
+            color: style_color,
+            theme_color: style_theme_color,
+            size: style_size,
+            bold: style_bold,
+            italic: style_italic,
+            underline: style_underline,
+            caps: style_caps,
+            small_caps: style_small_caps,
+            bgcolor: style_bgcolor,
+            theme_bgcolor: style_theme_bgcolor,
+            bgstyle: style_bgstyle,
+            vertical_align: style_vertical_align
             # highlight_color: self.style_highlight_color
           }.compact
           OpenStruct.new attrs
         end
-
 
         #========== STATE =================================
 
@@ -109,13 +107,13 @@ module Caracal
 
         def valid?
           validate_presence :id and
-              validate_presence :name and
-              validate_presence :type and
-              self.valid_type? and
-              validate_inclusion :align, within: HORIZONTAL_ALIGNS and
-              validate_inclusion :line_rule, within: LINE_RULES and
-              self.valid_bgstyle? and
-              self.valid_run_attributes?
+            validate_presence :name and
+            validate_presence :type and
+            valid_type? and
+            validate_inclusion :align, within: HORIZONTAL_ALIGNS and
+            validate_inclusion :line_rule, within: LINE_RULES and
+            valid_bgstyle? and
+            valid_run_attributes?
         end
 
         def valid_type?
@@ -123,33 +121,31 @@ module Caracal
         end
 
         def to_h
-          option_keys.inject({}) do |h, k|
-            v = self.send "#{self.class.attr_prefix}_#{k}"
+          option_keys.each_with_object({}) do |k, h|
+            v = send "#{self.class.attr_prefix}_#{k}"
             h[k] = v unless v.nil?
-            h
           end
         end
 
         # attributes that cannot be set via table styles and have to be set for each cell separately.
         def table_cell_style_attributes
-          (%i(line line_rule align word_wrap keep_lines keep_next font size) + HasMargins::ATTRS + HasRunAttributes::OWN_ATTRS).inject({}) do |h, k|
-            v = self.send "#{self.class.attr_prefix}_#{k}"
+          (%i[line line_rule align word_wrap keep_lines keep_next font
+              size] + HasMargins::ATTRS + HasRunAttributes::OWN_ATTRS).each_with_object({}) do |k, h|
+            v = send "#{self.class.attr_prefix}_#{k}"
             h[k] = v unless v.nil?
-            h
           end
         end
 
         private
 
         def option_keys
-          [:aliases, :type, :base, :line, :line_rule, :id, :name, :align, :widow_control, :word_wrap, :keep_lines, :keep_next, :locked] +
-              HasMargins::ATTRS +
-              HasRunAttributes::ATTRS +
-              %w(left right first).map{|b| :"indent_#{b}" }
+          %i[aliases type base line line_rule id name align widow_control word_wrap keep_lines
+             keep_next locked] +
+            HasMargins::ATTRS +
+            HasRunAttributes::ATTRS +
+            %w[left right first].map { |b| :"indent_#{b}" }
         end
-
       end
-
     end
   end
 end

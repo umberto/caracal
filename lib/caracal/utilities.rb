@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # We're using this strategy borrowed from ActiveSupport to
 # make command syntax a little more flexible. In a perfect
 # world we'd just use the double splat feature of Ruby, but
@@ -6,7 +8,6 @@
 #
 module Caracal
   class Utilities
-
     def self.extract_options!(args)
       if args.last.is_a?(Hash)
         args.pop.dup
@@ -14,6 +15,5 @@ module Caracal
         {}
       end
     end
-
   end
 end

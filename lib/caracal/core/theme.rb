@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/theme_model'
 require 'caracal/errors'
 
 module Caracal
   module Core
-
     # This module encapsulates all the functionality related to themes.
     module Theme
       def self.included(base)
@@ -12,7 +13,7 @@ module Caracal
       end
 
       def theme(&block)
-        @theme = Models::ThemeModel.new &block
+        @theme = Models::ThemeModel.new(&block)
         relationship owner: @theme, type: :theme, target: 'theme'
         @theme
       end

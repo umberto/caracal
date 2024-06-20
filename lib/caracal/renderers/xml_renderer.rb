@@ -1,22 +1,22 @@
+# frozen_string_literal: true
+
 require 'nokogiri'
 
 module Caracal
   module Renderers
     class XmlRenderer
-
       attr_reader :document
 
       # This method produces xml output for the given document
       # according to the rules of this renderer object.
       def self.render(doc)
-        renderer = self.new doc
+        renderer = new doc
         renderer.to_xml
       end
 
-
       # This method instantiates a new verison of this renderer.
       def initialize(doc)
-        unless doc.is_a? Caracal::Document or doc.is_a? Caracal::Header or doc.is_a? Caracal::Footer
+        unless doc.is_a?(Caracal::Document) || doc.is_a?(Caracal::Header) || doc.is_a?(Caracal::Footer)
           raise NoDocumentError, 'renderers must receive a reference to a valid Caracal document object.'
         end
 
@@ -54,7 +54,6 @@ module Caracal
       def save_options
         { save_with: Nokogiri::XML::Node::SaveOptions::AS_XML }
       end
-
     end
   end
 end

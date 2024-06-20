@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::TextModel do
@@ -21,7 +23,6 @@ describe Caracal::Core::Models::TextModel do
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # accessors
     describe 'accessors' do
       it { expect(subject.text_content).to eq 'Lorem ipsum dolor....' }
@@ -35,25 +36,24 @@ describe Caracal::Core::Models::TextModel do
       it { expect(subject.text_highlight_color).to eq 'yellow' }
       it { expect(subject.text_vertical_align).to eq :subscript }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== GETTERS ==========================
 
     # .run_attributes
     describe '.run_attributes' do
-      let(:expected) { { font: 'Courier New', color: '666666', size: 20, bold: false, italic: false, underline: true, bgcolor: 'cccccc', highlight_color: 'yellow', vertical_align: :subscript } }
+      let(:expected) do
+        { font: 'Courier New', color: '666666', size: 20, bold: false, italic: false, underline: true, bgcolor: 'cccccc',
+          highlight_color: 'yellow', vertical_align: :subscript }
+      end
 
       it { expect(subject.run_attributes.to_h).to eq expected }
     end
-
 
     #=============== SETTERS ==========================
 
@@ -108,7 +108,7 @@ describe Caracal::Core::Models::TextModel do
       it { expect(subject.text_highlight_color).to eq 'green' }
     end
 
-    #symbols
+    # symbols
     describe '.vertical_align' do
       before { subject.vertical_align(:superscript) }
 
@@ -123,33 +123,31 @@ describe Caracal::Core::Models::TextModel do
       end
 
       [:content].each do |prop|
-        describe "when #{ prop } nil" do
+        describe "when #{prop} nil" do
           before do
-            allow(subject).to receive("text_#{ prop }").and_return(nil)
+            allow(subject).to receive("text_#{prop}").and_return(nil)
           end
 
           it { expect(subject.valid?).to eq false }
         end
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:bgcolor, :bold, :color, :content, :font, :highlight_color, :italic, :size, :style, :underline, :vertical_align, :end_tab, :theme_bgcolor, :bgstyle, :theme_color, :whitespace, :rtl, :caps, :small_caps, :strike, :border, :border_bottom, :border_color, :border_horizontal, :border_left, :border_line, :border_right, :border_size, :border_spacing, :border_theme_color, :border_top, :border_vertical].sort }
+      let(:expected) do
+        %i[bgcolor bold color content font highlight_color italic size style underline vertical_align end_tab theme_bgcolor
+           bgstyle theme_color whitespace rtl caps small_caps strike border border_bottom border_color border_horizontal border_left border_line border_right border_size border_spacing border_theme_color border_top border_vertical].sort
+      end
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

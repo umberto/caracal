@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::StyleModel do
@@ -17,7 +19,6 @@ describe Caracal::Core::Models::StyleModel do
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # constants
     describe 'constants' do
       it { expect(described_class::DEFAULT_STYLE_TYPE).to eq :paragraph }
@@ -55,16 +56,13 @@ describe Caracal::Core::Models::StyleModel do
       it { expect(subject.style_base).to eq nil }
       it { expect(subject.style_next).to eq 'Normal' }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== SETTERS ==========================
 
     # booleans
@@ -163,12 +161,11 @@ describe Caracal::Core::Models::StyleModel do
         it { expect(subject.style_type).to eq :character }
       end
       describe 'when invalid' do
-        before { subject.type 'bogus'}
+        before { subject.type 'bogus' }
 
         it { expect(subject.valid?).to eq false }
       end
     end
-
 
     #=================== STATE ===============================
 
@@ -186,7 +183,6 @@ describe Caracal::Core::Models::StyleModel do
       end
     end
 
-
     #=============== VALIDATION ===========================
 
     describe '.valid?' do
@@ -194,33 +190,32 @@ describe Caracal::Core::Models::StyleModel do
         it { expect(subject.valid?).to eq true }
       end
 
-      [:id, :name].each do |prop|
-        describe "when #{ prop } nil" do
+      %i[id name].each do |prop|
+        describe "when #{prop} nil" do
           before do
-            allow(subject).to receive("style_#{ prop }").and_return(nil)
+            allow(subject).to receive("style_#{prop}").and_return(nil)
           end
 
           it { expect(subject.valid?).to eq false }
         end
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:aliases, :type, :bold, :italic, :underline, :caps, :top, :bottom, :size, :line, :id, :name, :color, :font, :align, :indent_left, :indent_right, :indent_first, :base, :bgcolor, :bgstyle, :keep_lines, :keep_next, :left, :right, :theme_bgcolor, :theme_color, :widow_control, :word_wrap, :border, :line_rule, :locked, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :border_top, :border_bottom, :border_horizontal, :border_vertical, :border_left, :border_right, :vertical_align, :whitespace, :strike, :small_caps, :highlight_color, :rtl].sort }
+      let(:expected) do
+        %i[aliases type bold italic underline caps top bottom size line id name color font align indent_left indent_right
+           indent_first base bgcolor bgstyle keep_lines keep_next left right theme_bgcolor theme_color widow_control word_wrap border line_rule locked border_color border_line border_size border_spacing border_theme_color border_top border_bottom border_horizontal border_vertical border_left border_right vertical_align whitespace strike small_caps highlight_color rtl].sort
+      end
 
       it { expect(actual).to eq expected }
     end
   end
-
 end

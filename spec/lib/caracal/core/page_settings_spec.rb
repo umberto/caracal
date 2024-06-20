@@ -1,19 +1,19 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::PageSettings do
   subject { Caracal::Document.new }
-
 
   #-------------------------------------------------------------
   # Configuration
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # readers
     describe 'page size readers' do
-      it { expect(subject.page_width).to eq 12240 }
-      it { expect(subject.page_height).to eq 15840 }
+      it { expect(subject.page_width).to eq 12_240 }
+      it { expect(subject.page_height).to eq 15_840 }
       it { expect(subject.page_orientation).to eq 'portrait' }
     end
     describe 'page margin readers' do
@@ -22,43 +22,40 @@ describe Caracal::Core::PageSettings do
       it { expect(subject.page_margin_left).to   eq 1440 }
       it { expect(subject.page_margin_right).to  eq 1440 }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public methods tests' do
-
     # .page_size
     describe '.page_size' do
       describe 'when options given' do
-        before { subject.page_size width: 10000, height: 12000, orientation: :landscape }
+        before { subject.page_size width: 10_000, height: 12_000, orientation: :landscape }
 
-        it { expect(subject.page_width).to eq 10000 }
-        it { expect(subject.page_height).to eq 12000 }
+        it { expect(subject.page_width).to eq 10_000 }
+        it { expect(subject.page_height).to eq 12_000 }
         it { expect(subject.page_orientation).to eq 'landscape' }
       end
       describe 'when block given' do
         before do
           subject.page_size do
-            width       10000
-            height      12000
+            width       10_000
+            height      12_000
             orientation :landscape
           end
         end
 
-        it { expect(subject.page_width).to eq 10000 }
-        it { expect(subject.page_height).to eq 12000 }
+        it { expect(subject.page_width).to eq 10_000 }
+        it { expect(subject.page_height).to eq 12_000 }
         it { expect(subject.page_orientation).to eq 'landscape' }
       end
       describe 'when fancy block given' do
         subject do
           Caracal::Document.new do |docx|
-            w = 10000
-            h = 12000
+            w = 10_000
+            h = 12_000
             o = :landscape
             docx.page_size do
               width       w
@@ -68,19 +65,19 @@ describe Caracal::Core::PageSettings do
           end
         end
 
-        it { expect(subject.page_width).to eq 10000 }
-        it { expect(subject.page_height).to eq 12000 }
+        it { expect(subject.page_width).to eq 10_000 }
+        it { expect(subject.page_height).to eq 12_000 }
         it { expect(subject.page_orientation).to eq 'landscape' }
       end
       describe 'when both given' do
         before do
-          subject.page_size width: 10000, orientation: :landscape do
-            height 12000
+          subject.page_size width: 10_000, orientation: :landscape do
+            height 12_000
           end
         end
 
-        it { expect(subject.page_width).to eq 10000 }
-        it { expect(subject.page_height).to eq 12000 }
+        it { expect(subject.page_width).to eq 10_000 }
+        it { expect(subject.page_height).to eq 12_000 }
         it { expect(subject.page_orientation).to eq 'landscape' }
       end
     end
@@ -145,7 +142,5 @@ describe Caracal::Core::PageSettings do
         it { expect(subject.page_margin_right).to  eq 1444 }
       end
     end
-
   end
-
 end

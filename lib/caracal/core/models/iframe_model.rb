@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/base_model'
 
 module Caracal
   module Core
     module Models
-
       # This class handles block options passed to the img method.
       class IFrameModel < BaseModel
         use_prefix :iframe
@@ -11,13 +12,9 @@ module Caracal
         has_string_attribute :url
         has_string_attribute :data
 
-        attr_reader :iframe_ignorables
-        attr_reader :iframe_namespaces
-        attr_reader :iframe_relationships
+        attr_reader :iframe_ignorables, :iframe_namespaces, :iframe_relationships, :document
 
-        attr_reader :document
-
-        def initialize(args={}, &block)
+        def initialize(args = {}, &block)
           options = args.dup
           @document = options.delete :document
           super options, &block
@@ -46,38 +43,35 @@ module Caracal
             @iframe_namespaces = doc_root.namespaces
 
             # ignorable namespaces
-            if a = doc_root.attributes['Ignorable']
+            if (a = doc_root.attributes['Ignorable'])
               @iframe_ignorables = a.value.split(/\s+/)
             end
 
             # relationships
-            media_map = rel_nodes.reduce({}) do |hash, node|
+            media_map = rel_nodes.each_with_object({}) do |node, hash|
               type = node.at_xpath('@Type').value
-              if type.slice(-5, 5) == 'image'
-                id   = node.at_xpath('@Id').value
-                path = "word/#{ node.at_xpath('@Target').value }"
-                hash[id] = path
-              end
-              hash
+              next unless type.slice(-5, 5) == 'image'
+
+              id   = node.at_xpath('@Id').value
+              path = "word/#{node.at_xpath('@Target').value}"
+              hash[id] = path
             end
 
-            @iframe_relationships = pic_nodes.reduce([]) do |array, node|
+            @iframe_relationships = pic_nodes.each_with_object([]) do |node, array|
               r_node  = node.children[1].children[0]
               r_id    = r_node.attributes['embed'].value.to_s
               r_media = media_map[r_id]
 
               p_node  = node.children[0].children[0]
-              p_id    = p_node.attributes['id'].to_s.to_i
+              p_node.attributes['id'].to_s.to_i
               p_name  = p_node.attributes['name'].to_s
               p_data  = zip.glob(r_media).first.get_input_stream.read
 
               # register relationship
               array << { id: r_id, type: 'image', target: p_name, data: p_data }
-              array
             end
           end
         end
-
 
         #=============== GETTERS ==========================
 
@@ -119,9 +113,8 @@ module Caracal
         private
 
         def option_keys
-          [:url, :data]
+          %i[url data]
         end
-
       end
     end
   end

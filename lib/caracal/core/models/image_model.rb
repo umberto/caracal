@@ -1,10 +1,10 @@
-require 'caracal/core/models/base_model'
+# frozen_string_literal: true
 
+require 'caracal/core/models/base_model'
 
 module Caracal
   module Core
     module Models
-
       # This class handles block options passed to the img method.
       #
       class ImageModel < BaseModel
@@ -25,7 +25,7 @@ module Caracal
         has_string_attribute :data
 
         # initialization
-        def initialize(options={}, &block)
+        def initialize(options = {}, &block)
           @image_ppi    = DEFAULT_IMAGE_PPI
           @image_width  = DEFAULT_IMAGE_WIDTH
           @image_height = DEFAULT_IMAGE_HEIGHT
@@ -41,14 +41,14 @@ module Caracal
 
         #=============== GETTERS ==============================
 
-        [:width, :height].each do |m|
+        %i[width height].each do |m|
           define_method "formatted_#{m}" do
             value = send("image_#{m}")
             pixels_to_emus(value, image_ppi)
           end
         end
 
-        [:top, :bottom, :left, :right].each do |m|
+        %i[top bottom left right].each do |m|
           define_method "formatted_#{m}" do
             value = send("image_#{m}")
             pixels_to_emus(value, 72) # NOT image_ppi!
@@ -58,35 +58,29 @@ module Caracal
         #=============== SETTERS ==============================
 
         def anchor(value)
-          if value
-            @image_anchor = value.to_s.to_sym
-          else
-            @image_anchor = nil
-          end
+          @image_anchor = value&.to_s&.to_sym
         end
 
         #=============== VALIDATION ==============================
 
         def valid?
-          [:ppi, :width, :height, :top, :bottom, :left, :right].all? {|a| validate_size a, at_least: 0 }
+          %i[ppi width height top bottom left right].all? { |a| validate_size a, at_least: 0 }
         end
 
         private
 
         def option_keys
-          [:url, :width, :height, :align, :top, :bottom, :left, :right, :data, :anchor]
+          %i[url width height align top bottom left right data anchor]
         end
 
         def pixels_to_emus(value, ppi)
           pixels        = value.to_i
           inches        = pixels / ppi.to_f
-          emus_per_inch = 914400
+          emus_per_inch = 914_400
 
-          emus = (inches * emus_per_inch).to_i
+          (inches * emus_per_inch).to_i
         end
-
       end
-
     end
   end
 end

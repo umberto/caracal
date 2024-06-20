@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::BorderModel do
@@ -16,10 +18,9 @@ describe Caracal::Core::Models::BorderModel do
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # constants
     describe 'constants' do
-      it { expect(described_class::DEFAULT_BORDER_COLOR).to   eq 'auto' }
+      it { expect(described_class::DEFAULT_BORDER_COLOR).to eq 'auto' }
       # it { expect(described_class::DEFAULT_BORDER_LINE).to    eq :single }
       # it { expect(described_class::DEFAULT_BORDER_SIZE).to    eq 4 }
       # it { expect(described_class::DEFAULT_BORDER_SPACING).to eq 1 }
@@ -34,16 +35,13 @@ describe Caracal::Core::Models::BorderModel do
       it { expect(subject.border_spacing).to eq 2 }
       it { expect(subject.border_type).to    eq :horizontal }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== GETTERS ==========================
 
     # .formatted_type
@@ -53,21 +51,21 @@ describe Caracal::Core::Models::BorderModel do
           allow(subject).to receive(:border_type).and_return(:horizontal)
         end
 
-        it { expect(subject.formatted_type).to eq 'insideH'}
+        it { expect(subject.formatted_type).to eq 'insideH' }
       end
       describe 'when vertical' do
         before do
           allow(subject).to receive(:border_type).and_return(:vertical)
         end
 
-        it { expect(subject.formatted_type).to eq 'insideV'}
+        it { expect(subject.formatted_type).to eq 'insideV' }
       end
       describe 'when other' do
         before do
           allow(subject).to receive(:border_type).and_return(:top)
         end
 
-        it { expect(subject.formatted_type).to eq 'top'}
+        it { expect(subject.formatted_type).to eq 'top' }
       end
     end
 
@@ -78,9 +76,8 @@ describe Caracal::Core::Models::BorderModel do
         allow(subject).to receive(:border_spacing).and_return(2)
       end
 
-      it { expect(subject.total_size).to eq 14}
+      it { expect(subject.total_size).to eq 14 }
     end
-
 
     #=============== SETTERS ==========================
 
@@ -119,41 +116,35 @@ describe Caracal::Core::Models::BorderModel do
       it { expect(subject.border_type).to eq :bottom }
     end
 
-
     #=============== VALIDATION ===========================
 
     describe '.valid?' do
       describe 'when all integers gt 0' do
         it { expect(subject.valid?).to eq true }
       end
-      [:size, :spacing].each do |d|
-        describe "when #{ d } lte 0" do
+      %i[size spacing].each do |d|
+        describe "when #{d} lte 0" do
           before do
-            allow(subject).to receive("border_#{ d }").and_return(0)
+            allow(subject).to receive("border_#{d}").and_return(0)
           end
 
           it { expect(subject.valid?).to eq false }
         end
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:color, :theme_color, :size, :spacing, :line, :type].sort }
+      let(:expected) { %i[color theme_color size spacing line type].sort }
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

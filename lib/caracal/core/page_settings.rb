@@ -1,18 +1,17 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/margin_model'
 require 'caracal/core/models/page_size_model'
 require 'caracal/errors'
 
-
 module Caracal
   module Core
-
     # This module encapsulates all the functionality related to setting the
     # document's size and margins.
     #
     module PageSettings
       def self.included(base)
         base.class_eval do
-
           #-------------------------------------------------------------
           # Configuration
           #-------------------------------------------------------------
@@ -26,7 +25,6 @@ module Caracal
           attr_reader :page_margin_left
           attr_reader :page_margin_right
 
-
           #-------------------------------------------------------------
           # Public Methods
           #-------------------------------------------------------------
@@ -34,7 +32,7 @@ module Caracal
           # This method controls the physical margins of the printed page. Defaults
           # to 1in on each side.
           #
-          def page_margins(options={}, &block)
+          def page_margins(options = {}, &block)
             model = Caracal::Core::Models::MarginModel.new(options, &block)
 
             if model.valid?
@@ -44,31 +42,31 @@ module Caracal
                 @page_margin_left   = model.margin_left
                 @page_margin_right  = model.margin_right
               else
-                raise Caracal::Errors::InvalidModelError, 'page_margins method requires margins to be smaller than the page size.'
+                raise Caracal::Errors::InvalidModelError,
+                      'page_margins method requires margins to be smaller than the page size.'
               end
             else
-              raise Caracal::Errors::InvalidModelError, 'page_margins method requires non-zero :top, :bottom, :left, and :right options.'
+              raise Caracal::Errors::InvalidModelError,
+                    'page_margins method requires non-zero :top, :bottom, :left, and :right options.'
             end
           end
 
           # This method controls the physical width and height of the printed page. Defaults
           # to US standard A4 portrait size.
           #
-          def page_size(options={}, &block)
+          def page_size(options = {}, &block)
             model = Caracal::Core::Models::PageSizeModel.new(options, &block)
 
-            if model.valid?
-              @page_width       = model.page_width
-              @page_height      = model.page_height
-              @page_orientation = model.page_orientation
-            else
+            unless model.valid?
               raise Caracal::Errors::InvalidModelError, 'page_size method requires non-zero :width and :height options.'
             end
-          end
 
+            @page_width       = model.page_width
+            @page_height      = model.page_height
+            @page_orientation = model.page_orientation
+          end
         end
       end
     end
-
   end
 end

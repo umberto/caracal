@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/base_model'
 require 'caracal/core/models/bookmark_model'
 require 'caracal/core/models/link_model'
@@ -8,11 +10,9 @@ require 'caracal/core/models/has_run_attributes'
 require 'caracal/errors'
 require 'ostruct'
 
-
 module Caracal
   module Core
     module Models
-
       # This class encapsulates the logic needed to store and manipulate
       # paragraph data.
       class ParagraphModel < BaseModel
@@ -35,15 +35,14 @@ module Caracal
 
         attr_reader :paragraph_tabs
 
-        def initialize(options={}, &block)
+        def initialize(options = {}, &block)
           @indent = nil
           o = options.dup
           content = o.delete(:content) { '' }
           super o, &block
 
-          text content, self.run_attributes
+          text content, run_attributes
         end
-
 
         #--------------------------------------------------
         # Public Instance Methods
@@ -61,19 +60,19 @@ module Caracal
 
         def spacing_options
           {
-            top:    self.paragraph_top,
-            bottom: self.paragraph_bottom,
-            line:   self.paragraph_line
+            top: paragraph_top,
+            bottom: paragraph_bottom,
+            line: paragraph_line
           }
         end
 
         def paragraph_attributes
           {
-            line:          self.paragraph_line,
-            align:         self.paragraph_align,
-            keep_next:     self.paragraph_keep_next,
-            keep_lines:    self.paragraph_keep_lines,
-            widow_control: self.paragraph_widow_control
+            line: paragraph_line,
+            align: paragraph_align,
+            keep_next: paragraph_keep_next,
+            keep_lines: paragraph_keep_lines,
+            widow_control: paragraph_widow_control
           }.compact
         end
 
@@ -83,7 +82,7 @@ module Caracal
         def indent(hash = nil)
           return @indent if hash.nil?
 
-          unless [:left, :right].include?(hash.keys.first) && hash.values.first.is_a?(Integer)
+          unless %i[left right].include?(hash.keys.first) && hash.values.first.is_a?(Integer)
             raise Caracal::Errors::InvalidModelError, 'the indent setter requires a hash like left: X or right: Y.'
           end
 
@@ -97,16 +96,15 @@ module Caracal
         #========== SUB-METHODS ===========================
 
         def field(*args, &block)
-          options = self.run_attributes.to_h
+          options = run_attributes.to_h
           options.merge! Caracal::Utilities.extract_options!(args).dup
           options.merge! name: args.first if args.first
 
           model = Caracal::Core::Models::FieldModel.new options, &block
-          if model.valid?
-            runs << model
-          else
-            raise Caracal::Errors::InvalidModelError, model.errors.inspect
-          end
+          raise Caracal::Errors::InvalidModelError, model.errors.inspect unless model.valid?
+
+          runs << model
+
           model
         end
 
@@ -116,11 +114,10 @@ module Caracal
           options.merge! start: true
 
           model = Caracal::Core::Models::BookmarkModel.new options, &block
-          if model.valid?
-            runs << model
-          else
-            raise Caracal::Errors::InvalidModelError, model.errors.inspect
-          end
+          raise Caracal::Errors::InvalidModelError, model.errors.inspect unless model.valid?
+
+          runs << model
+
           model
         end
 
@@ -129,11 +126,10 @@ module Caracal
           options.merge! start: false
 
           model = Caracal::Core::Models::BookmarkModel.new options, &block
-          if model.valid?
-            runs << model
-          else
-            raise Caracal::Errors::InvalidModelError, model.errors.inspect
-          end
+          raise Caracal::Errors::InvalidModelError, model.errors.inspect unless model.valid?
+
+          runs << model
+
           model
         end
 
@@ -146,17 +142,16 @@ module Caracal
 
         # .link
         def link(*args, &block)
-          options = self.run_attributes.to_h
+          options = run_attributes.to_h
           options.merge! Caracal::Utilities.extract_options!(args).dup
           options.merge! content: args[0] if args[0]
           options.merge! href:    args[1] if args[1]
 
           model = Caracal::Core::Models::LinkModel.new(options, &block)
-          if model.valid?
-            runs << model
-          else
-            raise Caracal::Errors::InvalidModelError, model.errors.inspect
-          end
+          raise Caracal::Errors::InvalidModelError, model.errors.inspect unless model.valid?
+
+          runs << model
+
           model
         end
 
@@ -170,34 +165,33 @@ module Caracal
         # .text
         def text(*args, &block)
           options = Caracal::Utilities.extract_options! args
-          options.merge! self.run_attributes.to_h
+          options.merge! run_attributes.to_h
           options.merge! content: args.first if args.first
 
           model = Caracal::Core::Models::TextModel.new(options, &block)
-          if model.valid?
-            runs << model
-          else
-            raise Caracal::Errors::InvalidModelError, model.errors.inspect
-          end
+          raise Caracal::Errors::InvalidModelError, model.errors.inspect unless model.valid?
+
+          runs << model
+
           model
         end
 
         #========== STATE =================================
 
         def empty?
-          runs.size.zero? || plain_text.length.zero?
+          runs.empty? || plain_text.empty?
         end
 
         #========== VALIDATION ============================
 
         def valid?
-          runs.any? and self.valid_bgstyle? and self.valid_run_attributes?
+          runs.any? and valid_bgstyle? and valid_run_attributes?
         end
 
         def self.option_keys
           %i[content style align tabs top bottom line keep_next keep_lines widow_control] +
-              HasMargins::ATTRS +
-              HasRunAttributes::ATTRS
+            HasMargins::ATTRS +
+            HasRunAttributes::ATTRS
         end
 
         private
@@ -205,7 +199,6 @@ module Caracal
         def option_keys
           self.class.option_keys
         end
-
       end
     end
   end

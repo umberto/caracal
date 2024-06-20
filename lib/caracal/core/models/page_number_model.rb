@@ -1,10 +1,10 @@
-require 'caracal/core/models/base_model'
+# frozen_string_literal: true
 
+require 'caracal/core/models/base_model'
 
 module Caracal
   module Core
     module Models
-
       # This class handles block options passed to the page_numbers
       # method.
       #
@@ -17,10 +17,10 @@ module Caracal
         has_integer_attribute :label_size  # in pt
         has_integer_attribute :number_size # in pt
 
-        PAGE_NUMBER_ALIGNS = [:left, :center, :right]
+        PAGE_NUMBER_ALIGNS = %i[left center right].freeze
 
         # initialization
-        def initialize(options={}, &block)
+        def initialize(options = {}, &block)
           @page_number_align        = DEFAULT_PAGE_NUMBER_ALIGN
           @page_number_label        = DEFAULT_PAGE_NUMBER_LABEL
           @page_number_label_size   = DEFAULT_PAGE_NUMBER_LABEL_SIZE
@@ -33,17 +33,17 @@ module Caracal
         #=============== SETTERS ==============================
 
         def label(value)
-          @page_number_label = value.to_s.strip   # renderer will enforce trailing space
+          @page_number_label = value.to_s.strip # renderer will enforce trailing space
         end
 
         def label_size(value)
           v = value.to_i
-          @page_number_label_size = (v == 0) ? nil : v
+          @page_number_label_size = v.zero? ? nil : v
         end
 
         def number_size(value)
           v = value.to_i
-          @page_number_number_size = (v == 0) ? nil : v
+          @page_number_number_size = v.zero? ? nil : v
         end
 
         def size(value)
@@ -54,15 +54,14 @@ module Caracal
         #=============== VALIDATION ===========================
 
         def valid?
-          not page_number_show or validate_inclusion :align, within: PAGE_NUMBER_ALIGNS
+          !page_number_show or validate_inclusion :align, within: PAGE_NUMBER_ALIGNS
         end
 
         private
 
         def option_keys
-          [:align, :label, :label_size, :number_size, :show]
+          %i[align label label_size number_size show]
         end
-
       end
     end
   end

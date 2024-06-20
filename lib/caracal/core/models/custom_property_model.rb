@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require 'caracal/core/models/base_model'
 
 module Caracal
   module Core
     module Models
-
       # This class encapsulates the logic needed to store and manipulate
       # custom properties
       class CustomPropertyModel < BaseModel
@@ -17,15 +18,14 @@ module Caracal
 
         def valid?
           required = option_keys
-          required.all? {|m| validate_presenc m }
+          required.all? { |m| validate_presenc m }
         end
 
         private
 
         def option_keys
-          [:name, :value, :type]
+          %i[name value type]
         end
-
       end
     end
   end

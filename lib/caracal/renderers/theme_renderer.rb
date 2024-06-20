@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'nokogiri'
 require 'caracal/renderers/xml_renderer'
 require 'caracal/errors'
@@ -5,9 +7,8 @@ require 'caracal/errors'
 module Caracal
   module Renderers
     class ThemeRenderer < XmlRenderer
-
       def self.render(doc, theme)
-        self.new(doc, theme).to_xml
+        new(doc, theme).to_xml
       end
 
       def initialize(doc, theme)
@@ -143,67 +144,67 @@ module Caracal
                     a.gsLst do
                       a.gs pos: 0 do
                         a.schemeClr val: 'phClr' do
-                          a.tint val: 50000
-                          a.satMod val: 300000
+                          a.tint val: 50_000
+                          a.satMod val: 300_000
                         end
                       end
-                      a.gs pos: 35000 do
+                      a.gs pos: 35_000 do
                         a.schemeClr val: 'phClr' do
-                          a.tint val: 37000
-                          a.satMod val: 300000
+                          a.tint val: 37_000
+                          a.satMod val: 300_000
                         end
                       end
-                      a.gs pos: 100000 do
+                      a.gs pos: 100_000 do
                         a.schemeClr val: 'phClr' do
-                          a.tint val: 15000
-                          a.satMod val: 350000
+                          a.tint val: 15_000
+                          a.satMod val: 350_000
                         end
                       end
                     end
-                    a.lin ang: 16200000, scaled: 1
+                    a.lin ang: 16_200_000, scaled: 1
                   end
 
                   a.gradFill rotWithShape: 1 do
                     a.gsLst do
                       a.gs pos: 0 do
                         a.schemeClr val: 'phClr' do
-                          a.shade val: 51000
-                          a.satMod val: 130000
+                          a.shade val: 51_000
+                          a.satMod val: 130_000
                         end
                       end
-                      a.gs pos: 80000 do
+                      a.gs pos: 80_000 do
                         a.schemeClr val: 'phClr' do
-                          a.shade val: 93000
-                          a.satMod val: 130000
+                          a.shade val: 93_000
+                          a.satMod val: 130_000
                         end
                       end
-                      a.gs pos: 100000 do
+                      a.gs pos: 100_000 do
                         a.schemeClr val: 'phClr' do
-                          a.shade val: 94000
-                          a.satMod val: 135000
+                          a.shade val: 94_000
+                          a.satMod val: 135_000
                         end
                       end
                     end
-                    a.lin ang: 16200000, scaled: 0
+                    a.lin ang: 16_200_000, scaled: 0
                   end
                 end
                 a.lnStyleLst do
                   a.ln w: 9525, cap: 'flat', cmpd: 'sng', algn: 'ctr' do
                     a.solidFill do
                       a.schemeClr val: 'phClr' do
-                        a.shade val: 95000
-                        a.satMod val: 105000
+                        a.shade val: 95_000
+                        a.satMod val: 105_000
                       end
                     end
                     a.prstDash val: 'solid'
                   end
-                  a.ln w: 25400, cap: 'flat', cmpd: 'sng', algn: 'ctr' do
+                  a.ln w: 25_400, cap: 'flat', cmpd: 'sng', algn: 'ctr' do
                     a.solidFill do
                       a.schemeClr val: 'phClr'
                     end
                     a.prstDash val: 'solid'
                   end
-                  a.ln w: 38100, cap: 'flat', cmpd: 'sng', algn: 'ctr' do
+                  a.ln w: 38_100, cap: 'flat', cmpd: 'sng', algn: 'ctr' do
                     a.solidFill do
                       a.schemeClr val: 'phClr'
                     end
@@ -213,27 +214,27 @@ module Caracal
                 a.effectStyleLst do
                   a.effectStyle do
                     a.effectLst do
-                      a.outerShdw blurRad: 40000, dist: 20000, dir: 5400000, rotWithShape: 0 do
+                      a.outerShdw blurRad: 40_000, dist: 20_000, dir: 5_400_000, rotWithShape: 0 do
                         a.srgbClr val: '000000' do
-                          a.alpha val: 38000
+                          a.alpha val: 38_000
                         end
                       end
                     end
                   end
                   a.effectStyle do
                     a.effectLst do
-                      a.outerShdw blurRad: 40000, dist: 23000, dir: 5400000, rotWithShape: 0 do
+                      a.outerShdw blurRad: 40_000, dist: 23_000, dir: 5_400_000, rotWithShape: 0 do
                         a.srgbClr val: '000000' do
-                          a.alpha val: 35000
+                          a.alpha val: 35_000
                         end
                       end
                     end
                   end
                   a.effectStyle do
                     a.effectLst do
-                      a.outerShdw blurRad: 40000, dist: 23000, dir: 5400000, rotWithShape: 0 do
+                      a.outerShdw blurRad: 40_000, dist: 23_000, dir: 5_400_000, rotWithShape: 0 do
                         a.srgbClr val: '000000' do
-                          a.alpha val: 35000
+                          a.alpha val: 35_000
                         end
                       end
                     end
@@ -242,11 +243,11 @@ module Caracal
                         a.rot lat: 0, lon: 0, rev: 0
                       end
                       a.lightRig rig: 'threePt', dir: 't' do
-                        a.rot lat: 0, lon: 0, rev: 1200000
+                        a.rot lat: 0, lon: 0, rev: 1_200_000
                       end
                     end
                     a.sp3d do
-                      a.bevelT w: 63500, h: 25400
+                      a.bevelT w: 63_500, h: 25_400
                     end
                   end
                 end
@@ -260,26 +261,26 @@ module Caracal
                     a.gsLst do
                       a.gs pos: 0 do
                         a.schemeClr val: 'phClr' do
-                          a.tint val: 40000
-                          a.satMod val: 350000
+                          a.tint val: 40_000
+                          a.satMod val: 350_000
                         end
                       end
-                      a.gs pos: 40000 do
+                      a.gs pos: 40_000 do
                         a.schemeClr val: 'phClr' do
-                          a.tint val: 45000
-                          a.shade val: 99000
-                          a.satMod val: 350000
+                          a.tint val: 45_000
+                          a.shade val: 99_000
+                          a.satMod val: 350_000
                         end
                       end
-                      a.gs pos: 100000 do
+                      a.gs pos: 100_000 do
                         a.schemeClr val: 'phClr' do
-                          a.shade val: 20000
-                          a.satMod val: 255000
+                          a.shade val: 20_000
+                          a.satMod val: 255_000
                         end
                       end
                     end
                     a.path path: 'circle' do
-                      a.fillToRect l: 50000, t: -80000, r: 50000, b: 180000
+                      a.fillToRect l: 50_000, t: -80_000, r: 50_000, b: 180_000
                     end
                   end
 
@@ -287,19 +288,19 @@ module Caracal
                     a.gsLst do
                       a.gs pos: 0 do
                         a.schemeClr val: 'phClr' do
-                          a.tint val: 80000
-                          a.satMod val: 300000
+                          a.tint val: 80_000
+                          a.satMod val: 300_000
                         end
                       end
-                      a.gs pos: 100000 do
+                      a.gs pos: 100_000 do
                         a.schemeClr val: 'phClr' do
-                          a.shade val: 30000
-                          a.satMod val: 200000
+                          a.shade val: 30_000
+                          a.satMod val: 200_000
                         end
                       end
                     end
                     a.path path: 'circle' do
-                      a.fillToRect l: 50000, t: 50000, r: 50000, b: 50000
+                      a.fillToRect l: 50_000, t: 50_000, r: 50_000, b: 50_000
                     end
                   end
                 end
@@ -310,17 +311,15 @@ module Caracal
           end
         end
 
-
         builder.to_xml save_options
       end
 
       def root_options
         {
           'xmlns:a' => 'http://schemas.openxmlformats.org/drawingml/2006/main',
-          'name'    => @theme.theme_name
+          'name' => @theme.theme_name
         }
       end
-
     end
   end
 end

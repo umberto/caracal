@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::LinkModel do
@@ -23,7 +25,6 @@ describe Caracal::Core::Models::LinkModel do
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # constants
     describe 'constants' do
       it { expect(described_class::DEFAULT_LINK_COLOR).to     eq '1155cc' }
@@ -45,25 +46,24 @@ describe Caracal::Core::Models::LinkModel do
       it { expect(subject.link_highlight_color).to eq 'yellow' }
       it { expect(subject.link_vertical_align).to eq :top }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== GETTERS ==========================
 
     # .run_attributes
     describe '.run_attributes' do
-      let(:expected) { { font: 'Courier New', color: '666666', size: 20, bold: false, italic: false, underline: true, bgcolor: 'cccccc', highlight_color: 'yellow', vertical_align: :top } }
+      let(:expected) do
+        { font: 'Courier New', color: '666666', size: 20, bold: false, italic: false, underline: true, bgcolor: 'cccccc',
+          highlight_color: 'yellow', vertical_align: :top }
+      end
 
       it { expect(subject.run_attributes.to_h).to eq expected }
     end
-
 
     #=============== SETTERS ==========================
 
@@ -123,7 +123,6 @@ describe Caracal::Core::Models::LinkModel do
       it { expect(subject.link_href).to eq 'http://www.google.com' }
     end
 
-
     #=============== STATE HELPERS ========================
 
     describe '.external?' do
@@ -139,41 +138,38 @@ describe Caracal::Core::Models::LinkModel do
       end
     end
 
-
     #=============== VALIDATION ===========================
 
     describe '.valid?' do
       describe 'when required attributes provided' do
         it { expect(subject.valid?).to eq true }
       end
-      [:content, :href].each do |prop|
-        describe "when #{ prop } nil" do
+      %i[content href].each do |prop|
+        describe "when #{prop} nil" do
           before do
-            allow(subject).to receive("link_#{ prop }").and_return(nil)
+            allow(subject).to receive("link_#{prop}").and_return(nil)
           end
 
           it { expect(subject.valid?).to eq false }
         end
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:content, :href, :end_tab, :internal, :style, :font, :color, :theme_color, :size, :bold, :highlight_color, :italic, :underline, :bgstyle, :bgcolor, :theme_bgcolor, :vertical_align, :whitespace, :strike, :small_caps, :caps, :rtl, :border, :border_bottom, :border_color, :border_horizontal, :border_left, :border_line, :border_right, :border_size, :border_spacing, :border_theme_color, :border_top, :border_vertical].sort }
+      let(:expected) do
+        %i[content href end_tab internal style font color theme_color size bold highlight_color italic underline bgstyle
+           bgcolor theme_bgcolor vertical_align whitespace strike small_caps caps rtl border border_bottom border_color border_horizontal border_left border_line border_right border_size border_spacing border_theme_color border_top border_vertical].sort
+      end
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::PageNumberModel do
@@ -16,7 +18,6 @@ describe Caracal::Core::Models::PageNumberModel do
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # constants
     describe 'constants' do
       it { expect(described_class::DEFAULT_PAGE_NUMBER_ALIGN).to eq :center }
@@ -30,16 +31,13 @@ describe Caracal::Core::Models::PageNumberModel do
       it { expect(subject.page_number_number_size).to eq 20 }
       it { expect(subject.page_number_show).to eq true }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== SETTERS ==============================
 
     # .align
@@ -85,7 +83,6 @@ describe Caracal::Core::Models::PageNumberModel do
       it { expect(subject.page_number_number_size).to eq 32 }
     end
 
-
     #=============== VALIDATIONS ==========================
 
     describe '.valid?' do
@@ -113,24 +110,19 @@ describe Caracal::Core::Models::PageNumberModel do
         it { expect(subject.valid?).to eq false }
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)   { subject.send(:option_keys).sort }
-      let(:expected) { [:align, :label, :label_size, :number_size, :show].sort }
+      let(:expected) { %i[align label label_size number_size show].sort }
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

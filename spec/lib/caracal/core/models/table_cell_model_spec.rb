@@ -1,16 +1,18 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Caracal::Core::Models::TableCellModel do
   subject do
     described_class.new do
-      bgcolor      'cccccc'
+      bgcolor 'cccccc'
       # margins do
-        top           101
-        bottom        102
-        left          103
-        right         104
+      top           101
+      bottom        102
+      left          103
+      right         104
       # end
-      width           2000
+      width 2000
       content_vertical_align :bottom
     end
   end
@@ -20,7 +22,6 @@ describe Caracal::Core::Models::TableCellModel do
   #-------------------------------------------------------------
 
   describe 'configuration tests' do
-
     # constants
     describe 'constants' do
       it { expect(described_class::DEFAULT_CELL_BGCOLOR).to        eq nil }
@@ -43,32 +44,25 @@ describe Caracal::Core::Models::TableCellModel do
       it { expect(subject.cell_width).to          eq 2000 }
       it { expect(subject.cell_content_vertical_align).to eq :bottom }
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Public Methods
   #-------------------------------------------------------------
 
   describe 'public method tests' do
-
     #=============== DATA ACCESSORS ====================
 
     describe 'data tests' do
-
       # .contents
       describe '.contents' do
         it { expect(subject.contents).to be_a(Array) }
       end
-
     end
-
 
     #=============== GETTERS ==========================
 
     describe 'getter tests' do
-
       # margin attrs
       describe 'margin attr tests' do
         before do
@@ -83,9 +77,7 @@ describe Caracal::Core::Models::TableCellModel do
         it { expect(subject.cell_left).to eq 203 }
         it { expect(subject.cell_right).to eq 204 }
       end
-
     end
-
 
     #=============== SETTERS ==========================
 
@@ -103,7 +95,7 @@ describe Caracal::Core::Models::TableCellModel do
       it { expect(subject.cell_width).to eq 7500 }
     end
 
-    #.vertical_allign
+    # .vertical_allign
     describe '.vertical_align' do
       before { subject.vertical_align(:center) }
 
@@ -138,7 +130,7 @@ describe Caracal::Core::Models::TableCellModel do
     end
 
     describe '.border_top theme_color with hash args' do
-      before { subject.border_top theme_color: {ref: :dark2, color: '333333'} }
+      before { subject.border_top theme_color: { ref: :dark2, color: '333333' } }
 
       it { expect(subject.cell_border_top_theme_color).to be_a Caracal::Core::Models::ThemeColorModel }
       it { expect(subject.cell_border_top_theme_color.theme_color_ref).to eq :dark2 }
@@ -176,11 +168,9 @@ describe Caracal::Core::Models::TableCellModel do
       it { expect(subject.cell_border_top_theme_color.theme_color_val).to eq '333333' }
     end
 
-
     #=============== CONTENT FNS =======================
 
     describe 'content functions' do
-
       # .p
       describe '.p' do
         let!(:size) { subject.contents.size }
@@ -250,8 +240,8 @@ describe Caracal::Core::Models::TableCellModel do
       end
 
       # text
-      [:p, :h1, :h2, :h3, :h4, :h5, :h6].each do |cmd|
-        describe ".#{ cmd }" do
+      %i[p h1 h2 h3 h4 h5 h6].each do |cmd|
+        describe ".#{cmd}" do
           let!(:size) { subject.contents.size }
 
           before { subject.send(cmd, 'Sample text.') }
@@ -260,9 +250,7 @@ describe Caracal::Core::Models::TableCellModel do
           it { expect(subject.contents.last).to be_a(Caracal::Core::Models::ParagraphModel) }
         end
       end
-
     end
-
 
     #=============== VALIDATION ========================
 
@@ -278,24 +266,22 @@ describe Caracal::Core::Models::TableCellModel do
         it { expect(subject.valid?).to eq false }
       end
     end
-
   end
-
 
   #-------------------------------------------------------------
   # Private Methods
   #-------------------------------------------------------------
 
   describe 'private method tests' do
-
     # .option_keys
     describe '.option_keys' do
       let(:actual)     { subject.send(:option_keys).sort }
-      let(:expected)   { [:bgcolor, :bgstyle, :border, :border_color, :border_line, :border_size, :border_spacing, :border_theme_color, :bottom, :colspan, :left, :right, :rowspan, :style, :theme_bgcolor, :top, :vertical_align, :content_vertical_align, :width, :border_bottom, :border_horizontal, :border_vertical, :border_top, :border_left, :border_right, :font, :caps, :small_caps, :highlight_color, :italic, :align, :bold, :rtl, :size, :strike, :underline, :whitespace, :color, :theme_color].sort }
+      let(:expected)   do
+        %i[bgcolor bgstyle border border_color border_line border_size border_spacing border_theme_color bottom colspan left
+           right rowspan style theme_bgcolor top vertical_align content_vertical_align width border_bottom border_horizontal border_vertical border_top border_left border_right font caps small_caps highlight_color italic align bold rtl size strike underline whitespace color theme_color].sort
+      end
 
       it { expect(actual).to eq expected }
     end
-
   end
-
 end

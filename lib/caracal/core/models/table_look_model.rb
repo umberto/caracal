@@ -1,10 +1,10 @@
-require 'caracal/core/models/base_model'
+# frozen_string_literal: true
 
+require 'caracal/core/models/base_model'
 
 module Caracal
   module Core
     module Models
-
       # This class handles block options passed to the look
       # method.
       #
@@ -18,7 +18,7 @@ module Caracal
         has_boolean_attribute :hband, default: true
         has_boolean_attribute :vband, default: true
 
-        def initialize(options={}, &block)
+        def initialize(options = {}, &block)
           @table_look_first_row = DEFAULT_TABLE_LOOK_FIRST_ROW
           @table_look_last_row  = DEFAULT_TABLE_LOOK_LAST_ROW
           @table_look_first_col = DEFAULT_TABLE_LOOK_FIRST_COL
@@ -68,7 +68,7 @@ module Caracal
         #=============== VALIDATION ==============================
 
         def valid?
-          option_keys.all? {|o| validate_inclusion o, within: [true, false, nil] }
+          option_keys.all? { |o| validate_inclusion o, within: [true, false, nil] }
         end
 
         #-------------------------------------------------------------
@@ -77,11 +77,9 @@ module Caracal
         private
 
         def option_keys
-          [:first_col, :last_col, :first_row, :last_row, :hband, :vband, :no_hband, :no_vband]
+          %i[first_col last_col first_row last_row hband vband no_hband no_vband]
         end
-
       end
-
     end
   end
 end
